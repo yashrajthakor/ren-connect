@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -7,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import renLogo from "@/assets/ren-logo.png";
 
 const loginSchema = z.object({
@@ -29,6 +31,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const {
     register,
@@ -42,13 +45,36 @@ const Login = () => {
     setIsLoading(true);
     
     try {
-      // Supabase authentication will be integrated here
-      // For now, show a message that Supabase needs to be connected
-      toast({
-        title: "Supabase Required",
-        description: "Please connect Supabase to enable authentication.",
-        variant: "destructive",
+      const { error } = await supabase.auth.signInWithPassword({
+        email: data.email,
+        password: data.password,
       });
+
+      if (error) {
+        let message = "An error occurred during sign in.";
+        
+        if (error.message.includes("Invalid login credentials")) {
+          message = "Invalid email or password. Please try again.";
+        } else if (error.message.includes("Email not confirmed")) {
+          message = "Please verify your email before signing in.";
+        } else if (error.message.includes("Too many requests")) {
+          message = "Too many attempts. Please wait and try again.";
+        }
+        
+        toast({
+          title: "Sign In Failed",
+          description: message,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Welcome back!",
+        description: "You have successfully signed in.",
+      });
+      
+      navigate("/");
     } catch (error) {
       toast({
         title: "Error",
