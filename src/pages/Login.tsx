@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { testSupabaseConnection, testAuth } from "@/utils/test-supabase";
 import renLogo from "@/assets/ren-logo.png";
 
 const loginSchema = z.object({
@@ -41,24 +42,76 @@ const Login = () => {
     resolver: zodResolver(loginSchema),
   });
 
+  // Test Supabase configuration on mount (development only)
+  useEffect(() => {
+    if (import.meta.env.DEV) {
+      const testConfig = async () => {
+        console.log("🔍 Testing Supabase configuration...");
+        const report = await testSupabaseConnection();
+        console.log("📊 Configuration Report:", report);
+        
+        if (report.error) {
+          console.error("❌ Configuration Error:", report.error);
+        } else {
+          console.log("✅ Supabase is properly configured");
+        }
+      };
+      
+      testConfig();
+      
+      // Make test functions available globally for console debugging
+      (window as any).testSupabase = async () => {
+        await testConfig();
+        await testAuth();
+      };
+    }
+  }, []);
+
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
     
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: data.email,
+      const { data: authData, error } = await supabase.auth.signInWithPassword({
+        email: data.email.trim(),
         password: data.password,
       });
 
       if (error) {
+        console.error("Sign in error:", error);
+        console.error("Error details:", {
+          message: error.message,
+          status: error.status,
+          name: error.name,
+        });
+        
         let message = "An error occurred during sign in.";
         
-        if (error.message.includes("Invalid login credentials")) {
+        // Handle specific error cases
+        if (error.message.includes("Invalid login credentials") || 
+            error.message.includes("invalid_credentials") ||
+            error.status === 400) {
           message = "Invalid email or password. Please try again.";
-        } else if (error.message.includes("Email not confirmed")) {
+        } else if (error.message.includes("Email not confirmed") || 
+                   error.message.includes("email_not_confirmed")) {
           message = "Please verify your email before signing in.";
-        } else if (error.message.includes("Too many requests")) {
+        } else if (error.message.includes("Too many requests") || 
+                   error.message.includes("too_many_requests")) {
           message = "Too many attempts. Please wait and try again.";
+        } else if (error.message.includes("User not found")) {
+          message = "No account found with this email address.";
+        } else if (error.message.includes("Failed to fetch") || 
+                   error.message.includes("ERR_NAME_NOT_RESOLVED") ||
+                   error.message.includes("NetworkError") ||
+                   error.name === "AuthRetryableFetchError") {
+          message = "Cannot connect to authentication server. Please check your internet connection and verify the Supabase configuration.";
+          console.error("⚠️ Network/DNS Error - The Supabase URL may be incorrect or unreachable.");
+          console.error("Current URL:", import.meta.env.VITE_SUPABASE_URL || "https://xybjydgqwthvzpgwhgah.supabase.co");
+        } else if (error.message.includes("Network") || 
+                   error.message.includes("fetch")) {
+          message = "Network error. Please check your connection and try again.";
+        } else {
+          // Show the actual error message for debugging
+          message = error.message || "An error occurred during sign in.";
         }
         
         toast({
@@ -66,19 +119,47 @@ const Login = () => {
           description: message,
           variant: "destructive",
         });
+        setIsLoading(false);
         return;
       }
 
-      toast({
-        title: "Welcome back!",
-        description: "You have successfully signed in.",
-      });
-      
-      navigate("/");
+      // Check if we got a session
+      if (authData?.session) {
+        toast({
+          title: "Welcome back!",
+          description: "You have successfully signed in.",
+        });
+        
+        navigate("/");
+      } else {
+        toast({
+          title: "Sign In Failed",
+          description: "No session was created. Please try again.",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
+      console.error("Unexpected sign in error:", error);
+      
+      let errorMessage = "An unexpected error occurred. Please try again.";
+      
+      if (error instanceof Error) {
+        if (error.message.includes("Failed to fetch") || 
+            error.message.includes("ERR_NAME_NOT_RESOLVED") ||
+            error.message.includes("NetworkError")) {
+          errorMessage = "Cannot connect to authentication server. The Supabase URL may be incorrect or the project may not exist. Please check your Supabase configuration.";
+          console.error("⚠️ CRITICAL: Supabase URL cannot be resolved. Please verify:");
+          console.error("1. The Supabase project exists in your dashboard");
+          console.error("2. The URL is correct (Settings > API > Project URL)");
+          console.error("3. The project is not paused or deleted");
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
       toast({
-        title: "Error",
-        description: "An unexpected error occurred. Please try again.",
+        title: "Connection Error",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
