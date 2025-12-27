@@ -38,7 +38,8 @@ const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
           return;
         }
 
-        const roleName = (roles?.[0] as any)?.roles?.name || "member";
+        const roleName = ((roles?.[0] as any)?.roles?.name || "member").toLowerCase();
+        console.log("ProtectedRoute - User role:", roleName); // Debug log
         setUserRole(roleName);
       } catch (error) {
         console.error("Auth check error:", error);
