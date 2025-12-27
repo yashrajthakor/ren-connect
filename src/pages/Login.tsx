@@ -135,14 +135,15 @@ const Login = () => {
           console.error("Error fetching role:", roleError);
         }
 
-        const role = (roles?.[0] as any)?.roles?.name;
+        const role = (roles?.[0] as any)?.roles?.name?.toLowerCase();
+        console.log("User role:", role); // Debug log
         
         toast({
           title: "Welcome back!",
           description: "You have successfully signed in.",
         });
         
-        // Route based on role
+        // Route based on role (case-insensitive)
         if (role === "super_admin" || role === "admin") {
           navigate("/admin");
         } else {
