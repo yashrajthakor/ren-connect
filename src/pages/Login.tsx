@@ -124,13 +124,30 @@ const Login = () => {
       }
 
       // Check if we got a session
-      if (authData?.session) {
+      if (authData?.session && authData?.user) {
+        // Fetch user role for routing
+        const { data: roles, error: roleError } = await supabase
+          .from("user_roles")
+          .select("roles(name)")
+          .eq("user_id", authData.user.id);
+
+        if (roleError) {
+          console.error("Error fetching role:", roleError);
+        }
+
+        const role = (roles?.[0] as any)?.roles?.name;
+        
         toast({
           title: "Welcome back!",
           description: "You have successfully signed in.",
         });
         
-        navigate("/");
+        // Route based on role
+        if (role === "super_admin" || role === "admin") {
+          navigate("/admin");
+        } else {
+          navigate("/member");
+        }
       } else {
         toast({
           title: "Sign In Failed",
