@@ -7,6 +7,9 @@ import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Admin from "./pages/Admin";
 import Member from "./pages/Member";
+import Cities from "./pages/admin/Cities";
+import Chapters from "./pages/admin/Chapters";
+import Members from "./pages/admin/Members";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -26,6 +29,30 @@ const App = () => (
             element={
               <ProtectedRoute allowedRoles={["admin", "super_admin"]}>
                 <Admin />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/cities" 
+            element={
+              <ProtectedRoute allowedRoles={["admin", "super_admin"]}>
+                <Cities />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/chapters" 
+            element={
+              <ProtectedRoute allowedRoles={["admin", "super_admin"]}>
+                <Chapters />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/members" 
+            element={
+              <ProtectedRoute allowedRoles={["admin", "super_admin"]}>
+                <Members />
               </ProtectedRoute>
             } 
           />
