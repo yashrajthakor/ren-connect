@@ -18,12 +18,35 @@ const Admin = () => {
       if (user) {
         setUserEmail(user.email || "");
         
-        const { data: roles } = await supabase
-          .from("user_roles")
-          .select("roles(name)")
-          .eq("user_id", user.id);
-        
-        const roleName = (roles?.[0] as any)?.roles?.name || "admin";
+        // Resolve role via role_id -> roles.name to avoid nested relationship recursion
+        let roleName = "admin";
+        try {
+          const { data: ur, error: urError } = await supabase
+            .from("user_roles")
+            .select("role_id")
+            .eq("user_id", user.id)
+            .limit(1)
+            .maybeSingle();
+
+          if (urError) {
+            console.error("Error fetching user_roles:", urError);
+          } else if (ur?.role_id) {
+            const { data: roleData, error: roleFetchError } = await supabase
+              .from("roles")
+              .select("name")
+              .eq("id", ur.role_id)
+              .limit(1)
+              .maybeSingle();
+
+            if (roleFetchError) {
+              console.error("Error fetching role name:", roleFetchError);
+            } else if (roleData?.name) {
+              roleName = roleData.name;
+            }
+          }
+        } catch (err) {
+          console.error("Unexpected error fetching role:", err);
+        }
         setUserRole(roleName);
       }
     };

@@ -26,19 +26,40 @@ const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
 
         setUser(user);
 
-        // Fetch user role
-        const { data: roles, error } = await supabase
-          .from("user_roles")
-          .select("roles(name)")
-          .eq("user_id", user.id);
+        // Fetch user role safely (role_id -> roles.name)
+        let roleName = "member";
+        try {
+          const { data: ur, error: urError } = await supabase
+            .from("user_roles")
+            .select("role_id")
+            .eq("user_id", user.id)
+            .limit(1)
+            .maybeSingle();
 
-        if (error) {
-          console.error("Error fetching role:", error);
-          setLoading(false);
-          return;
+          if (urError) {
+            console.error("Error fetching user_roles:", urError);
+            setLoading(false);
+            return;
+          }
+
+          if (ur?.role_id) {
+            const { data: roleData, error: roleFetchError } = await supabase
+              .from("roles")
+              .select("name")
+              .eq("id", ur.role_id)
+              .limit(1)
+              .maybeSingle();
+
+            if (roleFetchError) {
+              console.error("Error fetching role name:", roleFetchError);
+            } else if (roleData?.name) {
+              roleName = (roleData.name as string).toLowerCase();
+            }
+          }
+        } catch (err) {
+          console.error("Unexpected error fetching role:", err);
         }
 
-        const roleName = ((roles?.[0] as any)?.roles?.name || "member").toLowerCase();
         console.log("ProtectedRoute - User role:", roleName); // Debug log
         setUserRole(roleName);
       } catch (error) {
