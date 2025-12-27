@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, Shield, Users, Settings } from "lucide-react";
+import { LogOut, Shield, MapPin, Users, Building2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -39,6 +39,33 @@ const Admin = () => {
     navigate("/login");
   };
 
+  const actionCards = [
+    {
+      title: "Add City",
+      description: "Create a new city location",
+      icon: MapPin,
+      href: "/admin/cities",
+    },
+    {
+      title: "Add Chapter",
+      description: "Create a new chapter",
+      icon: Building2,
+      href: "/admin/chapters",
+    },
+    {
+      title: "Add Member",
+      description: "Register a new member",
+      icon: Users,
+      href: "/admin/members",
+    },
+  ];
+
+  const stats = [
+    { label: "Total Cities", value: "--", icon: MapPin },
+    { label: "Total Chapters", value: "--", icon: Building2 },
+    { label: "Total Members", value: "--", icon: Users },
+  ];
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -73,62 +100,52 @@ const Admin = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-display font-bold text-foreground">
-            Welcome, Administrator
+            Admin Dashboard
           </h1>
           <p className="text-muted-foreground mt-1">
-            Manage members, roles, and system settings
+            Manage cities, chapters, and members
           </p>
         </div>
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-card rounded-xl border border-border p-6 shadow-sm">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-primary/10 rounded-lg">
-                <Users className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Total Members</p>
-                <p className="text-2xl font-bold text-foreground">--</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-card rounded-xl border border-border p-6 shadow-sm">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-primary/10 rounded-lg">
-                <Shield className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Admins</p>
-                <p className="text-2xl font-bold text-foreground">--</p>
+        {/* Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          {stats.map((stat) => (
+            <div key={stat.label} className="bg-card rounded-lg border border-border p-4 shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-primary/10 rounded-md">
+                  <stat.icon className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">{stat.label}</p>
+                  <p className="text-xl font-bold text-foreground">{stat.value}</p>
+                </div>
               </div>
             </div>
-          </div>
-          
-          <div className="bg-card rounded-xl border border-border p-6 shadow-sm">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-primary/10 rounded-lg">
-                <Settings className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">System Status</p>
-                <p className="text-2xl font-bold text-green-600">Active</p>
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
 
-        {/* Placeholder Content */}
-        <div className="bg-card rounded-xl border border-border p-8 shadow-sm text-center">
-          <Shield className="h-12 w-12 text-primary mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-foreground mb-2">
-            Admin Dashboard
-          </h2>
-          <p className="text-muted-foreground max-w-md mx-auto">
-            This is the admin control panel. Add member management, role assignments, 
-            and other administrative features here.
-          </p>
+        {/* Action Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {actionCards.map((card) => (
+            <button
+              key={card.title}
+              onClick={() => navigate(card.href)}
+              className="bg-card rounded-xl border border-border p-6 shadow-sm hover:shadow-md hover:border-primary/50 transition-all text-left group"
+            >
+              <div className="flex items-start gap-4">
+                <div className="p-3 bg-primary/10 rounded-lg group-hover:bg-primary/20 transition-colors">
+                  <card.icon className="h-6 w-6 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <Plus className="h-4 w-4 text-primary" />
+                    <h3 className="font-semibold text-foreground">{card.title}</h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground mt-1">{card.description}</p>
+                </div>
+              </div>
+            </button>
+          ))}
         </div>
       </main>
     </div>
