@@ -5,8 +5,25 @@ import PublicLayout from "@/components/public/PublicLayout";
 import MemberCard from "@/components/public/MemberCard";
 import { categories, members } from "@/data/members";
 import { cn } from "@/lib/utils";
+import { useT } from "@/i18n/LanguageProvider";
+import type { TranslationKey } from "@/i18n/translations";
+
+const catKeyMap: Record<string, TranslationKey> = {
+  All: "dir.cat.All",
+  Manufacturing: "dir.cat.Manufacturing",
+  "Real Estate": "dir.cat.RealEstate",
+  Finance: "dir.cat.Finance",
+  Technology: "dir.cat.Technology",
+  Retail: "dir.cat.Retail",
+  Trading: "dir.cat.Trading",
+  Services: "dir.cat.Services",
+  Startups: "dir.cat.Startups",
+  Travel: "dir.cat.Travel",
+  "Export/Import": "dir.cat.ExportImport",
+};
 
 const Directory = () => {
+  const t = useT();
   const [query, setQuery] = useState("");
   const [active, setActive] = useState("All");
 
@@ -29,14 +46,13 @@ const Directory = () => {
       <section className="bg-gradient-royal text-card">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary mb-3">
-            Business Directory
+            {t("dir.eyebrow")}
           </p>
           <h1 className="font-display font-bold text-4xl sm:text-5xl mb-4">
-            Discover REN Entrepreneurs
+            {t("dir.heading")}
           </h1>
           <p className="text-card/75 max-w-2xl">
-            Search across industries, cities and services. Connect directly with verified Rajput
-            business owners.
+            {t("dir.desc")}
           </p>
 
           <div className="mt-8 max-w-2xl">
@@ -45,7 +61,7 @@ const Directory = () => {
               <Input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search by name, business, service or city..."
+                placeholder={t("dir.searchPlaceholder")}
                 className="pl-12 h-12 bg-card text-foreground"
               />
             </div>
@@ -66,14 +82,14 @@ const Directory = () => {
                   : "bg-card text-secondary border-border hover:border-primary/50",
               )}
             >
-              {c}
+              {catKeyMap[c] ? t(catKeyMap[c]) : c}
             </button>
           ))}
         </div>
 
         {filtered.length === 0 ? (
           <div className="text-center py-20 text-muted-foreground">
-            No members match your search.
+            {t("dir.empty")}
           </div>
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
