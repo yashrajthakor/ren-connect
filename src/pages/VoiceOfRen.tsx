@@ -1,5 +1,7 @@
 import { Quote, Star, TrendingUp, Users } from "lucide-react";
 import PublicLayout from "@/components/public/PublicLayout";
+import { useT } from "@/i18n/LanguageProvider";
+import type { TranslationKey } from "@/i18n/translations";
 
 const stories = [
   {
@@ -33,34 +35,40 @@ const stories = [
 ];
 
 const VoiceOfRen = () => {
+  const t = useT();
+  const statLabels: TranslationKey[] = [
+    "voice.s.voices",
+    "voice.s.referrals",
+    "voice.s.satisfaction",
+    "voice.s.stories",
+  ];
   return (
     <PublicLayout>
       <section className="bg-gradient-royal text-card">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary mb-3">
-            Voice of REN
+            {t("voice.eyebrow")}
           </p>
           <h1 className="font-display font-bold text-4xl sm:text-5xl max-w-3xl">
-            Real members. Real referrals. Real growth.
+            {t("voice.heading")}
           </h1>
           <p className="mt-5 text-card/75 max-w-2xl text-lg">
-            Every story below represents a partnership born inside REN — a deal won, a client met, a
-            business scaled through trust.
+            {t("voice.desc")}
           </p>
         </div>
       </section>
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { icon: Users, value: "500+", label: "Member voices" },
-          { icon: TrendingUp, value: "1,200+", label: "Referrals shared" },
-          { icon: Star, value: "98%", label: "Member satisfaction" },
-          { icon: Quote, value: "320+", label: "Success stories" },
+          { icon: Users, value: "500+", labelKey: statLabels[0] },
+          { icon: TrendingUp, value: "1,200+", labelKey: statLabels[1] },
+          { icon: Star, value: "98%", labelKey: statLabels[2] },
+          { icon: Quote, value: "320+", labelKey: statLabels[3] },
         ].map((s) => (
-          <div key={s.label} className="bg-card border border-border rounded-xl p-5 text-center">
+          <div key={s.labelKey} className="bg-card border border-border rounded-xl p-5 text-center">
             <s.icon className="h-6 w-6 text-primary mx-auto mb-2" />
             <div className="font-display font-bold text-2xl text-secondary">{s.value}</div>
-            <div className="text-xs uppercase tracking-wider text-muted-foreground">{s.label}</div>
+            <div className="text-xs uppercase tracking-wider text-muted-foreground">{t(s.labelKey)}</div>
           </div>
         ))}
       </section>
