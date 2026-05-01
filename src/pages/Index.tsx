@@ -115,19 +115,28 @@ const industries = [
   "Agriculture",
 ];
 
-const chapters = [
-  "Jaipur",
-  "Jodhpur",
-  "Udaipur",
-  "Mumbai",
-  "Pune",
-  "Bengaluru",
-  "Ahmedabad",
-  "Surat",
-  "Delhi NCR",
-  "Hyderabad",
-  "Indore",
-  "Jaisalmer",
+
+const sponsors: { category: string; name: string; logo: string }[] = [
+  {
+    category: "",
+    name: "global compunet, Chalthan",
+    logo: "https://fplogoimages.withfloats.com/actual/69c8cbb00a0740db5e86f3b3.jpeg",
+  },
+  {
+    category: "",
+    name: "Thinknlink AI Solution, Surat",
+    logo: "https://www.thinknlink.in/lovable-uploads/ThinkNLink%20logo%20White.png",
+  },
+  {
+    category: "",
+    name: "Homeify Decor&Furnishing",
+    logo: "https://scontent.famd21-1.fna.fbcdn.net/v/t39.30808-6/393154366_122095830638143504_3446062251949276181_n.jpg?_nc_cat=100&ccb=1-7&_nc_sid=1d70fc&_nc_ohc=K6X2S_ZxdW4Q7kNvwFx7fOA&_nc_oc=Adqq-wtUOyhNXKrMmYi_7uokVawLrC5HwYPJ92w8NT8021-6uoqNGc78vQxEzO6q9GENJUIdpEb0VeA3sn6goviL&_nc_zt=23&_nc_ht=scontent.famd21-1.fna&_nc_gid=FlYllgMglSbp3y0r6mXaBQ&_nc_ss=7b289&oh=00_Af4Ms2zLEqd4JFYI5CzO9DabxNxBZjl-ct4p-SPmZutSDQ&oe=69FA0D8F",
+  },
+  {
+    category: "",
+    name: "Get set fly",
+    logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQurHrPdL-zEBwcXzkqW-v74ILR9iFDisVbIw&s",
+  },
 ];
 
 const Index = () => {
@@ -234,16 +243,35 @@ const Index = () => {
         </div>
       </section>
 
+      {/* MARQUEE — sponsors */}
+      <section className="bg-secondary text-card/70 border-y border-card/10 overflow-hidden py-5">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-4">
+          <h2 className="text-lg font-semibold uppercase tracking-[0.25em] text-primary">
+            Our key sponsors
+          </h2>
+        </div>
+        <div className="flex gap-16 whitespace-nowrap animate-marquee px-4 sm:px-6 lg:px-8">
+          {[...sponsors, ...sponsors].map((sponsor, i) => (
+            <div
+              key={i}
+              className="flex items-center gap-4 text-sm font-semibold tracking-wider uppercase"
+            >
+              <span className="text-primary">{sponsor.category}</span>
+              <img
+                src={sponsor.logo}
+                alt={sponsor.name}
+                className="h-8 w-auto object-contain rounded-sm"
+              />
+              <span>{sponsor.name}</span>
+              <span className="text-primary text-lg">◆</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* MARQUEE — chapters */}
       <section className="bg-secondary text-card/70 border-y border-card/10 overflow-hidden py-5">
         <div className="flex gap-12 whitespace-nowrap animate-marquee">
-          {[...chapters, ...chapters].map((c, i) => (
-            <div key={i} className="flex items-center gap-3 text-sm font-semibold tracking-wider uppercase">
-              <Building2 className="h-4 w-4 text-primary" />
-              REN {c} Chapter
-              <span className="text-primary">◆</span>
-            </div>
-          ))}
         </div>
       </section>
 
