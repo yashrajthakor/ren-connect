@@ -10,6 +10,8 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import renLogo from "@/assets/ren-logo.png";
+import { useT } from "@/i18n/LanguageProvider";
+import LanguageSwitcher from "@/components/public/LanguageSwitcher";
 
 const schema = z.object({
   fullName: z.string().trim().min(2, "Full name is required").max(120),
@@ -24,6 +26,7 @@ const Signup = () => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const t = useT();
 
   const {
     register,
@@ -64,20 +67,23 @@ const Signup = () => {
       </div>
 
       <div className="relative z-10 w-full max-w-md animate-fade-in">
+        <div className="flex justify-end mb-4">
+          <LanguageSwitcher />
+        </div>
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center mb-4 bg-card/90 backdrop-blur-sm rounded-2xl p-4 shadow-lg">
             <img src={renLogo} alt="REN" className="h-14 w-auto" />
           </div>
-          <h1 className="text-2xl font-display font-bold text-card mb-1">Apply to join REN</h1>
+          <h1 className="text-2xl font-display font-bold text-card mb-1">{t("signup.heading")}</h1>
           <p className="text-card/70 text-sm">
-            Become part of the Rajput Entrepreneur Network
+            {t("signup.subtitle")}
           </p>
         </div>
 
         <div className="bg-card rounded-2xl shadow-2xl p-8 border border-border/50">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
-              <Label htmlFor="fullName">Full Name</Label>
+              <Label htmlFor="fullName">{t("signup.fullName")}</Label>
               <div className="relative mt-1">
                 <User className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input id="fullName" className="pl-11" placeholder="Rajveer Singh" {...register("fullName")} />
@@ -86,7 +92,7 @@ const Signup = () => {
             </div>
 
             <div>
-              <Label htmlFor="phone">Phone</Label>
+              <Label htmlFor="phone">{t("signup.phone")}</Label>
               <div className="relative mt-1">
                 <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input id="phone" className="pl-11" placeholder="+91 98xxxxxxxx" {...register("phone")} />
@@ -95,7 +101,7 @@ const Signup = () => {
             </div>
 
             <div>
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t("signup.email")}</Label>
               <div className="relative mt-1">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input id="email" type="email" className="pl-11" placeholder="you@company.com" {...register("email")} />
@@ -104,7 +110,7 @@ const Signup = () => {
             </div>
 
             <div>
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t("signup.password")}</Label>
               <div className="relative mt-1">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -127,14 +133,14 @@ const Signup = () => {
             </div>
 
             <Button type="submit" variant="royal" size="lg" className="w-full" disabled={loading}>
-              {loading ? "Submitting..." : "Submit Application"}
+              {loading ? t("signup.submitting") : t("signup.submit")}
             </Button>
           </form>
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
-            Already a member?{" "}
+            {t("signup.already")}{" "}
             <Link to="/login" className="text-primary font-medium hover:underline">
-              Sign in
+              {t("signup.signIn")}
             </Link>
           </p>
         </div>

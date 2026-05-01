@@ -11,6 +11,8 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { testSupabaseConnection, testAuth } from "@/utils/test-supabase";
 import renLogo from "@/assets/ren-logo.png";
+import { useT } from "@/i18n/LanguageProvider";
+import LanguageSwitcher from "@/components/public/LanguageSwitcher";
 
 const loginSchema = z.object({
   email: z
@@ -33,6 +35,7 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const t = useT();
 
   const {
     register,
@@ -215,6 +218,9 @@ const Login = () => {
       {/* Main content */}
       <main className="flex-1 flex items-center justify-center px-4 py-8 relative z-10">
         <div className="w-full max-w-md animate-fade-in">
+          <div className="flex justify-end mb-4">
+            <LanguageSwitcher />
+          </div>
           {/* Logo and Header */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center mb-6 bg-card/90 backdrop-blur-sm rounded-2xl p-4 shadow-lg">
@@ -225,10 +231,10 @@ const Login = () => {
               />
             </div>
             <h1 className="text-2xl font-display font-bold text-card mb-2">
-              Welcome Back
+              {t("login.welcome")}
             </h1>
             <p className="text-card/70 text-sm">
-              Sign in to access your member portal
+              {t("login.subtitle")}
             </p>
           </div>
 
@@ -238,7 +244,7 @@ const Login = () => {
               {/* Email Field */}
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-sm font-medium text-foreground">
-                  Email Address
+                  {t("login.email")}
                 </Label>
                 <div className="relative">
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -261,7 +267,7 @@ const Login = () => {
               {/* Password Field */}
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-sm font-medium text-foreground">
-                  Password
+                  {t("login.password")}
                 </Label>
                 <div className="relative">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -299,7 +305,7 @@ const Login = () => {
                   type="button"
                   className="text-sm text-primary hover:text-primary/80 transition-colors font-medium"
                 >
-                  Forgot password?
+                  {t("login.forgot")}
                 </button>
               </div>
 
@@ -314,10 +320,10 @@ const Login = () => {
                 {isLoading ? (
                   <span className="flex items-center gap-2">
                     <span className="h-4 w-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                    Signing in...
+                    {t("login.signingIn")}
                   </span>
                 ) : (
-                  "Sign In"
+                  t("login.signIn")
                 )}
               </Button>
             </form>
@@ -325,10 +331,10 @@ const Login = () => {
             {/* Invite-only notice */}
             <div className="mt-6 pt-6 border-t border-border">
               <p className="text-center text-sm text-muted-foreground">
-                This is a members-only portal.
+                {t("login.notice1")}
                 <br />
                 <span className="text-foreground/80">
-                  Contact an administrator if you need access.
+                  {t("login.notice2")}
                 </span>
               </p>
             </div>
@@ -336,7 +342,7 @@ const Login = () => {
 
           {/* Footer */}
           <p className="text-center text-xs text-secondary-foreground/50 mt-8">
-            © {new Date().getFullYear()} Rajput Entrepreneur Network. All rights reserved.
+            © {new Date().getFullYear()} {t("common.brandFull")}. {t("footer.rights")}
           </p>
         </div>
       </main>
