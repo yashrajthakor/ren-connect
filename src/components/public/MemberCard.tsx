@@ -1,8 +1,10 @@
 import { Mail, Phone, MapPin, MessageCircle, QrCode, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Member } from "@/data/members";
+import { useT } from "@/i18n/LanguageProvider";
 
 const MemberCard = ({ member }: { member: Member }) => {
+  const t = useT();
   return (
     <article className="group relative overflow-hidden rounded-2xl bg-card border border-border shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
       {/* Slanted brand banner */}
@@ -14,7 +16,7 @@ const MemberCard = ({ member }: { member: Member }) => {
         {member.featured && (
           <div className="absolute top-3 right-3 flex items-center gap-1 bg-card/95 text-primary px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow">
             <Star className="h-3 w-3 fill-primary" />
-            Featured
+            {t("card.featured")}
           </div>
         )}
         <div className="absolute -bottom-10 left-6">
@@ -61,7 +63,7 @@ const MemberCard = ({ member }: { member: Member }) => {
         <div className="mt-5 flex items-center gap-2">
           <Button size="sm" variant="royal" className="flex-1">
             <MessageCircle className="h-4 w-4" />
-            Connect
+            {t("card.connect")}
           </Button>
           <Button size="sm" variant="outline" aria-label="QR Code">
             <QrCode className="h-4 w-4" />

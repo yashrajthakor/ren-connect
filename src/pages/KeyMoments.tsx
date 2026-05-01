@@ -1,5 +1,6 @@
 import { Calendar, MapPin, Trophy } from "lucide-react";
 import PublicLayout from "@/components/public/PublicLayout";
+import { useT } from "@/i18n/LanguageProvider";
 
 const moments = [
   {
@@ -45,18 +46,19 @@ const moments = [
 ];
 
 const KeyMoments = () => {
+  const t = useT();
   return (
     <PublicLayout>
       <section className="bg-gradient-royal text-card">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary mb-3">
-            Key Moments
+            {t("km.eyebrow")}
           </p>
           <h1 className="font-display font-bold text-4xl sm:text-5xl max-w-3xl">
-            The journey of a community in motion.
+            {t("km.heading")}
           </h1>
           <p className="mt-5 text-card/75 max-w-2xl text-lg">
-            Milestones, meetings and memories that mark the growth of the Rajput Entrepreneur Network.
+            {t("km.desc")}
           </p>
         </div>
       </section>

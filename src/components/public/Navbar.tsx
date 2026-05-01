@@ -4,18 +4,21 @@ import { Menu, X, LogIn, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import renLogo from "@/assets/ren-logo.png";
 import { cn } from "@/lib/utils";
-
-const navItems = [
-  { to: "/", label: "Home" },
-  { to: "/directory", label: "Directory" },
-  { to: "/key-moments", label: "Key Moments" },
-  { to: "/about", label: "About" },
-  { to: "/voice", label: "Voice of REN" },
-];
+import { useT } from "@/i18n/LanguageProvider";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
   const location = useLocation();
+  const t = useT();
+
+  const navItems = [
+    { to: "/", label: t("nav.home") },
+    { to: "/directory", label: t("nav.directory") },
+    { to: "/key-moments", label: t("nav.keyMoments") },
+    { to: "/about", label: t("nav.about") },
+    { to: "/voice", label: t("nav.voice") },
+  ];
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-card/85 backdrop-blur-md shadow-sm">
@@ -24,9 +27,9 @@ const Navbar = () => {
           <Link to="/" className="flex items-center gap-3 group" onClick={() => setOpen(false)}>
             <img src={renLogo} alt="REN — Rajput Entrepreneur Network" className="h-10 lg:h-12 w-auto" />
             <div className="hidden sm:block leading-tight">
-              <div className="font-display font-bold text-lg text-secondary tracking-tight">REN</div>
+              <div className="font-display font-bold text-lg text-secondary tracking-tight">{t("common.brand")}</div>
               <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-                Rajput Entrepreneur Network
+                {t("common.brandFull")}
               </div>
             </div>
           </Link>
@@ -52,27 +55,31 @@ const Navbar = () => {
           </nav>
 
           <div className="hidden lg:flex items-center gap-2">
+            <LanguageSwitcher className="mr-1" />
             <Button asChild variant="ghost" size="sm">
               <Link to="/login">
                 <LogIn className="h-4 w-4" />
-                Member Login
+                {t("nav.login")}
               </Link>
             </Button>
             <Button asChild variant="royal" size="sm">
               <Link to="/signup">
                 <UserPlus className="h-4 w-4" />
-                Join REN
+                {t("nav.join")}
               </Link>
             </Button>
           </div>
 
-          <button
-            className="lg:hidden p-2 rounded-md text-secondary hover:bg-accent"
-            onClick={() => setOpen((v) => !v)}
-            aria-label="Toggle menu"
-          >
-            {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
+          <div className="lg:hidden flex items-center gap-2">
+            <LanguageSwitcher />
+            <button
+              className="p-2 rounded-md text-secondary hover:bg-accent"
+              onClick={() => setOpen((v) => !v)}
+              aria-label="Toggle menu"
+            >
+              {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
+          </div>
         </div>
 
         {open && (
@@ -100,13 +107,13 @@ const Navbar = () => {
                 <Button asChild variant="outline" size="sm" className="flex-1">
                   <Link to="/login" onClick={() => setOpen(false)}>
                     <LogIn className="h-4 w-4" />
-                    Login
+                    {t("nav.loginShort")}
                   </Link>
                 </Button>
                 <Button asChild variant="royal" size="sm" className="flex-1">
                   <Link to="/signup" onClick={() => setOpen(false)}>
                     <UserPlus className="h-4 w-4" />
-                    Join REN
+                    {t("nav.join")}
                   </Link>
                 </Button>
               </div>
