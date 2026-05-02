@@ -49,7 +49,7 @@ const DashboardLayout = () => {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
-        <DashboardSidebar />
+        <DashboardSidebar role={userRole} />
         <div className="flex-1 flex flex-col">
           <header className="h-16 flex items-center justify-between border-b border-border bg-card px-4">
             <div className="flex items-center gap-2">
@@ -58,8 +58,8 @@ const DashboardLayout = () => {
             <div className="flex items-center gap-4">
               <div className="text-right hidden sm:block">
                 <p className="text-sm font-medium text-foreground">{userEmail}</p>
-                <p className="text-xs text-muted-foreground capitalize">
-                  {userRole.replace("_", " ") || "Member"}
+                <p className="text-xs text-primary font-medium capitalize">
+                  {(userRole || "member").replace("_", " ")}
                 </p>
               </div>
               <Button variant="outline" size="sm" onClick={handleLogout}>
