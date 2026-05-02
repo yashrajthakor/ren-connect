@@ -11,6 +11,7 @@ import About from "./pages/About";
 import VoiceOfRen from "./pages/VoiceOfRen";
 import KeyMoments from "./pages/KeyMoments";
 import Admin from "./pages/Admin";
+import AdminLayout from "./components/admin/AdminLayout";
 import Member from "./pages/Member";
 import Cities from "./pages/admin/Cities";
 import Chapters from "./pages/admin/Chapters";
@@ -37,46 +38,20 @@ const App = () => (
           <Route path="/key-moments" element={<KeyMoments />} />
           <Route path="/about" element={<About />} />
           <Route path="/voice" element={<VoiceOfRen />} />
-          <Route 
-            path="/admin" 
+          <Route
+            path="/admin"
             element={
               <ProtectedRoute allowedRoles={["admin", "super_admin"]}>
-                <Admin />
+                <AdminLayout />
               </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/admin/cities" 
-            element={
-              <ProtectedRoute allowedRoles={["admin", "super_admin"]}>
-                <Cities />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/admin/chapters" 
-            element={
-              <ProtectedRoute allowedRoles={["admin", "super_admin"]}>
-                <Chapters />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/admin/members" 
-            element={
-              <ProtectedRoute allowedRoles={["admin", "super_admin"]}>
-                <Members />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/admin/applications" 
-            element={
-              <ProtectedRoute allowedRoles={["admin", "super_admin"]}>
-                <Applications />
-              </ProtectedRoute>
-            } 
-          />
+            }
+          >
+            <Route index element={<Admin />} />
+            <Route path="applications" element={<Applications />} />
+            <Route path="cities" element={<Cities />} />
+            <Route path="chapters" element={<Chapters />} />
+            <Route path="members" element={<Members />} />
+          </Route>
           <Route 
             path="/member" 
             element={
