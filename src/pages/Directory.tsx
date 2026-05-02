@@ -1,9 +1,10 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import PublicLayout from "@/components/public/PublicLayout";
 import MemberCard from "@/components/public/MemberCard";
-import { categories, members } from "@/data/members";
+import { categories, members as fallbackMembers, Member } from "@/data/members";
+import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { useT } from "@/i18n/LanguageProvider";
 import type { TranslationKey } from "@/i18n/translations";
@@ -26,6 +27,50 @@ const Directory = () => {
   const t = useT();
   const [query, setQuery] = useState("");
   const [active, setActive] = useState("All");
+  const [members, setMembers] = useState<Member[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      const { data, error } = await (supabase as any)
+        .from("members")
+        .select("id, full_name, email, phone, profile_image, status, cities(name), chapters(name)")
+        .eq("status", "active")
+        .order("created_at", { ascending: false });
+
+      if (error || !data || data.length === 0) {
+        // Fallback to demo members if query fails or no active members yet
+        setMembers(fallbackMembers);
+      } else {
+        const mapped: Member[] = data.map((m: any) => {
+          const name: string = m.full_name || "Member";
+          const initials = name
+            .split(" ")
+            .map((p: string) => p[0])
+            .filter(Boolean)
+            .slice(0, 2)
+            .join("")
+            .toUpperCase();
+          return {
+            id: m.id,
+            name,
+            business: m.chapters?.name || "REN Member",
+            category: "Services",
+            city: m.cities?.name || "—",
+            services: [],
+            email: m.email || "—",
+            phone: m.phone || "—",
+            address: m.cities?.name || "",
+            initials: initials || "RM",
+          };
+        });
+        setMembers(mapped);
+      }
+      setLoading(false);
+    };
+    load();
+  }, []);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -39,7 +84,7 @@ const Directory = () => {
         m.services.some((s) => s.toLowerCase().includes(q));
       return matchCat && matchQuery;
     });
-  }, [query, active]);
+  }, [query, active, members]);
 
   return (
     <PublicLayout>
@@ -87,7 +132,9 @@ const Directory = () => {
           ))}
         </div>
 
-        {filtered.length === 0 ? (
+        {loading ? (
+          <div className="text-center py-20 text-muted-foreground">Loading members…</div>
+        ) : filtered.length === 0 ? (
           <div className="text-center py-20 text-muted-foreground">
             {t("dir.empty")}
           </div>
