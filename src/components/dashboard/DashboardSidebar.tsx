@@ -13,15 +13,33 @@ import {
 } from "@/components/ui/sidebar";
 import renLogo from "@/assets/ren-logo.png";
 
-const items = [
+type SidebarItem = {
+  title: string;
+  url: string;
+  icon: typeof LayoutDashboard;
+  end?: boolean;
+};
+
+const baseItems: SidebarItem[] = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, end: true },
+];
+
+const adminItems: SidebarItem[] = [
   { title: "Review Applications", url: "/dashboard/applications", icon: FileText },
 ];
 
-export function DashboardSidebar() {
+interface DashboardSidebarProps {
+  role?: string;
+}
+
+export function DashboardSidebar({ role }: DashboardSidebarProps) {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const { pathname } = useLocation();
+
+  const normalizedRole = (role || "").toLowerCase();
+  const isAdmin = normalizedRole === "admin" || normalizedRole === "super_admin";
+  const items = isAdmin ? [...baseItems, ...adminItems] : baseItems;
 
   const isActive = (path: string, end?: boolean) =>
     end ? pathname === path : pathname === path || pathname.startsWith(path + "/");
