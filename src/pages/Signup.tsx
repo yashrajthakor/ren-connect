@@ -68,10 +68,19 @@ const Signup = () => {
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase.from("business_categories").select("id,name").order("name");
-      if (data) setCategories(data as Category[]);
+      try {
+        const { data, error } = await supabase.from("business_categories").select("id,name").order("name");
+        if (error) {
+          console.error("Failed to fetch categories:", error);
+          toast({ title: "Error", description: "Failed to load categories", variant: "destructive" });
+        } else if (data) {
+          setCategories(data as Category[]);
+        }
+      } catch (err) {
+        console.error("Category fetch error:", err);
+      }
     })();
-  }, []);
+  }, [toast]);
 
   const f1 = useForm<Step1>({ resolver: zodResolver(step1Schema), defaultValues: s1 || undefined });
   const f2 = useForm<Step2>({ resolver: zodResolver(step2Schema), defaultValues: s2 || undefined });
@@ -305,12 +314,18 @@ const Signup = () => {
               <div>
                 <Label>Category</Label>
                 <Select
-                  defaultValue={s2?.categoryId}
+                  value={f2.watch("categoryId") || ""}
                   onValueChange={(v) => f2.setValue("categoryId", v, { shouldValidate: true })}
                 >
-                  <SelectTrigger className="mt-1"><SelectValue placeholder="Select category" /></SelectTrigger>
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder={categories.length === 0 ? "Loading..." : "Select category"} />
+                  </SelectTrigger>
                   <SelectContent>
-                    {categories.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                    {categories.length === 0 ? (
+                      <div className="p-2 text-sm text-muted-foreground">No categories available</div>
+                    ) : (
+                      categories.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)
+                    )}
                   </SelectContent>
                 </Select>
                 {f2.formState.errors.categoryId && <p className="text-destructive text-xs mt-1">{f2.formState.errors.categoryId.message}</p>}
