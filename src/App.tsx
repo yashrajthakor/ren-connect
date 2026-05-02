@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -12,7 +12,8 @@ import VoiceOfRen from "./pages/VoiceOfRen";
 import KeyMoments from "./pages/KeyMoments";
 import Admin from "./pages/Admin";
 import AdminLayout from "./components/admin/AdminLayout";
-import Member from "./pages/Member";
+import Dashboard from "./pages/Dashboard";
+import DashboardLayout from "./components/dashboard/DashboardLayout";
 import Cities from "./pages/admin/Cities";
 import Chapters from "./pages/admin/Chapters";
 import Members from "./pages/admin/Members";
@@ -52,14 +53,19 @@ const App = () => (
             <Route path="chapters" element={<Chapters />} />
             <Route path="members" element={<Members />} />
           </Route>
-          <Route 
-            path="/member" 
+          <Route
+            path="/dashboard"
             element={
               <ProtectedRoute allowedRoles={["member", "admin", "super_admin"]}>
-                <Member />
+                <DashboardLayout />
               </ProtectedRoute>
-            } 
-          />
+            }
+          >
+            <Route index element={<Dashboard />} />
+            <Route path="applications" element={<Applications />} />
+          </Route>
+          {/* Legacy redirect */}
+          <Route path="/member" element={<Navigate to="/dashboard" replace />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
