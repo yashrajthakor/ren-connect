@@ -13,11 +13,18 @@ import {
 } from "@/components/ui/sidebar";
 import renLogo from "@/assets/ren-logo.png";
 
-const baseItems = [
+type SidebarItem = {
+  title: string;
+  url: string;
+  icon: typeof LayoutDashboard;
+  end?: boolean;
+};
+
+const baseItems: SidebarItem[] = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, end: true },
 ];
 
-const adminItems = [
+const adminItems: SidebarItem[] = [
   { title: "Review Applications", url: "/dashboard/applications", icon: FileText },
 ];
 
