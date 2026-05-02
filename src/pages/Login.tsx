@@ -166,7 +166,7 @@ const Login = () => {
             title: "Welcome back!",
             description: "You have successfully signed in.",
           });
-          navigate("/admin");
+            navigate("/dashboard");
         } else {
           // Members: gate access by membership application status
           let appStatus: string | null = null;
@@ -192,7 +192,7 @@ const Login = () => {
               title: "Welcome back!",
               description: "You have successfully signed in.",
             });
-            navigate("/member");
+            navigate("/dashboard");
           } else {
             // Block access — sign out and show informative message
             await supabase.auth.signOut();
