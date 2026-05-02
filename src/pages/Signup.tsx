@@ -115,7 +115,6 @@ const Signup = () => {
         email: s1.email,
         password: s1.password,
         options: {
-          emailRedirectTo: `${window.location.origin}/login`,
           data: { full_name: s1.fullName, phone: s1.phone },
         },
       });
@@ -124,10 +123,12 @@ const Signup = () => {
       const userId = authData.user?.id;
       if (!userId) throw new Error("No user created");
 
-      // If email confirmation is enabled, no session yet — uploads / inserts may fail under RLS.
-      // Try to sign in to obtain session for uploads.
+      // Email confirmation must be DISABLED in Supabase Auth settings so a session
+      // is returned immediately. Without a session, RLS will block uploads/inserts.
       if (!authData.session) {
-        await supabase.auth.signInWithPassword({ email: s1.email, password: s1.password });
+        throw new Error(
+          "Email confirmation is enabled in Supabase. Please disable 'Confirm email' under Authentication → Providers → Email and try again."
+        );
       }
 
       // 2. Upload files
