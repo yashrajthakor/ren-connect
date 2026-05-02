@@ -159,17 +159,67 @@ const Login = () => {
         }
 
         console.log("User role:", role); // Debug log
-        
-        toast({
-          title: "Welcome back!",
-          description: "You have successfully signed in.",
-        });
-        
-        // Route based on role (case-insensitive)
+
+        // Admins and super admins bypass application status gating
         if (role === "super_admin" || role === "admin") {
+          toast({
+            title: "Welcome back!",
+            description: "You have successfully signed in.",
+          });
           navigate("/admin");
         } else {
-          navigate("/member");
+          // Members: gate access by membership application status
+          let appStatus: string | null = null;
+          try {
+            const { data: statusData, error: statusErr } = await supabase.rpc(
+              "get_application_status_by_email",
+              { _email: data.email.trim() }
+            );
+            if (statusErr) {
+              console.error("Error fetching application status:", statusErr);
+            } else if (typeof statusData === "string") {
+              appStatus = statusData;
+            }
+          } catch (err) {
+            console.error("Unexpected error fetching application status:", err);
+          }
+
+          // If no application is found, treat as active (legacy/manual member)
+          const status = appStatus ?? "active";
+
+          if (status === "active") {
+            toast({
+              title: "Welcome back!",
+              description: "You have successfully signed in.",
+            });
+            navigate("/member");
+          } else {
+            // Block access — sign out and show informative message
+            await supabase.auth.signOut();
+            const messages: Record<string, { title: string; description: string }> = {
+              under_review: {
+                title: "Profile under review",
+                description: "Your profile is under review. You'll be able to log in once an admin approves your application.",
+              },
+              pending: {
+                title: "Application pending",
+                description: "Your application is pending. Please wait for admin review.",
+              },
+              rejected: {
+                title: "Application rejected",
+                description: "Your membership application has been rejected. Please contact support.",
+              },
+              suspended: {
+                title: "Account suspended",
+                description: "Your membership has been suspended. Please contact an administrator.",
+              },
+            };
+            const msg = messages[status] ?? {
+              title: "Access not allowed",
+              description: `Your account status is "${status}". Please contact an administrator.`,
+            };
+            toast({ title: msg.title, description: msg.description, variant: "destructive" });
+          }
         }
       } else {
         toast({
