@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, Shield, MapPin, Users, Building2, Plus } from "lucide-react";
+import { LogOut, Shield, MapPin, Users, Building2, Plus, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -63,6 +63,12 @@ const Admin = () => {
   };
 
   const actionCards = [
+    {
+      title: "Review Applications",
+      description: "Approve or reject new membership applications",
+      icon: FileText,
+      href: "/admin/applications",
+    },
     {
       title: "Add City",
       description: "Create a new city location",
