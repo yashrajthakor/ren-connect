@@ -14,26 +14,22 @@ type AppStatus = "pending" | "under_review" | "active" | "rejected" | "suspended
 
 interface Application {
   id: string;
+  user_id: string | null;
   full_name: string;
-  email: string;
-  phone: string;
-  city: string;
-  address: string | null;
-  referral_code: string | null;
-  business_name: string;
-  business_category: string;
-  services: string | null;
-  business_address: string | null;
-  website: string | null;
-  profile_picture_url: string | null;
-  company_logo_url: string | null;
-  visiting_card_url: string | null;
-  linkedin_url: string | null;
-  instagram_url: string | null;
-  facebook_url: string | null;
+  email: string | null;
+  phone: string | null;
+  city_id: string | null;
+  chapter_id: string | null;
+  profile_image: string | null;
+  profile_picture: string | null;
   status: AppStatus;
   created_at: string;
-  reviewed_at: string | null;
+  submitted_at: string | null;
+  approved_at: string | null;
+  approved_by: string | null;
+  rejection_reason: string | null;
+  city_name?: string | null;
+  chapter_name?: string | null;
 }
 
 const STATUS_STYLES: Record<AppStatus, string> = {
@@ -64,14 +60,19 @@ const Applications = () => {
 
   const fetchApps = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("membership_applications")
-      .select("*")
+    const { data, error } = await (supabase as any)
+      .from("members")
+      .select("*, cities(name), chapters(name)")
       .order("created_at", { ascending: false });
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
-      setApps((data || []) as Application[]);
+      const mapped = (data || []).map((m: any) => ({
+        ...m,
+        city_name: m.cities?.name ?? null,
+        chapter_name: m.chapters?.name ?? null,
+      })) as Application[];
+      setApps(mapped);
     }
     setLoading(false);
   };
@@ -83,13 +84,14 @@ const Applications = () => {
   const updateStatus = async (id: string, status: AppStatus) => {
     setUpdatingId(id);
     const { data: { user } } = await supabase.auth.getUser();
-    const { error } = await supabase
-      .from("membership_applications")
-      .update({
-        status,
-        reviewed_at: new Date().toISOString(),
-        reviewed_by: user?.id ?? null,
-      })
+    const patch: Record<string, any> = { status };
+    if (status === "active") {
+      patch.approved_at = new Date().toISOString();
+      patch.approved_by = user?.id ?? null;
+    }
+    const { error } = await (supabase as any)
+      .from("members")
+      .update(patch)
       .eq("id", id);
     setUpdatingId(null);
     if (error) {
@@ -110,9 +112,9 @@ const Applications = () => {
     const s = search.toLowerCase();
     return (
       a.full_name.toLowerCase().includes(s) ||
-      a.email.toLowerCase().includes(s) ||
-      a.business_name.toLowerCase().includes(s) ||
-      a.city.toLowerCase().includes(s)
+      (a.email || "").toLowerCase().includes(s) ||
+      (a.phone || "").toLowerCase().includes(s) ||
+      (a.city_name || "").toLowerCase().includes(s)
     );
   });
 
@@ -191,8 +193,8 @@ const Applications = () => {
                 <thead className="bg-muted/50">
                   <tr className="text-left">
                     <th className="px-4 py-3 font-semibold">Applicant</th>
-                    <th className="px-4 py-3 font-semibold">Business</th>
-                    <th className="px-4 py-3 font-semibold">City</th>
+                    <th className="px-4 py-3 font-semibold">Contact</th>
+                    <th className="px-4 py-3 font-semibold">City / Chapter</th>
                     <th className="px-4 py-3 font-semibold">Submitted</th>
                     <th className="px-4 py-3 font-semibold">Status</th>
                     <th className="px-4 py-3 font-semibold text-right">Actions</th>
@@ -206,12 +208,15 @@ const Applications = () => {
                         <div className="text-xs text-muted-foreground">{a.email}</div>
                       </td>
                       <td className="px-4 py-3">
-                        <div className="font-medium">{a.business_name}</div>
-                        <div className="text-xs text-muted-foreground">{a.business_category}</div>
+                        <div className="font-medium">{a.phone || "—"}</div>
+                        <div className="text-xs text-muted-foreground">{a.email || "—"}</div>
                       </td>
-                      <td className="px-4 py-3">{a.city}</td>
+                      <td className="px-4 py-3">
+                        <div>{a.city_name || "—"}</div>
+                        <div className="text-xs text-muted-foreground">{a.chapter_name || ""}</div>
+                      </td>
                       <td className="px-4 py-3 text-muted-foreground">
-                        {new Date(a.created_at).toLocaleDateString()}
+                        {new Date(a.submitted_at || a.created_at).toLocaleDateString()}
                       </td>
                       <td className="px-4 py-3">
                         <Badge variant="outline" className={STATUS_STYLES[a.status]}>
@@ -279,60 +284,40 @@ const Applications = () => {
               </DialogHeader>
 
               <div className="space-y-6 mt-4">
-                {selected.profile_picture_url && (
+                {(selected.profile_image || selected.profile_picture) && (
                   <img
-                    src={selected.profile_picture_url}
+                    src={(selected.profile_image || selected.profile_picture) as string}
                     alt="Profile"
                     className="h-24 w-24 rounded-full object-cover border-2 border-border"
                   />
                 )}
 
                 <Section title="Personal">
+                  <Field label="Full Name" value={selected.full_name} />
                   <Field label="Email" value={selected.email} />
                   <Field label="Phone" value={selected.phone} />
-                  <Field label="City" value={selected.city} />
-                  <Field label="Address" value={selected.address} />
-                  <Field label="Referral Code" value={selected.referral_code} />
+                  <Field label="City" value={selected.city_name} />
+                  <Field label="Chapter" value={selected.chapter_name} />
                 </Section>
 
-                <Section title="Business">
-                  <Field label="Business Name" value={selected.business_name} />
-                  <Field label="Category" value={selected.business_category} />
-                  <Field label="Services" value={selected.services} />
-                  <Field label="Business Address" value={selected.business_address} />
+                <Section title="Application">
                   <Field
-                    label="Website"
+                    label="Submitted"
                     value={
-                      selected.website ? (
-                        <a href={selected.website} target="_blank" rel="noreferrer" className="text-primary underline">
-                          {selected.website}
-                        </a>
-                      ) : null
+                      selected.submitted_at
+                        ? new Date(selected.submitted_at).toLocaleString()
+                        : new Date(selected.created_at).toLocaleString()
                     }
                   />
-                </Section>
-
-                <Section title="Social">
-                  <Field label="LinkedIn" value={selected.linkedin_url} />
-                  <Field label="Instagram" value={selected.instagram_url} />
-                  <Field label="Facebook" value={selected.facebook_url} />
-                </Section>
-
-                <Section title="Documents">
-                  <div className="grid grid-cols-2 gap-3">
-                    {selected.company_logo_url && (
-                      <a href={selected.company_logo_url} target="_blank" rel="noreferrer" className="block">
-                        <p className="text-xs text-muted-foreground mb-1">Company Logo</p>
-                        <img src={selected.company_logo_url} alt="Logo" className="h-24 w-full object-contain border border-border rounded" />
-                      </a>
-                    )}
-                    {selected.visiting_card_url && (
-                      <a href={selected.visiting_card_url} target="_blank" rel="noreferrer" className="block">
-                        <p className="text-xs text-muted-foreground mb-1">Visiting Card</p>
-                        <img src={selected.visiting_card_url} alt="Card" className="h-24 w-full object-contain border border-border rounded" />
-                      </a>
-                    )}
-                  </div>
+                  <Field
+                    label="Approved At"
+                    value={
+                      selected.approved_at
+                        ? new Date(selected.approved_at).toLocaleString()
+                        : null
+                    }
+                  />
+                  <Field label="Rejection Reason" value={selected.rejection_reason} />
                 </Section>
 
                 <div className="flex flex-wrap gap-2 pt-4 border-t border-border">
