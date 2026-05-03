@@ -29,7 +29,7 @@ const adminItems: SidebarItem[] = [
 ];
 
 interface DashboardSidebarProps {
-  role?: string;
+  role?: string | null;
 }
 
 export function DashboardSidebar({ role }: DashboardSidebarProps) {
