@@ -13,7 +13,9 @@ import {
 } from "@/components/ui/sidebar";
 import renLogo from "@/assets/ren-logo.png";
 
-const baseItems = [
+type Item = { title: string; url: string; icon: typeof LayoutDashboard; end?: boolean };
+
+const baseItems: Item[] = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard, end: true },
   { title: "Review Applications", url: "/admin/applications", icon: FileText },
   { title: "Cities", url: "/admin/cities", icon: MapPin },
@@ -21,7 +23,7 @@ const baseItems = [
   { title: "Members", url: "/admin/members", icon: Users },
 ];
 
-const superAdminItems = [
+const superAdminItems: Item[] = [
   { title: "Manage Roles", url: "/admin/manage-roles", icon: ShieldCheck },
 ];
 
