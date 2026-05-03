@@ -18,6 +18,7 @@ import Cities from "./pages/admin/Cities";
 import Chapters from "./pages/admin/Chapters";
 import Members from "./pages/admin/Members";
 import Applications from "./pages/admin/Applications";
+import ManageRoles from "./pages/admin/ManageRoles";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { LanguageProvider } from "./i18n/LanguageProvider";
@@ -52,6 +53,14 @@ const App = () => (
             <Route path="cities" element={<Cities />} />
             <Route path="chapters" element={<Chapters />} />
             <Route path="members" element={<Members />} />
+            <Route
+              path="manage-roles"
+              element={
+                <ProtectedRoute allowedRoles={["super_admin"]}>
+                  <ManageRoles />
+                </ProtectedRoute>
+              }
+            />
           </Route>
           <Route
             path="/dashboard"
