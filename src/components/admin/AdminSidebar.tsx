@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { LayoutDashboard, FileText, MapPin, Building2, Users } from "lucide-react";
+import { LayoutDashboard, FileText, MapPin, Building2, Users, ShieldCheck } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/sidebar";
 import renLogo from "@/assets/ren-logo.png";
 
-const items = [
+const baseItems = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard, end: true },
   { title: "Review Applications", url: "/admin/applications", icon: FileText },
   { title: "Cities", url: "/admin/cities", icon: MapPin },
@@ -21,10 +21,21 @@ const items = [
   { title: "Members", url: "/admin/members", icon: Users },
 ];
 
-export function AdminSidebar() {
+const superAdminItems = [
+  { title: "Manage Roles", url: "/admin/manage-roles", icon: ShieldCheck },
+];
+
+interface AdminSidebarProps {
+  role?: string | null;
+}
+
+export function AdminSidebar({ role }: AdminSidebarProps) {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const { pathname } = useLocation();
+
+  const isSuperAdmin = (role || "").toLowerCase() === "super_admin";
+  const items = isSuperAdmin ? [...baseItems, ...superAdminItems] : baseItems;
 
   const isActive = (path: string, end?: boolean) =>
     end ? pathname === path : pathname === path || pathname.startsWith(path + "/");
