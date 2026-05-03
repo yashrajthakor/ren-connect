@@ -94,7 +94,9 @@ const ManageRoles = () => {
         (m.email || "").toLowerCase().includes(q);
       const matchesRole =
         roleFilter === "all" ||
-        (m.role_name || "").toLowerCase() === roleFilter;
+        (roleFilter === "none"
+          ? !m.role_name
+          : (m.role_name || "").toLowerCase() === roleFilter);
       return matchesSearch && matchesRole;
     });
   }, [members, search, roleFilter]);
@@ -164,7 +166,7 @@ const ManageRoles = () => {
                   {r.replace("_", " ")}
                 </SelectItem>
               ))}
-              <SelectItem value="">No role</SelectItem>
+              <SelectItem value="none">No role</SelectItem>
             </SelectContent>
           </Select>
         </div>
