@@ -23,18 +23,9 @@ const DashboardLayout = () => {
       }
       setUserEmail(user.email || "");
       try {
-        // Join user_roles -> roles to get the actual role name from the DB
-        const { data: ur, error: urErr } = await supabase
-          .from("user_roles")
-          .select("role_id, roles(name)")
-          .eq("user_id", user.id)
-          .limit(1)
-          .maybeSingle();
-        if (urErr) console.error("user_roles fetch error:", urErr);
-        const roleName =
-          (ur as any)?.roles?.name ??
-          (Array.isArray((ur as any)?.roles) ? (ur as any).roles[0]?.name : null);
-        setUserRole(roleName ?? null);
+        const { data, error } = await supabase.rpc("get_current_user_role");
+        if (error) console.error("get_current_user_role error:", error);
+        setUserRole((data as string | null) ?? null);
       } catch (err) {
         console.error(err);
       } finally {

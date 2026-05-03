@@ -26,36 +26,12 @@ const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
 
         setUser(user);
 
-        // Fetch user role safely (role_id -> roles.name)
+        // Fetch role via SECURITY DEFINER RPC (bypasses RLS recursion)
         let roleName = "member";
         try {
-          const { data: ur, error: urError } = await supabase
-            .from("user_roles")
-            .select("role_id")
-            .eq("user_id", user.id)
-            .limit(1)
-            .maybeSingle();
-
-          if (urError) {
-            console.error("Error fetching user_roles:", urError);
-            setLoading(false);
-            return;
-          }
-
-          if (ur?.role_id) {
-            const { data: roleData, error: roleFetchError } = await supabase
-              .from("roles")
-              .select("name")
-              .eq("id", ur.role_id)
-              .limit(1)
-              .maybeSingle();
-
-            if (roleFetchError) {
-              console.error("Error fetching role name:", roleFetchError);
-            } else if (roleData?.name) {
-              roleName = (roleData.name as string).toLowerCase();
-            }
-          }
+          const { data, error } = await supabase.rpc("get_current_user_role");
+          if (error) console.error("get_current_user_role error:", error);
+          else if (typeof data === "string" && data) roleName = data.toLowerCase();
         } catch (err) {
           console.error("Unexpected error fetching role:", err);
         }
