@@ -49,7 +49,7 @@ const AdminLayout = () => {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
-        <AdminSidebar />
+        <AdminSidebar role={userRole} />
         <div className="flex-1 flex flex-col">
           <header className="h-16 flex items-center justify-between border-b border-border bg-card px-4">
             <div className="flex items-center gap-2">
