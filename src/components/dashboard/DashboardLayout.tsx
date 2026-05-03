@@ -11,31 +11,34 @@ const DashboardLayout = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [userEmail, setUserEmail] = useState("");
-  const [userRole, setUserRole] = useState("");
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [roleLoading, setRoleLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) {
+        setRoleLoading(false);
+        return;
+      }
       setUserEmail(user.email || "");
       try {
-        const { data: ur } = await supabase
+        // Join user_roles -> roles to get the actual role name from the DB
+        const { data: ur, error: urErr } = await supabase
           .from("user_roles")
-          .select("role_id")
+          .select("role_id, roles(name)")
           .eq("user_id", user.id)
           .limit(1)
           .maybeSingle();
-        if (ur?.role_id) {
-          const { data: roleData } = await supabase
-            .from("roles")
-            .select("name")
-            .eq("id", ur.role_id)
-            .limit(1)
-            .maybeSingle();
-          if (roleData?.name) setUserRole(roleData.name);
-        }
+        if (urErr) console.error("user_roles fetch error:", urErr);
+        const roleName =
+          (ur as any)?.roles?.name ??
+          (Array.isArray((ur as any)?.roles) ? (ur as any).roles[0]?.name : null);
+        setUserRole(roleName ?? null);
       } catch (err) {
         console.error(err);
+      } finally {
+        setRoleLoading(false);
       }
     })();
   }, []);
@@ -59,7 +62,11 @@ const DashboardLayout = () => {
               <div className="text-right hidden sm:block">
                 <p className="text-sm font-medium text-foreground">{userEmail}</p>
                 <p className="text-xs text-primary font-medium capitalize">
-                  {(userRole || "member").replace("_", " ")}
+                  {roleLoading
+                    ? "Loading..."
+                    : userRole
+                    ? userRole.replace("_", " ")
+                    : "No role assigned"}
                 </p>
               </div>
               <Button variant="outline" size="sm" onClick={handleLogout}>
