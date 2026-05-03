@@ -268,7 +268,14 @@ const Login = () => {
       {/* Main content */}
       <main className="flex-1 flex items-center justify-center px-4 py-8 relative z-10">
         <div className="w-full max-w-md animate-fade-in">
-          <div className="flex justify-end mb-4">
+          <div className="flex items-center justify-between mb-4">
+            <Link
+              to="/"
+              className="inline-flex items-center gap-2 text-card/70 hover:text-card transition-colors text-sm font-medium"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Home
+            </Link>
             <LanguageSwitcher />
           </div>
           {/* Logo and Header */}
