@@ -46,6 +46,7 @@ const Directory = () => {
             phone: m.phone || "—",
             address: m.business_city || m.city_name || "",
             initials: initials || "RM",
+            avatarUrl: m.profile_picture || m.logo || null,
           };
         });
         setMembers(mapped);
