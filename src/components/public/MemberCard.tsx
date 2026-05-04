@@ -20,8 +20,12 @@ const MemberCard = ({ member }: { member: Member }) => {
           </div>
         )}
         <div className="absolute -bottom-10 left-6">
-          <div className="h-20 w-20 rounded-2xl bg-card border-4 border-card shadow-lg flex items-center justify-center">
-            <span className="font-display font-bold text-2xl text-primary">{member.initials}</span>
+          <div className="h-20 w-20 rounded-2xl bg-card border-4 border-card shadow-lg flex items-center justify-center overflow-hidden">
+            {member.avatarUrl ? (
+              <img src={member.avatarUrl} alt={member.name} className="h-full w-full object-cover" />
+            ) : (
+              <span className="font-display font-bold text-2xl text-primary">{member.initials}</span>
+            )}
           </div>
         </div>
       </div>
