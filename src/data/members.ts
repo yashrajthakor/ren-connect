@@ -10,6 +10,7 @@ export type Member = {
   address: string;
   initials: string;
   featured?: boolean;
+  avatarUrl?: string | null;
 };
 
 export const categories = [
