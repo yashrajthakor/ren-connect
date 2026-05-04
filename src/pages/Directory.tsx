@@ -3,47 +3,27 @@ import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import PublicLayout from "@/components/public/PublicLayout";
 import MemberCard from "@/components/public/MemberCard";
-import { categories, members as fallbackMembers, Member } from "@/data/members";
+import { Member } from "@/data/members";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { useT } from "@/i18n/LanguageProvider";
-import type { TranslationKey } from "@/i18n/translations";
-
-const catKeyMap: Record<string, TranslationKey> = {
-  All: "dir.cat.All",
-  Manufacturing: "dir.cat.Manufacturing",
-  "Real Estate": "dir.cat.RealEstate",
-  Finance: "dir.cat.Finance",
-  Technology: "dir.cat.Technology",
-  Retail: "dir.cat.Retail",
-  Trading: "dir.cat.Trading",
-  Services: "dir.cat.Services",
-  Startups: "dir.cat.Startups",
-  Travel: "dir.cat.Travel",
-  "Export/Import": "dir.cat.ExportImport",
-};
 
 const Directory = () => {
   const t = useT();
   const [query, setQuery] = useState("");
   const [active, setActive] = useState("All");
   const [members, setMembers] = useState<Member[]>([]);
+  const [categories, setCategories] = useState<string[]>(["All"]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const load = async () => {
       setLoading(true);
-      const { data, error } = await (supabase as any)
-        .from("members")
-        .select("id, full_name, email, phone, profile_image, status, cities(name), chapters(name)")
-        .eq("status", "active")
-        .order("created_at", { ascending: false });
-
-      if (error || !data || data.length === 0) {
-        // Fallback to demo members if query fails or no active members yet
-        setMembers(fallbackMembers);
+      const { data, error } = await supabase.rpc("list_active_directory");
+      if (error || !data) {
+        setMembers([]);
       } else {
-        const mapped: Member[] = data.map((m: any) => {
+        const mapped: Member[] = (data as any[]).map((m) => {
           const name: string = m.full_name || "Member";
           const initials = name
             .split(" ")
@@ -52,20 +32,25 @@ const Directory = () => {
             .slice(0, 2)
             .join("")
             .toUpperCase();
+          const servicesArr: string[] = m.services
+            ? String(m.services).split(/[,\n]/).map((s: string) => s.trim()).filter(Boolean).slice(0, 6)
+            : [];
           return {
-            id: m.id,
+            id: m.member_id,
             name,
-            business: m.chapters?.name || "REN Member",
-            category: "Services",
-            city: m.cities?.name || "—",
-            services: [],
+            business: m.business_name || m.chapter_name || "REN Member",
+            category: m.category_name || "Member",
+            city: m.business_city || m.city_name || "—",
+            services: servicesArr,
             email: m.email || "—",
             phone: m.phone || "—",
-            address: m.cities?.name || "",
+            address: m.business_city || m.city_name || "",
             initials: initials || "RM",
           };
         });
         setMembers(mapped);
+        const cats = Array.from(new Set(mapped.map((m) => m.category).filter(Boolean)));
+        setCategories(["All", ...cats.sort()]);
       }
       setLoading(false);
     };
@@ -127,7 +112,7 @@ const Directory = () => {
                   : "bg-card text-secondary border-border hover:border-primary/50",
               )}
             >
-              {catKeyMap[c] ? t(catKeyMap[c]) : c}
+              {c}
             </button>
           ))}
         </div>
