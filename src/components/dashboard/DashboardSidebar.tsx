@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { LayoutDashboard, FileText } from "lucide-react";
+import { LayoutDashboard, FileText, UserCog } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -22,6 +22,7 @@ type SidebarItem = {
 
 const baseItems: SidebarItem[] = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, end: true },
+  { title: "My Profile", url: "/dashboard/profile", icon: UserCog },
 ];
 
 const adminItems: SidebarItem[] = [
