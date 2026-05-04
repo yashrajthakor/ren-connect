@@ -19,6 +19,7 @@ import Chapters from "./pages/admin/Chapters";
 import Members from "./pages/admin/Members";
 import Applications from "./pages/admin/Applications";
 import ManageRoles from "./pages/admin/ManageRoles";
+import MyProfile from "./pages/MyProfile";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { LanguageProvider } from "./i18n/LanguageProvider";
@@ -72,6 +73,7 @@ const App = () => (
           >
             <Route index element={<Dashboard />} />
             <Route path="applications" element={<Applications />} />
+            <Route path="profile" element={<MyProfile />} />
           </Route>
           {/* Legacy redirect */}
           <Route path="/member" element={<Navigate to="/dashboard" replace />} />
