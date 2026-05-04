@@ -5,23 +5,29 @@ import { createClient } from '@supabase/supabase-js';
 // - Production (built bundle, e.g. published / custom domain): uses the self-hosted Supabase
 //   instance running on the user's VPS.
 // Both can be overridden via VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY env vars at build time.
+// These values are provided by the Lovable Supabase integration
+// They are safe to expose as they rely on Row Level Security for protection
+// Can also be set via environment variables: VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://nfuuunxvviedhfalbnyi.supabase.co";
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5mdXV1bnh2dmllZGhmYWxibnlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc3MDA1NjAsImV4cCI6MjA5MzI3NjU2MH0.qH80WtEcFkEKjanz4OpIacgItpOzivGJyeFkyMEn20Q";
 
-const DEV_SUPABASE_URL = "https://nfuuunxvviedhfalbnyi.supabase.co";
-const DEV_SUPABASE_ANON_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5mdXV1bnh2dmllZGhmYWxibnlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc3MDA1NjAsImV4cCI6MjA5MzI3NjU2MH0.qH80WtEcFkEKjanz4OpIacgItpOzivGJyeFkyMEn20Q";
 
-// Self-hosted Supabase (production)
-const PROD_SUPABASE_URL = "https://database.thinknlink.in";
-const PROD_SUPABASE_ANON_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJhbm9uIiwKICAgICJpc3MiOiAic3VwYWJhc2UtZGVtbyIsCiAgICAiaWF0IjogMTY0MTc2OTIwMCwKICAgICJleHAiOiAxNzk5NTM1NjAwCn0.dc_X5iR_VP_qT0zsiyj_I_OZ2T9FtRU2BBNWN8Bu4GE";
+// const DEV_SUPABASE_URL = "https://nfuuunxvviedhfalbnyi.supabase.co";
+// const DEV_SUPABASE_ANON_KEY =
+//   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5mdXV1bnh2dmllZGhmYWxibnlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc3MDA1NjAsImV4cCI6MjA5MzI3NjU2MH0.qH80WtEcFkEKjanz4OpIacgItpOzivGJyeFkyMEn20Q";
 
-const isProd = import.meta.env.PROD;
+// // Self-hosted Supabase (production)
+// const PROD_SUPABASE_URL = "https://database.thinknlink.in";
+// const PROD_SUPABASE_ANON_KEY =
+//   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJhbm9uIiwKICAgICJpc3MiOiAic3VwYWJhc2UtZGVtbyIsCiAgICAiaWF0IjogMTY0MTc2OTIwMCwKICAgICJleHAiOiAxNzk5NTM1NjAwCn0.dc_X5iR_VP_qT0zsiyj_I_OZ2T9FtRU2BBNWN8Bu4GE";
 
-const SUPABASE_URL =
-  import.meta.env.VITE_SUPABASE_URL || (isProd ? PROD_SUPABASE_URL : DEV_SUPABASE_URL);
-const SUPABASE_ANON_KEY =
-  import.meta.env.VITE_SUPABASE_ANON_KEY ||
-  (isProd ? PROD_SUPABASE_ANON_KEY : DEV_SUPABASE_ANON_KEY);
+// const isProd = import.meta.env.PROD;
+
+// const SUPABASE_URL =
+//   import.meta.env.VITE_SUPABASE_URL || (isProd ? PROD_SUPABASE_URL : DEV_SUPABASE_URL);
+// const SUPABASE_ANON_KEY =
+//   import.meta.env.VITE_SUPABASE_ANON_KEY ||
+//   (isProd ? PROD_SUPABASE_ANON_KEY : DEV_SUPABASE_ANON_KEY);
 
 // Validate configuration
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
