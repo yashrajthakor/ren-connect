@@ -254,7 +254,7 @@ const Index = () => {
   return (
     <PublicLayout>
       {/* HERO CAROUSEL */}
-      <section className="relative h-[92vh] min-h-[640px] w-full overflow-hidden bg-secondary text-card">
+      <section className="relative h-[92vh] min-h-[520px] sm:min-h-[640px] w-full overflow-hidden bg-secondary text-card">
         {heroSlides.map((s, i) => (
           <div
             key={i}

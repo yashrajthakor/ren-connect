@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
+import PwaInstallPrompt from "./components/PwaInstallPrompt";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Directory from "./pages/Directory";
@@ -32,7 +33,8 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-        <Routes>
+          <PwaInstallPrompt />
+          <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
