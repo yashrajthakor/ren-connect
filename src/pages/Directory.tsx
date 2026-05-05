@@ -47,6 +47,7 @@ const Directory = () => {
             address: m.business_city || m.city_name || "",
             initials: initials || "RM",
             avatarUrl: m.profile_picture || m.logo || null,
+            committeeBadge: m.committee_badge || null,
           };
         });
         setMembers(mapped);

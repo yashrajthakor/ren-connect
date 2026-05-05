@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Loader2, Save, Upload, User as UserIcon } from "lucide-react";
+import { Loader2, Save, Upload, User as UserIcon, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,6 +22,7 @@ type Profile = {
   city_id: string | null;
   chapter_name: string | null;
   city_name: string | null;
+  committee_badge: string | null;
   business_profile_id: string | null;
   business_name: string | null;
   category_id: string | null;
@@ -222,6 +223,12 @@ const MyProfile = () => {
         <p className="text-muted-foreground text-sm mt-1">
           Update your personal and business information. Changes appear in the directory immediately.
         </p>
+        {profile.committee_badge && (
+          <span className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold border border-primary/20">
+            <Award className="h-3.5 w-3.5" />
+            {profile.committee_badge}
+          </span>
+        )}
       </div>
 
       <Card>
