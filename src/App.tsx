@@ -13,6 +13,7 @@ import KeyMoments from "./pages/KeyMoments";
 import Admin from "./pages/Admin";
 import AdminLayout from "./components/admin/AdminLayout";
 import Dashboard from "./pages/Dashboard";
+import DashboardDirectory from "./pages/DashboardDirectory";
 import DashboardLayout from "./components/dashboard/DashboardLayout";
 import Members from "./pages/admin/Members";
 import Applications from "./pages/admin/Applications";
@@ -70,6 +71,7 @@ const App = () => (
             <Route index element={<Dashboard />} />
             <Route path="applications" element={<Applications />} />
             <Route path="profile" element={<MyProfile />} />
+            <Route path="directory" element={<DashboardDirectory />} />
           </Route>
           {/* Legacy redirect */}
           <Route path="/member" element={<Navigate to="/dashboard" replace />} />

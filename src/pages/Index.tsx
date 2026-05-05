@@ -28,6 +28,28 @@ import type { TranslationKey } from "@/i18n/translations";
 import { supabase } from "@/integrations/supabase/client";
 import type { Member } from "@/data/members";
 
+type CommitteeMemberRow = {
+  id: string;
+  full_name?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  profile_picture?: string | null;
+  committee_badge?: string | null;
+  cities?: { name?: string | null } | null;
+  business_profiles?: {
+    business_name?: string | null;
+    category_id?: string | null;
+    city?: string | null;
+    website?: string | null;
+    services?: string | null;
+    logo?: string | null;
+    linkedin_url?: string | null;
+    instagram_url?: string | null;
+    facebook_url?: string | null;
+    business_categories?: { name?: string | null } | null;
+  } | null;
+};
+
 type SlideDef = {
   image: string;
   eyebrowKey: TranslationKey;
@@ -149,7 +171,7 @@ const Index = () => {
     const fetchCommitteeMembers = async () => {
       try {
         const { data, error } = await supabase
-          .from("members")
+          .from<CommitteeMemberRow>("members")
           .select(`
             id,
             full_name,
