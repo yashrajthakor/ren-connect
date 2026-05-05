@@ -48,6 +48,12 @@ const Directory = () => {
             initials: initials || "RM",
             avatarUrl: m.profile_picture || m.logo || null,
             committeeBadge: m.committee_badge || null,
+            logoUrl: m.logo || null,
+            website: m.website || null,
+            chapter: m.chapter_name || null,
+            linkedin: m.linkedin_url || null,
+            instagram: m.instagram_url || null,
+            facebook: m.facebook_url || null,
           };
         });
         setMembers(mapped);
