@@ -115,3 +115,19 @@ LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS $$
   ) row;
 $$;
 GRANT EXECUTE ON FUNCTION public.get_my_profile() TO authenticated;
+
+-- RPC for admin & super_admin to view/manage committee badges
+CREATE OR REPLACE FUNCTION public.list_members_for_admin()
+RETURNS TABLE (
+  member_id uuid, user_id uuid, full_name text, email text,
+  chapter_name text, status text, committee_badge text
+)
+LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS $$
+  SELECT m.id, m.user_id, m.full_name, m.email,
+         c.name AS chapter_name, m.status, m.committee_badge
+  FROM public.members m
+  LEFT JOIN public.chapters c ON c.id = m.chapter_id
+  WHERE public.is_admin_or_super() AND m.status = 'active'
+  ORDER BY m.full_name ASC;
+$$;
+GRANT EXECUTE ON FUNCTION public.list_members_for_admin() TO authenticated;
