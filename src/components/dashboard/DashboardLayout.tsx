@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
-import { LogOut } from "lucide-react";
+import { LogOut, Shield } from "lucide-react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { DashboardSidebar } from "./DashboardSidebar";
@@ -46,10 +46,19 @@ const DashboardLayout = () => {
         <DashboardSidebar role={userRole} />
         <div className="flex-1 flex flex-col">
           <header className="h-16 flex items-center justify-between border-b border-border bg-card px-4">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <SidebarTrigger />
+              <span className="hidden sm:inline-flex items-center rounded-full bg-secondary text-secondary-foreground px-2.5 py-0.5 text-xs font-semibold">
+                Member Mode
+              </span>
             </div>
             <div className="flex items-center gap-4">
+              {(userRole?.toLowerCase() === "admin" || userRole?.toLowerCase() === "super_admin") && (
+                <Button variant="default" size="sm" onClick={() => navigate("/admin")}>
+                  <Shield className="h-4 w-4 mr-2" />
+                  Switch to Admin Mode
+                </Button>
+              )}
               <div className="text-right hidden sm:block">
                 <p className="text-sm font-medium text-foreground">{userEmail}</p>
                 <p className="text-xs text-primary font-medium capitalize">
