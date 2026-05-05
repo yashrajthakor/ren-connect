@@ -261,7 +261,7 @@ const MyProfile = () => {
               <Label>Phone</Label>
               <Input value={phone} onChange={(e) => setPhone(e.target.value)} />
             </div>
-            <div>
+            {/* <div>
               <Label>Chapter</Label>
               <Select value={chapterId} onValueChange={setChapterId}>
                 <SelectTrigger><SelectValue placeholder="Select chapter" /></SelectTrigger>
@@ -278,7 +278,7 @@ const MyProfile = () => {
                   {cities.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
                 </SelectContent>
               </Select>
-            </div>
+            </div> */}
           </div>
         </CardContent>
       </Card>
