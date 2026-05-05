@@ -12,6 +12,12 @@ export type Member = {
   featured?: boolean;
   avatarUrl?: string | null;
   committeeBadge?: string | null;
+  logoUrl?: string | null;
+  website?: string | null;
+  chapter?: string | null;
+  linkedin?: string | null;
+  instagram?: string | null;
+  facebook?: string | null;
 };
 
 export const categories = [
