@@ -11,6 +11,7 @@ export type Member = {
   initials: string;
   featured?: boolean;
   avatarUrl?: string | null;
+  committeeBadge?: string | null;
 };
 
 export const categories = [

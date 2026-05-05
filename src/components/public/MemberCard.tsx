@@ -1,4 +1,4 @@
-import { Mail, Phone, MapPin, MessageCircle, QrCode, Star } from "lucide-react";
+import { Mail, Phone, MapPin, MessageCircle, QrCode, Star, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Member } from "@/data/members";
 import { useT } from "@/i18n/LanguageProvider";
@@ -35,6 +35,12 @@ const MemberCard = ({ member }: { member: Member }) => {
           <div className="min-w-0">
             <h3 className="font-display font-bold text-lg text-secondary truncate">{member.name}</h3>
             <p className="text-sm text-primary font-semibold truncate">{member.business}</p>
+            {member.committeeBadge && (
+              <span className="mt-2 inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-semibold uppercase tracking-wide border border-primary/20">
+                <Award className="h-3 w-3" />
+                {member.committeeBadge}
+              </span>
+            )}
           </div>
           <div className="shrink-0 px-2.5 py-1 rounded-full bg-accent text-accent-foreground text-[10px] font-semibold uppercase tracking-wider">
             {member.category}
