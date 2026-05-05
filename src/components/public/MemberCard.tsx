@@ -47,20 +47,24 @@ const MemberCard = ({ member }: { member: Member }) => {
       </div>
 
       <div className="pt-12 px-6 pb-6">
-        <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0">
-            <h3 className="font-display font-bold text-lg text-secondary truncate">{member.name}</h3>
-            <p className="text-sm text-primary font-semibold truncate">{member.business}</p>
-            {member.committeeBadge && (
-              <span className="mt-2 inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-semibold uppercase tracking-wide border border-primary/20">
+        <div className="flex flex-col gap-3">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <h3 className="font-display font-bold text-lg text-secondary truncate">{member.name}</h3>
+              <p className="text-sm text-primary font-semibold truncate">{member.business}</p>
+            </div>
+            <div className="shrink-0 px-2.5 py-1 rounded-full bg-accent text-accent-foreground text-[10px] font-semibold uppercase tracking-wider">
+              {member.category}
+            </div>
+          </div>
+          {member.committeeBadge && (
+            <div className="flex flex-wrap gap-2">
+              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-semibold uppercase tracking-wide border border-primary/20">
                 <Award className="h-3 w-3" />
                 {member.committeeBadge}
               </span>
-            )}
-          </div>
-          <div className="shrink-0 px-2.5 py-1 rounded-full bg-accent text-accent-foreground text-[10px] font-semibold uppercase tracking-wider">
-            {member.category}
-          </div>
+            </div>
+          )}
         </div>
 
         <div className="mt-4 flex flex-wrap gap-1.5">

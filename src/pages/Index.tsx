@@ -20,7 +20,6 @@ import {
 import { Button } from "@/components/ui/button";
 import PublicLayout from "@/components/public/PublicLayout";
 import MemberCard from "@/components/public/MemberCard";
-import { members } from "@/data/members";
 import heroHeritage from "@/assets/hero-heritage.jpg";
 import heroBusiness from "@/assets/hero-business.jpg";
 import heroHandshake from "@/assets/hero-handshake.jpg";
@@ -159,12 +158,23 @@ const Index = () => {
             profile_picture,
             committee_badge,
             cities(name),
-            business_profiles(business_name, category_id, business_categories(name))
+            business_profiles(
+              business_name,
+              category_id,
+              city,
+              website,
+              services,
+              logo,
+              linkedin_url,
+              instagram_url,
+              facebook_url,
+              business_categories(name)
+            )
           `)
           .eq("status", "active")
           .not("committee_badge", "is", null)
           .neq("committee_badge", "")
-          .limit(10);
+          .limit(7);
 
         if (error) {
           console.error("Error fetching committee members:", error);
@@ -180,19 +190,27 @@ const Index = () => {
               .slice(0, 2)
               .join("")
               .toUpperCase() || "RM";
+            const rawServices = m.business_profiles?.services;
+            const servicesArr: string[] = rawServices
+              ? String(rawServices)
+                  .split(/[\n,]/)
+                  .map((s) => s.trim())
+                  .filter(Boolean)
+                  .slice(0, 6)
+              : [];
 
             return {
               id: m.id,
               name: fullName,
               business: m.business_profiles?.business_name || "REN Member",
               category: m.business_profiles?.business_categories?.name || "Member",
-              city: m.cities?.name || "—",
-              services: [],
+              city: m.business_profiles?.city || m.cities?.name || "—",
+              services: servicesArr,
               email: m.email || "—",
               phone: m.phone || "—",
-              address: "",
+              address: m.business_profiles?.city || "",
               initials,
-              avatarUrl: m.profile_picture || null,
+              avatarUrl: m.profile_picture || m.business_profiles?.logo || null,
               committeeBadge: m.committee_badge || null,
             };
           });
