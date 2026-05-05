@@ -26,6 +26,8 @@ import heroBusiness from "@/assets/hero-business.jpg";
 import heroHandshake from "@/assets/hero-handshake.jpg";
 import { useT } from "@/i18n/LanguageProvider";
 import type { TranslationKey } from "@/i18n/translations";
+import { supabase } from "@/integrations/supabase/client";
+import type { Member } from "@/data/members";
 
 type SlideDef = {
   image: string;
@@ -141,8 +143,68 @@ const sponsors: { category: string; name: string; logo: string }[] = [
 
 const Index = () => {
   const t = useT();
-  const featured = members.filter((m) => m.featured).slice(0, 3);
+  const [committeeMembers, setCommitteeMembers] = useState<Member[]>([]);
   const [slide, setSlide] = useState(0);
+
+  useEffect(() => {
+    const fetchCommitteeMembers = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("members")
+          .select(`
+            id,
+            full_name,
+            email,
+            phone,
+            profile_picture,
+            committee_badge,
+            cities(name),
+            business_profiles(business_name, category_id, business_categories(name))
+          `)
+          .eq("status", "active")
+          .not("committee_badge", "is", null)
+          .neq("committee_badge", "")
+          .limit(10);
+
+        if (error) {
+          console.error("Error fetching committee members:", error);
+          return;
+        }
+
+        if (data) {
+          const mapped: Member[] = data.map((m) => {
+            const fullName = m.full_name || "";
+            const initials = fullName
+              .split(" ")
+              .map((n) => n[0])
+              .slice(0, 2)
+              .join("")
+              .toUpperCase() || "RM";
+
+            return {
+              id: m.id,
+              name: fullName,
+              business: m.business_profiles?.business_name || "REN Member",
+              category: m.business_profiles?.business_categories?.name || "Member",
+              city: m.cities?.name || "—",
+              services: [],
+              email: m.email || "—",
+              phone: m.phone || "—",
+              address: "",
+              initials,
+              avatarUrl: m.profile_picture || null,
+              committeeBadge: m.committee_badge || null,
+            };
+          });
+          setCommitteeMembers(mapped);
+        }
+      } catch (error) {
+        console.error("Unexpected error fetching committee members:", error);
+      }
+    };
+
+    fetchCommitteeMembers();
+  }, []);
 
   useEffect(() => {
     const t = setInterval(() => setSlide((s) => (s + 1) % heroSlides.length), 6000);
@@ -373,7 +435,7 @@ const Index = () => {
           </Link>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {featured.map((m, i) => (
+          {committeeMembers.map((m, i) => (
             <div
               key={m.id}
               className="animate-fade-up"
