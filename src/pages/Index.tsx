@@ -346,7 +346,7 @@ const Index = () => {
       </section>
 
       {/* MARQUEE — sponsors */}
-      <section className="bg-secondary text-card/70 border-y border-card/10 overflow-hidden py-5">
+      {/* <section className="bg-secondary text-card/70 border-y border-card/10 overflow-hidden py-5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-4">
           <h2 className="text-lg font-semibold uppercase tracking-[0.25em] text-primary">
             Our key sponsors
@@ -369,16 +369,16 @@ const Index = () => {
             </div>
           ))}
         </div>
-      </section>
+      </section> */}
 
       {/* MARQUEE — chapters */}
-      <section className="bg-secondary text-card/70 border-y border-card/10 overflow-hidden py-5">
+      {/* <section className="bg-secondary text-card/70 border-y border-card/10 overflow-hidden py-5">
         <div className="flex gap-12 whitespace-nowrap animate-marquee">
         </div>
-      </section>
+      </section> */}
 
       {/* STATS */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 relative z-10">
+      {/* <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 relative z-10">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 bg-card rounded-2xl shadow-2xl border border-border p-6 animate-fade-up">
           {statDefs.map((s, i) => (
             <div
@@ -396,7 +396,7 @@ const Index = () => {
             </div>
           ))}
         </div>
-      </section>
+      </section> */}
 
       {/* PILLARS */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
