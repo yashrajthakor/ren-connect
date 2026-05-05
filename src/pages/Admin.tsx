@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, Shield, MapPin, Users, Building2, Plus, FileText } from "lucide-react";
+import { LogOut, Shield, Users, Plus, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -70,18 +70,6 @@ const Admin = () => {
       href: "/admin/applications",
     },
     {
-      title: "Add City",
-      description: "Create a new city location",
-      icon: MapPin,
-      href: "/admin/cities",
-    },
-    {
-      title: "Add Chapter",
-      description: "Create a new chapter",
-      icon: Building2,
-      href: "/admin/chapters",
-    },
-    {
       title: "Add Member",
       description: "Register a new member",
       icon: Users,
@@ -90,8 +78,6 @@ const Admin = () => {
   ];
 
   const stats = [
-    { label: "Total Cities", value: "--", icon: MapPin },
-    { label: "Total Chapters", value: "--", icon: Building2 },
     { label: "Total Members", value: "--", icon: Users },
   ];
 
@@ -132,7 +118,7 @@ const Admin = () => {
             Admin Dashboard
           </h1>
           <p className="text-muted-foreground mt-1">
-            Manage cities, chapters, and members
+            Manage members and applications
           </p>
         </div>
 

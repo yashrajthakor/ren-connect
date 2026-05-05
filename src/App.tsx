@@ -14,8 +14,6 @@ import Admin from "./pages/Admin";
 import AdminLayout from "./components/admin/AdminLayout";
 import Dashboard from "./pages/Dashboard";
 import DashboardLayout from "./components/dashboard/DashboardLayout";
-import Cities from "./pages/admin/Cities";
-import Chapters from "./pages/admin/Chapters";
 import Members from "./pages/admin/Members";
 import Applications from "./pages/admin/Applications";
 import ManageRoles from "./pages/admin/ManageRoles";
@@ -51,8 +49,6 @@ const App = () => (
           >
             <Route index element={<Admin />} />
             <Route path="applications" element={<Applications />} />
-            <Route path="cities" element={<Cities />} />
-            <Route path="chapters" element={<Chapters />} />
             <Route path="members" element={<Members />} />
             <Route
               path="manage-roles"

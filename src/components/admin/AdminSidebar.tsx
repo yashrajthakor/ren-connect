@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { LayoutDashboard, FileText, MapPin, Building2, Users, ShieldCheck } from "lucide-react";
+import { LayoutDashboard, FileText, Users, ShieldCheck } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -18,8 +18,6 @@ type Item = { title: string; url: string; icon: typeof LayoutDashboard; end?: bo
 const baseItems: Item[] = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard, end: true },
   { title: "Review Applications", url: "/admin/applications", icon: FileText },
-  { title: "Cities", url: "/admin/cities", icon: MapPin },
-  { title: "Chapters", url: "/admin/chapters", icon: Building2 },
   { title: "Members", url: "/admin/members", icon: Users },
 ];
 
