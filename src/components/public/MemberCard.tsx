@@ -72,20 +72,46 @@ const MemberCard = ({ member }: { member: Member }) => {
       if (!result) return;
       const file = new File([result.blob], `${member.name.replace(/\s+/g, "_")}_REN.png`, { type: "image/png" });
       const navAny = navigator as any;
-      if (navAny.canShare && navAny.canShare({ files: [file] })) {
-        await navAny.share({ files: [file], text: SHARE_MESSAGE, title: `${member.name} — REN` });
-      } else {
-        // Fallback: download image + open WhatsApp web with text
-        const a = document.createElement("a");
-        a.href = result.dataUrl;
-        a.download = `${member.name.replace(/\s+/g, "_")}_REN.png`;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        toast({ title: "Image downloaded", description: "Attach it in WhatsApp to share." });
-        const url = `https://wa.me/?text=${encodeURIComponent(SHARE_MESSAGE)}`;
-        window.open(url, "_blank");
+      const sharePayload = { files: [file], text: SHARE_MESSAGE, title: `${member.name} — REN` };
+
+      // Preferred: native share with image + text together (mobile)
+      if (navAny.canShare && navAny.canShare(sharePayload)) {
+        try {
+          await navAny.share(sharePayload);
+          return;
+        } catch (err: any) {
+          if (err?.name === "AbortError") return;
+          // fall through to fallback
+        }
       }
+
+      // Try sharing just the file if text+files combo not supported
+      if (navAny.canShare && navAny.canShare({ files: [file] })) {
+        try {
+          // Copy text first so user can paste alongside image
+          try { await navigator.clipboard.writeText(SHARE_MESSAGE); } catch {}
+          await navAny.share({ files: [file], title: `${member.name} — REN` });
+          toast({ title: "Message copied", description: "Paste the caption with your shared image." });
+          return;
+        } catch (err: any) {
+          if (err?.name === "AbortError") return;
+        }
+      }
+
+      // Desktop fallback: copy text + download image + open WhatsApp Web
+      try { await navigator.clipboard.writeText(SHARE_MESSAGE); } catch {}
+      const a = document.createElement("a");
+      a.href = result.dataUrl;
+      a.download = `${member.name.replace(/\s+/g, "_")}_REN.png`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      toast({
+        title: "Card downloaded & message copied",
+        description: "Attach the image in WhatsApp and paste the caption.",
+      });
+      const url = `https://wa.me/?text=${encodeURIComponent(SHARE_MESSAGE)}`;
+      window.open(url, "_blank");
     } catch (err) {
       console.error(err);
       toast({ title: "Share failed", description: "Please try again.", variant: "destructive" });
