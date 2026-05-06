@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Mail, Phone, MapPin, Star, Award, Globe, Building2, Linkedin, Instagram, Facebook } from "lucide-react";
+import { useRef, useState } from "react";
+import { Mail, Phone, MapPin, Star, Award, Globe, Building2, Linkedin, Instagram, Facebook, Share2, Download } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -8,12 +8,98 @@ import {
 } from "@/components/ui/dialog";
 import { Member } from "@/data/members";
 import { useT } from "@/i18n/LanguageProvider";
+import { Button } from "@/components/ui/button";
+import { toPng } from "html-to-image";
+import ShareableProfileCard from "./ShareableProfileCard";
+import { toast } from "@/hooks/use-toast";
+
+const SHARE_MESSAGE = `👋 Hello,
+
+I'm part of REN – Rajput Entrepreneur Network.
+
+Sharing my business profile card with you 😊
+
+REN helps entrepreneurs and professionals connect and grow their business network.
+
+Join REN and create your business profile:
+https://www.rajputbusinessnetwork.com/signup
+
+Let's connect and grow together 🤝`;
 
 const MemberCard = ({ member }: { member: Member }) => {
   const t = useT();
   const [open, setOpen] = useState(false);
+  const [busy, setBusy] = useState<"share" | "download" | null>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  const generatePng = async (): Promise<{ blob: Blob; dataUrl: string } | null> => {
+    if (!cardRef.current) return null;
+    const dataUrl = await toPng(cardRef.current, {
+      pixelRatio: 2,
+      cacheBust: true,
+      backgroundColor: "#ffffff",
+    });
+    const res = await fetch(dataUrl);
+    const blob = await res.blob();
+    return { blob, dataUrl };
+  };
+
+  const handleDownload = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      setBusy("download");
+      const result = await generatePng();
+      if (!result) return;
+      const a = document.createElement("a");
+      a.href = result.dataUrl;
+      a.download = `${member.name.replace(/\s+/g, "_")}_REN.png`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } catch (err) {
+      console.error(err);
+      toast({ title: "Download failed", description: "Please try again.", variant: "destructive" });
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const handleShare = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      setBusy("share");
+      const result = await generatePng();
+      if (!result) return;
+      const file = new File([result.blob], `${member.name.replace(/\s+/g, "_")}_REN.png`, { type: "image/png" });
+      const navAny = navigator as any;
+      if (navAny.canShare && navAny.canShare({ files: [file] })) {
+        await navAny.share({ files: [file], text: SHARE_MESSAGE, title: `${member.name} — REN` });
+      } else {
+        // Fallback: download image + open WhatsApp web with text
+        const a = document.createElement("a");
+        a.href = result.dataUrl;
+        a.download = `${member.name.replace(/\s+/g, "_")}_REN.png`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        toast({ title: "Image downloaded", description: "Attach it in WhatsApp to share." });
+        const url = `https://wa.me/?text=${encodeURIComponent(SHARE_MESSAGE)}`;
+        window.open(url, "_blank");
+      }
+    } catch (err) {
+      console.error(err);
+      toast({ title: "Share failed", description: "Please try again.", variant: "destructive" });
+    } finally {
+      setBusy(null);
+    }
+  };
+
   return (
     <>
+    {/* Off-screen render target for image generation */}
+    <div style={{ position: "fixed", left: -10000, top: 0, pointerEvents: "none", opacity: 0 }} aria-hidden>
+      <ShareableProfileCard ref={cardRef} member={member} />
+    </div>
     <article
       onClick={() => setOpen(true)}
       className="group relative overflow-hidden rounded-2xl bg-card border border-border shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer"
@@ -88,6 +174,29 @@ const MemberCard = ({ member }: { member: Member }) => {
             <MapPin className="h-4 w-4 text-primary shrink-0" />
             <span className="truncate">{member.city}</span>
           </div>
+        </div>
+
+        <div className="mt-5 flex gap-2">
+          <Button
+            size="sm"
+            variant="default"
+            className="flex-1"
+            disabled={busy !== null}
+            onClick={handleShare}
+          >
+            <Share2 className="h-4 w-4" />
+            {busy === "share" ? "Sharing…" : "Share Profile"}
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="flex-1"
+            disabled={busy !== null}
+            onClick={handleDownload}
+          >
+            <Download className="h-4 w-4" />
+            {busy === "download" ? "Saving…" : "Download Card"}
+          </Button>
         </div>
       </div>
     </article>
