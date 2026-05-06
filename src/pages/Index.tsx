@@ -170,8 +170,8 @@ const Index = () => {
   useEffect(() => {
     const fetchCommitteeMembers = async () => {
       try {
-        const { data, error } = await supabase
-          .from<CommitteeMemberRow>("members")
+        const { data, error } = await (supabase
+          .from("members") as any)
           .select(`
             id,
             full_name,
