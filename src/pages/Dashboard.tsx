@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { User, Briefcase } from "lucide-react";
+import { User, Briefcase, Handshake } from "lucide-react";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -15,7 +15,23 @@ const Dashboard = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <button
+          type="button"
+          onClick={() => navigate("/dashboard/leads")}
+          className="text-left bg-card rounded-xl border border-border p-6 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+        >
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-primary/10 rounded-lg">
+              <Handshake className="h-6 w-6 text-primary" />
+            </div>
+            <div>
+              <p className="font-medium text-foreground">My Leads</p>
+              <p className="text-sm text-muted-foreground">Share & track referrals</p>
+            </div>
+          </div>
+        </button>
+
         <button
           type="button"
           onClick={() => navigate("/dashboard/profile")}
