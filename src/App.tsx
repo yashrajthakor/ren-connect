@@ -19,6 +19,8 @@ import DashboardLayout from "./components/dashboard/DashboardLayout";
 import Members from "./pages/admin/Members";
 import Applications from "./pages/admin/Applications";
 import ManageRoles from "./pages/admin/ManageRoles";
+import AdminLeads from "./pages/admin/Leads";
+import LeadsPage from "./pages/dashboard/Leads";
 import MyProfile from "./pages/MyProfile";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -53,6 +55,7 @@ const App = () => (
             <Route index element={<Admin />} />
             <Route path="applications" element={<Applications />} />
             <Route path="members" element={<Members />} />
+            <Route path="leads" element={<AdminLeads />} />
             <Route
               path="manage-roles"
               element={
@@ -74,6 +77,7 @@ const App = () => (
             <Route path="applications" element={<Applications />} />
             <Route path="profile" element={<MyProfile />} />
             <Route path="directory" element={<DashboardDirectory />} />
+            <Route path="leads" element={<LeadsPage />} />
           </Route>
           {/* Legacy redirect */}
           <Route path="/member" element={<Navigate to="/dashboard" replace />} />

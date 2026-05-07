@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { LayoutDashboard, FileText, Users, ShieldCheck } from "lucide-react";
+import { LayoutDashboard, FileText, Users, ShieldCheck, Handshake } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -19,6 +19,7 @@ const baseItems: Item[] = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard, end: true },
   { title: "Review Applications", url: "/admin/applications", icon: FileText },
   { title: "Members", url: "/admin/members", icon: Users },
+  { title: "Leads & Business", url: "/admin/leads", icon: Handshake },
 ];
 
 const superAdminItems: Item[] = [
