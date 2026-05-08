@@ -112,7 +112,7 @@ export default function LeadsPage() {
       <button
         onClick={() => setCreateOpen(true)}
         aria-label="Share new lead"
-        className="fixed bottom-6 right-6 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all flex items-center justify-center z-30"
+        className="fixed bottom-24 right-6 sm:bottom-6 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all flex items-center justify-center z-30"
       >
         <Plus className="h-6 w-6" />
       </button>
