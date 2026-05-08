@@ -21,6 +21,8 @@ import Applications from "./pages/admin/Applications";
 import ManageRoles from "./pages/admin/ManageRoles";
 import AdminLeads from "./pages/admin/Leads";
 import LeadsPage from "./pages/dashboard/Leads";
+import NotificationsPage from "./pages/dashboard/Notifications";
+import AdminAnnouncements from "./pages/admin/Announcements";
 import MyProfile from "./pages/MyProfile";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -56,6 +58,7 @@ const App = () => (
             <Route path="applications" element={<Applications />} />
             <Route path="members" element={<Members />} />
             <Route path="leads" element={<AdminLeads />} />
+            <Route path="announcements" element={<AdminAnnouncements />} />
             <Route
               path="manage-roles"
               element={
@@ -78,6 +81,7 @@ const App = () => (
             <Route path="profile" element={<MyProfile />} />
             <Route path="directory" element={<DashboardDirectory />} />
             <Route path="leads" element={<LeadsPage />} />
+            <Route path="notifications" element={<NotificationsPage />} />
           </Route>
           {/* Legacy redirect */}
           <Route path="/member" element={<Navigate to="/dashboard" replace />} />

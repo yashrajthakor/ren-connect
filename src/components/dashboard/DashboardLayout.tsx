@@ -4,6 +4,7 @@ import { LogOut, Shield } from "lucide-react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { DashboardSidebar } from "./DashboardSidebar";
+import NotificationBell from "@/components/notifications/NotificationBell";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -53,6 +54,7 @@ const DashboardLayout = () => {
               </span>
             </div>
             <div className="flex items-center gap-4">
+              <NotificationBell />
               {(userRole?.toLowerCase() === "admin" || userRole?.toLowerCase() === "super_admin") && (
                 <Button variant="default" size="sm" onClick={() => navigate("/admin")}>
                   <Shield className="h-4 w-4 mr-2" />
