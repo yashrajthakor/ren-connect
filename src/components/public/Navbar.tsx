@@ -1,16 +1,18 @@
 import { useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { Menu, X, LogIn, UserPlus } from "lucide-react";
+import { Menu, X, LogIn, UserPlus, LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import renLogo from "@/assets/ren-logo.png";
 import { cn } from "@/lib/utils";
 import { useT } from "@/i18n/LanguageProvider";
 import LanguageSwitcher from "./LanguageSwitcher";
+import { useAuthContext } from "@/context/AuthContext";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
   const location = useLocation();
   const t = useT();
+  const { user, loading } = useAuthContext();
 
   const navItems = [
     { to: "/", label: t("nav.home") },
@@ -56,18 +58,31 @@ const Navbar = () => {
 
           <div className="hidden lg:flex items-center gap-2">
             <LanguageSwitcher className="mr-1" />
-            <Button asChild variant="ghost" size="sm">
-              <Link to="/login">
-                <LogIn className="h-4 w-4" />
-                {t("nav.login")}
-              </Link>
-            </Button>
-            <Button asChild variant="royal" size="sm">
-              <Link to="/signup">
-                <UserPlus className="h-4 w-4" />
-                {t("nav.join")}
-              </Link>
-            </Button>
+            {loading ? (
+              <div className="h-8 w-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+            ) : user ? (
+              <Button asChild variant="ghost" size="sm">
+                <Link to="/dashboard">
+                  <LayoutDashboard className="h-4 w-4" />
+                  {t("nav.dashboard")}
+                </Link>
+              </Button>
+            ) : (
+              <>
+                <Button asChild variant="ghost" size="sm">
+                  <Link to="/login">
+                    <LogIn className="h-4 w-4" />
+                    {t("nav.login")}
+                  </Link>
+                </Button>
+                <Button asChild variant="royal" size="sm">
+                  <Link to="/signup">
+                    <UserPlus className="h-4 w-4" />
+                    {t("nav.join")}
+                  </Link>
+                </Button>
+              </>
+            )}
           </div>
 
           <div className="lg:hidden flex items-center gap-2">
@@ -104,18 +119,33 @@ const Navbar = () => {
                 </NavLink>
               ))}
               <div className="flex gap-2 pt-3 border-t border-border mt-2">
-                <Button asChild variant="outline" size="sm" className="flex-1">
-                  <Link to="/login" onClick={() => setOpen(false)}>
-                    <LogIn className="h-4 w-4" />
-                    {t("nav.loginShort")}
-                  </Link>
-                </Button>
-                <Button asChild variant="royal" size="sm" className="flex-1">
-                  <Link to="/signup" onClick={() => setOpen(false)}>
-                    <UserPlus className="h-4 w-4" />
-                    {t("nav.join")}
-                  </Link>
-                </Button>
+                {loading ? (
+                  <div className="flex-1 flex justify-center">
+                    <div className="h-8 w-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+                  </div>
+                ) : user ? (
+                  <Button asChild variant="outline" size="sm" className="flex-1">
+                    <Link to="/dashboard" onClick={() => setOpen(false)}>
+                      <LayoutDashboard className="h-4 w-4" />
+                      {t("nav.dashboard")}
+                    </Link>
+                  </Button>
+                ) : (
+                  <>
+                    <Button asChild variant="outline" size="sm" className="flex-1">
+                      <Link to="/login" onClick={() => setOpen(false)}>
+                        <LogIn className="h-4 w-4" />
+                        {t("nav.loginShort")}
+                      </Link>
+                    </Button>
+                    <Button asChild variant="royal" size="sm" className="flex-1">
+                      <Link to="/signup" onClick={() => setOpen(false)}>
+                        <UserPlus className="h-4 w-4" />
+                        {t("nav.join")}
+                      </Link>
+                    </Button>
+                  </>
+                )}
               </div>
             </nav>
           </div>

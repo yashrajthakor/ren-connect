@@ -52,12 +52,14 @@ export function DashboardSidebar({ role }: DashboardSidebarProps) {
     <Sidebar collapsible="icon">
       <SidebarContent>
         <div className="flex items-center gap-2 px-3 py-4 border-b border-sidebar-border">
-          <img src={renLogo} alt="REN" className="h-8 w-auto shrink-0" />
-          {!collapsed && (
-            <span className="font-display font-bold text-base text-sidebar-foreground">
-              REN Portal
-            </span>
-          )}
+          <NavLink to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+            <img src={renLogo} alt="REN" className="h-8 w-auto shrink-0" />
+            {!collapsed && (
+              <span className="font-display font-bold text-base text-sidebar-foreground">
+                REN Portal
+              </span>
+            )}
+          </NavLink>
         </div>
         <SidebarGroup>
           <SidebarGroupLabel>Menu</SidebarGroupLabel>

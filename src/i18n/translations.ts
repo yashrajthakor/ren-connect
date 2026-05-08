@@ -16,6 +16,7 @@ export const translations = {
     "nav.login": "Member Login",
     "nav.loginShort": "Login",
     "nav.join": "Join REN",
+    "nav.dashboard": "Dashboard",
     "nav.language": "Language",
 
     // Footer

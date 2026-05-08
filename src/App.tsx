@@ -27,70 +27,73 @@ import MyProfile from "./pages/MyProfile";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { LanguageProvider } from "./i18n/LanguageProvider";
+import { AuthProvider } from "./context/AuthContext";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <LanguageProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <PwaInstallPrompt />
-          <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/directory" element={<Directory />} />
-          <Route path="/key-moments" element={<KeyMoments />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/voice" element={<VoiceOfRen />} />
-          <Route
-            path="/admin"
-            element={
-              <ProtectedRoute allowedRoles={["admin", "super_admin"]}>
-                <AdminLayout />
-              </ProtectedRoute>
-            }
-          >
-            <Route index element={<Admin />} />
-            <Route path="applications" element={<Applications />} />
-            <Route path="members" element={<Members />} />
-            <Route path="leads" element={<AdminLeads />} />
-            <Route path="announcements" element={<AdminAnnouncements />} />
+    <AuthProvider>
+      <LanguageProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <PwaInstallPrompt />
+            <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/directory" element={<Directory />} />
+            <Route path="/key-moments" element={<KeyMoments />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/voice" element={<VoiceOfRen />} />
             <Route
-              path="manage-roles"
+              path="/admin"
               element={
-                <ProtectedRoute allowedRoles={["super_admin"]}>
-                  <ManageRoles />
+                <ProtectedRoute allowedRoles={["admin", "super_admin"]}>
+                  <AdminLayout />
                 </ProtectedRoute>
               }
-            />
-          </Route>
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute allowedRoles={["member", "admin", "super_admin"]}>
-                <DashboardLayout />
-              </ProtectedRoute>
-            }
-          >
-            <Route index element={<Dashboard />} />
-            <Route path="applications" element={<Applications />} />
-            <Route path="profile" element={<MyProfile />} />
-            <Route path="directory" element={<DashboardDirectory />} />
-            <Route path="leads" element={<LeadsPage />} />
-            <Route path="notifications" element={<NotificationsPage />} />
-          </Route>
-          {/* Legacy redirect */}
-          <Route path="/member" element={<Navigate to="/dashboard" replace />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-      </TooltipProvider>
-    </LanguageProvider>
+            >
+              <Route index element={<Admin />} />
+              <Route path="applications" element={<Applications />} />
+              <Route path="members" element={<Members />} />
+              <Route path="leads" element={<AdminLeads />} />
+              <Route path="announcements" element={<AdminAnnouncements />} />
+              <Route
+                path="manage-roles"
+                element={
+                  <ProtectedRoute allowedRoles={["super_admin"]}>
+                    <ManageRoles />
+                  </ProtectedRoute>
+                }
+              />
+            </Route>
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute allowedRoles={["member", "admin", "super_admin"]}>
+                  <DashboardLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route index element={<Dashboard />} />
+              <Route path="applications" element={<Applications />} />
+              <Route path="profile" element={<MyProfile />} />
+              <Route path="directory" element={<DashboardDirectory />} />
+              <Route path="leads" element={<LeadsPage />} />
+              <Route path="notifications" element={<NotificationsPage />} />
+            </Route>
+            {/* Legacy redirect */}
+            <Route path="/member" element={<Navigate to="/dashboard" replace />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+        </TooltipProvider>
+      </LanguageProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 
