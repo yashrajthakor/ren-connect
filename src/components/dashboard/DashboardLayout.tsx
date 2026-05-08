@@ -7,6 +7,7 @@ import { DashboardSidebar } from "./DashboardSidebar";
 import NotificationBell from "@/components/notifications/NotificationBell";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 
 const DashboardLayout = () => {
   const navigate = useNavigate();
@@ -14,6 +15,9 @@ const DashboardLayout = () => {
   const [userEmail, setUserEmail] = useState("");
   const [userRole, setUserRole] = useState<string | null>(null);
   const [roleLoading, setRoleLoading] = useState(true);
+  
+  // Enable push notifications for dashboard
+  usePushNotifications();
 
   useEffect(() => {
     (async () => {

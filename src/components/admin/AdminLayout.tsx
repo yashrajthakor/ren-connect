@@ -7,12 +7,16 @@ import { AdminSidebar } from "./AdminSidebar";
 import NotificationBell from "@/components/notifications/NotificationBell";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 
 const AdminLayout = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [userEmail, setUserEmail] = useState("");
   const [userRole, setUserRole] = useState("");
+  
+  // Enable push notifications for admin
+  usePushNotifications();
 
   useEffect(() => {
     (async () => {

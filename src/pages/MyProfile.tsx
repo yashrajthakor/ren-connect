@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import NotificationSettings from "@/components/NotificationSettings";
 
 type Profile = {
   member_id: string;
@@ -368,6 +369,8 @@ const MyProfile = () => {
           </div>
         </CardContent>
       </Card>
+
+      <NotificationSettings />
 
       <div className="flex justify-end">
         <Button onClick={save} disabled={saving} variant="royal" size="lg">

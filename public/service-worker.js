@@ -49,3 +49,81 @@ self.addEventListener("fetch", (event) => {
     }),
   );
 });
+
+// Handle messages from the main thread (for showing notifications)
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "SHOW_NOTIFICATION") {
+    const { title, options } = event.data;
+    self.registration.showNotification(title, options);
+  }
+});
+
+// Handle push notifications
+self.addEventListener("push", (event) => {
+  if (!event.data) return;
+
+  let notificationData = {
+    title: "🔔 REN Notification",
+    body: "You have a new notification",
+    icon: "/android-chrome-192x192.png",
+    badge: "/android-chrome-192x192.png",
+    tag: "ren-notification",
+    data: { link: "/dashboard/notifications" },
+    requireInteraction: false,
+    vibrate: [200, 100, 200], // Mobile vibration pattern
+  };
+
+  try {
+    const data = event.data.json();
+    notificationData = {
+      ...notificationData,
+      title: data.title || notificationData.title,
+      body: data.body || notificationData.body,
+      data: {
+        link: data.link || data.data?.link || "/dashboard/notifications",
+        notificationId: data.id || data.notificationId,
+      },
+      tag: data.id || data.notificationId || "ren-notification",
+      requireInteraction: data.requireInteraction || false,
+      vibrate: data.vibrate || [200, 100, 200],
+    };
+  } catch (e) {
+    // If parsing JSON fails, use text as body
+    try {
+      notificationData.body = event.data.text() || notificationData.body;
+    } catch (textErr) {
+      console.error("Failed to parse push data:", textErr);
+    }
+  }
+
+  event.waitUntil(self.registration.showNotification(notificationData.title, notificationData));
+});
+
+// Handle notification clicks
+self.addEventListener("notificationclick", (event) => {
+  console.log("Notification clicked:", event.notification.tag);
+  event.notification.close();
+
+  const urlToOpen = event.notification.data.link || "/dashboard";
+
+  event.waitUntil(
+    clients.matchAll({ type: "window", includeUncontrolled: true }).then((clientList) => {
+      // Check if app is already open
+      for (let i = 0; i < clientList.length; i++) {
+        const client = clientList[i];
+        if (client.url === urlToOpen && "focus" in client) {
+          return client.focus();
+        }
+      }
+      // If not open, open new window/tab
+      if (clients.openWindow) {
+        return clients.openWindow(urlToOpen);
+      }
+    }),
+  );
+});
+
+// Handle notification close events (for analytics)
+self.addEventListener("notificationclose", (event) => {
+  console.log("Notification closed:", event.notification.tag);
+});
