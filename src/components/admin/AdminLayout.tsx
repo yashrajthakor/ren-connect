@@ -4,6 +4,7 @@ import { LogOut, UserRound } from "lucide-react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { AdminSidebar } from "./AdminSidebar";
+import NotificationBell from "@/components/notifications/NotificationBell";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -59,6 +60,7 @@ const AdminLayout = () => {
               </span>
             </div>
             <div className="flex items-center gap-4">
+              <NotificationBell />
               {(userRole.toLowerCase() === "admin" || userRole.toLowerCase() === "super_admin") && (
                 <Button variant="secondary" size="sm" onClick={() => navigate("/dashboard")}>
                   <UserRound className="h-4 w-4 mr-2" />
