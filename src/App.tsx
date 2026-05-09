@@ -7,6 +7,8 @@ import PwaInstallPrompt from "./components/PwaInstallPrompt";
 import RootRoute from "./pages/RootRoute";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import Directory from "./pages/Directory";
 import About from "./pages/About";
 import VoiceOfRen from "./pages/VoiceOfRen";
@@ -44,6 +46,8 @@ const App = () => (
             <Route path="/" element={<RootRoute />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/directory" element={<Directory />} />
             <Route path="/key-moments" element={<KeyMoments />} />
             <Route path="/about" element={<About />} />
