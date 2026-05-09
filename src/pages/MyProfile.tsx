@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import NotificationSettings from "@/components/NotificationSettings";
+import ChangePasswordCard from "@/components/ChangePasswordCard";
 
 type Profile = {
   member_id: string;
@@ -371,6 +372,8 @@ const MyProfile = () => {
       </Card>
 
       <NotificationSettings />
+
+      <ChangePasswordCard />
 
       <div className="flex justify-end">
         <Button onClick={save} disabled={saving} variant="royal" size="lg">
