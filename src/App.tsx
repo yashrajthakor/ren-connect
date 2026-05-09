@@ -26,6 +26,7 @@ import LeadsPage from "./pages/dashboard/Leads";
 import NotificationsPage from "./pages/dashboard/Notifications";
 import AdminAnnouncements from "./pages/admin/Announcements";
 import MyProfile from "./pages/MyProfile";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { LanguageProvider } from "./i18n/LanguageProvider";
@@ -85,6 +86,7 @@ const App = () => (
               <Route index element={<Dashboard />} />
               <Route path="applications" element={<Applications />} />
               <Route path="profile" element={<MyProfile />} />
+              <Route path="settings" element={<Settings />} />
               <Route path="directory" element={<DashboardDirectory />} />
               <Route path="leads" element={<LeadsPage />} />
               <Route path="notifications" element={<NotificationsPage />} />

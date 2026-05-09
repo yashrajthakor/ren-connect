@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { LayoutDashboard, FileText, UserCog, Briefcase, Handshake, Bell } from "lucide-react";
+import { LayoutDashboard, FileText, UserCog, Briefcase, Handshake, Bell, Settings } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -25,6 +25,7 @@ const baseItems: SidebarItem[] = [
   { title: "My Leads", url: "/dashboard/leads", icon: Handshake },
   { title: "Notifications", url: "/dashboard/notifications", icon: Bell },
   { title: "My Profile", url: "/dashboard/profile", icon: UserCog },
+  { title: "Settings", url: "/dashboard/settings", icon: Settings },
   { title: "Business Directory", url: "/dashboard/directory", icon: Briefcase },
 ];
 
