@@ -30,15 +30,15 @@ const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJ
 //   (isProd ? PROD_SUPABASE_ANON_KEY : DEV_SUPABASE_ANON_KEY);
 
 // Validate configuration
-if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-  console.error("❌ Supabase configuration error: Missing URL or Anon Key");
-  console.error("URL:", SUPABASE_URL ? "✅ Set" : "❌ Missing");
-  console.error("Anon Key:", SUPABASE_ANON_KEY ? "✅ Set" : "❌ Missing");
-} else {
-  console.log("✅ Supabase configured");
-  console.log("URL:", SUPABASE_URL);
-  console.log("Anon Key:", SUPABASE_ANON_KEY.substring(0, 30) + "...");
-}
+// if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+//   console.error("❌ Supabase configuration error: Missing URL or Anon Key");
+//   console.error("URL:", SUPABASE_URL ? "✅ Set" : "❌ Missing");
+//   console.error("Anon Key:", SUPABASE_ANON_KEY ? "✅ Set" : "❌ Missing");
+// } else {
+//   console.log("✅ Supabase configured");
+//   console.log("URL:", SUPABASE_URL);
+//   console.log("Anon Key:", SUPABASE_ANON_KEY.substring(0, 30) + "...");
+//}
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {
@@ -49,14 +49,14 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
 });
 
 // Log configuration on import (only in development)
-if (import.meta.env.DEV) {
-  console.group("🔍 Supabase Client Configuration");
-  console.log("URL:", SUPABASE_URL);
-  console.log("Anon Key:", SUPABASE_ANON_KEY.substring(0, 30) + "...");
-  console.log("Full Key Length:", SUPABASE_ANON_KEY.length);
-  console.log("Using Env Vars:", {
-    url: !!import.meta.env.VITE_SUPABASE_URL,
-    key: !!import.meta.env.VITE_SUPABASE_ANON_KEY,
-  });
-  console.groupEnd();
-}
+// if (import.meta.env.DEV) {
+//   console.group("🔍 Supabase Client Configuration");
+//   console.log("URL:", SUPABASE_URL);
+//   console.log("Anon Key:", SUPABASE_ANON_KEY.substring(0, 30) + "...");
+//   console.log("Full Key Length:", SUPABASE_ANON_KEY.length);
+//   console.log("Using Env Vars:", {
+//     url: !!import.meta.env.VITE_SUPABASE_URL,
+//     key: !!import.meta.env.VITE_SUPABASE_ANON_KEY,
+//   });
+//   console.groupEnd();
+// }

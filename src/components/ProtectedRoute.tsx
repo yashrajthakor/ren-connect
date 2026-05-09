@@ -27,7 +27,7 @@ const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
         console.error("Unexpected error fetching role:", err);
       }
 
-      console.log("ProtectedRoute - User role:", roleName); // Debug log
+      // console.log("ProtectedRoute - User role:", roleName); // Debug log
       setUserRole(roleName);
     };
 

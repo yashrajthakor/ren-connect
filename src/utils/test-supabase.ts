@@ -85,14 +85,14 @@ export function logSupabaseConfig() {
   const key = import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh5Ymp5ZGdxd3RodnpwZ3doZ2FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEwMjI2MTYsImV4cCI6MjA2NjU5ODYxNn0.uO5P4A80Td_kLvz2wchPhJGfAZmvBNFh1Ij_0bLq0PY";
   
   console.group("🔍 Supabase Configuration");
-  console.log("URL:", url);
-  console.log("Anon Key:", key.substring(0, 30) + "...");
-  console.log("Full Key Length:", key.length);
-  console.log("Using Env Vars:", {
-    url: !!import.meta.env.VITE_SUPABASE_URL,
-    key: !!import.meta.env.VITE_SUPABASE_ANON_KEY,
-  });
-  console.log("Client:", supabase);
+  // console.log("URL:", url);
+  // console.log("Anon Key:", key.substring(0, 30) + "...");
+  // console.log("Full Key Length:", key.length);
+  // console.log("Using Env Vars:", {
+  //   url: !!import.meta.env.VITE_SUPABASE_URL,
+  //   key: !!import.meta.env.VITE_SUPABASE_ANON_KEY,
+  // });
+  // console.log("Client:", supabase);
   console.groupEnd();
 }
 
@@ -105,12 +105,12 @@ export async function testAuth() {
   try {
     // Check current session
     const { data: session, error: sessionError } = await supabase.auth.getSession();
-    console.log("Current Session:", session?.session ? "✅ Active" : "❌ None");
+    // console.log("Current Session:", session?.session ? "✅ Active" : "❌ None");
     if (sessionError) console.error("Session Error:", sessionError);
 
     // Check user
     const { data: user, error: userError } = await supabase.auth.getUser();
-    console.log("Current User:", user?.user ? `✅ ${user.user.email}` : "❌ None");
+    // console.log("Current User:", user?.user ? `✅ ${user.user.email}` : "❌ None");
     if (userError) console.error("User Error:", userError);
 
   } catch (error) {

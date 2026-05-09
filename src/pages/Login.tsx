@@ -50,14 +50,14 @@ const Login = () => {
   useEffect(() => {
     if (import.meta.env.DEV) {
       const testConfig = async () => {
-        console.log("🔍 Testing Supabase configuration...");
+        // console.log("🔍 Testing Supabase configuration...");
         const report = await testSupabaseConnection();
-        console.log("📊 Configuration Report:", report);
+        // console.log("📊 Configuration Report:", report);
         
         if (report.error) {
-          console.error("❌ Configuration Error:", report.error);
+          // console.error("❌ Configuration Error:", report.error);
         } else {
-          console.log("✅ Supabase is properly configured");
+          // console.log("✅ Supabase is properly configured");
         }
       };
       
@@ -139,7 +139,7 @@ const Login = () => {
           console.error("Unexpected error fetching role:", err);
         }
 
-        console.log("User role:", role); // Debug log
+        // console.log("User role:", role); // Debug log
 
         // Admins and super admins bypass application status gating
         if (role === "super_admin" || role === "admin") {
