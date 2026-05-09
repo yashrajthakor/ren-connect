@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import MemberCard from "@/components/public/MemberCard";
 import { Member } from "@/data/members";
 import { supabase } from "@/integrations/supabase/client";
@@ -98,7 +99,7 @@ const DashboardDirectory = () => {
         </p>
       </div>
 
-      <div className="grid gap-6 mb-8 md:grid-cols-[1fr,220px] items-end">
+      <div className="grid gap-6 mb-8 md:grid-cols-[1fr,240px] items-end">
         <div className="relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <Input
@@ -108,21 +109,20 @@ const DashboardDirectory = () => {
             className="pl-12 h-12 bg-card text-foreground"
           />
         </div>
-        <div className="flex flex-wrap gap-2">
-          {categories.map((c) => (
-            <button
-              key={c}
-              onClick={() => setActive(c)}
-              className={cn(
-                "px-4 py-2 rounded-full text-sm font-medium border transition-all",
-                active === c
-                  ? "bg-primary text-primary-foreground border-primary shadow"
-                  : "bg-card text-secondary border-border hover:border-primary/50",
-              )}
-            >
-              {c}
-            </button>
-          ))}
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-secondary">Category</label>
+          <Select value={active} onValueChange={setActive}>
+            <SelectTrigger className="h-12 w-full">
+              <SelectValue placeholder="Select category" />
+            </SelectTrigger>
+            <SelectContent>
+              {categories.map((c) => (
+                <SelectItem key={c} value={c}>
+                  {c}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
