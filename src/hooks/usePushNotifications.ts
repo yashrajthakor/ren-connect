@@ -83,10 +83,11 @@ export const usePushNotifications = () => {
       business_closed: '✅ Business Closed',
       announcement: '📢 Announcement',
       admin_update: '⚙️ Admin Update',
+      new_application: '🔔 New Member Application',
     };
 
     const title = typeLabels[notification.type] || notification.title;
-    const options: NotificationOptions = {
+    const options: NotificationOptions & { vibrate?: number[] } = {
       body: notification.body || 'New notification from REN',
       icon: '/android-chrome-192x192.png',
       badge: '/android-chrome-192x192.png',
