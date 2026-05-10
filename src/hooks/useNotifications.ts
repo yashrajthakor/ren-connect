@@ -8,7 +8,10 @@ export type NotificationType =
   | "business_closed"
   | "announcement"
   | "admin_update"
-  | "new_application";
+  | "new_application"
+  | "new_ask"
+  | "ask_updated"
+  | "ask_resolved";
 
 export interface AppNotification {
   id: string;
