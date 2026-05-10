@@ -398,7 +398,7 @@ const Signup = () => {
                   <Input id="facebook" className="mt-1" placeholder="https://facebook.com/..." {...f3.register("facebook")} />
                 </div>
                 <div>
-                  <Label htmlFor="referralCode">Referral Code</Label>
+                  <Label htmlFor="referralCode">Referral Person Name</Label>
                   <Input id="referralCode" className="mt-1" placeholder="Optional" {...f3.register("referralCode")} />
                 </div>
               </div>
