@@ -23,6 +23,8 @@ import Applications from "./pages/admin/Applications";
 import ManageRoles from "./pages/admin/ManageRoles";
 import AdminLeads from "./pages/admin/Leads";
 import LeadsPage from "./pages/dashboard/Leads";
+import AsksPage from "./pages/dashboard/Asks";
+import AdminAsks from "./pages/admin/Asks";
 import NotificationsPage from "./pages/dashboard/Notifications";
 import AdminAnnouncements from "./pages/admin/Announcements";
 import MyProfile from "./pages/MyProfile";
@@ -91,6 +93,7 @@ const App = () => {
                 <Route path="applications" element={<Applications />} />
                 <Route path="members" element={<Members />} />
                 <Route path="leads" element={<AdminLeads />} />
+                <Route path="asks" element={<AdminAsks />} />
                 <Route path="announcements" element={<AdminAnnouncements />} />
                 <Route
                   path="manage-roles"
@@ -115,6 +118,7 @@ const App = () => {
                 <Route path="settings" element={<Settings />} />
                 <Route path="directory" element={<DashboardDirectory />} />
                 <Route path="leads" element={<LeadsPage />} />
+                <Route path="asks" element={<AsksPage />} />
                 <Route path="notifications" element={<NotificationsPage />} />
               </Route>
               {/* Legacy redirect */}
