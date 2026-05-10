@@ -16,6 +16,9 @@ const typeAccent: Record<string, string> = {
   announcement: "bg-amber-500/10 text-amber-600",
   admin_update: "bg-purple-500/10 text-purple-600",
   new_application: "bg-orange-500/10 text-orange-600",
+  new_ask: "bg-cyan-500/10 text-cyan-600",
+  ask_updated: "bg-blue-500/10 text-blue-600",
+  ask_resolved: "bg-emerald-500/10 text-emerald-600",
 };
 
 export default function NotificationBell() {
