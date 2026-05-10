@@ -82,13 +82,6 @@ const heroSlides: SlideDef[] = [
   },
 ];
 
-const statDefs: { labelKey: TranslationKey; value: string; icon: any }[] = [
-  { labelKey: "stats.members", value: "500+", icon: Users },
-  { labelKey: "stats.businesses", value: "320+", icon: Briefcase },
-  { labelKey: "stats.referrals", value: "1,200+", icon: Handshake },
-  { labelKey: "stats.cities", value: "25+", icon: Globe2 },
-];
-
 const pillarDefs: { icon: any; titleKey: TranslationKey; descKey: TranslationKey }[] = [
   { icon: Crown, titleKey: "pillars.p1.title", descKey: "pillars.p1.desc" },
   { icon: Shield, titleKey: "pillars.p2.title", descKey: "pillars.p2.desc" },
@@ -165,6 +158,12 @@ const sponsors: { category: string; name: string; logo: string }[] = [
 const Index = () => {
   const t = useT();
   const [committeeMembers, setCommitteeMembers] = useState<Member[]>([]);
+  const [stats, setStats] = useState([
+    { labelKey: "stats.members", value: "0+", icon: Users },
+    { labelKey: "stats.businesses", value: "0+", icon: Briefcase },
+    { labelKey: "stats.referrals", value: "0+", icon: Handshake },
+    { labelKey: "stats.volume", value: "0L+", icon: Building2 },
+  ]);
   const [slide, setSlide] = useState(0);
 
   useEffect(() => {
@@ -244,6 +243,27 @@ const Index = () => {
     };
 
     fetchCommitteeMembers();
+  }, []);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const { count: membersCount } = await supabase.from('members').select('*', { count: 'exact', head: true }).eq('status', 'active');
+        const { count: businessesCount } = await supabase.from('business_profiles').select('*', { count: 'exact', head: true });
+        const { count: leadsCount } = await supabase.from('business_closures').select('*', { count: 'exact', head: true });
+        const { data: volumeData } = await supabase.from('business_closures').select('amount');
+        const volume = volumeData?.reduce((sum, bc) => sum + (bc.amount || 0), 0) || 0;
+        setStats([
+          { labelKey: "stats.members", value: `${membersCount || 0}+`, icon: Users },
+          { labelKey: "stats.businesses", value: `${businessesCount || 0}+`, icon: Briefcase },
+          { labelKey: "stats.referrals", value: `${leadsCount || 0}+`, icon: Handshake },
+          { labelKey: "stats.volume", value: `${(volume)}+`, icon: Building2 },
+        ]);
+      } catch (error) {
+        console.error('Error fetching stats:', error);
+      }
+    };
+    fetchStats();
   }, []);
 
   useEffect(() => {
@@ -378,9 +398,9 @@ const Index = () => {
       </section> */}
 
       {/* STATS */}
-      {/* <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 relative z-10">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 relative z-10">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 bg-card rounded-2xl shadow-2xl border border-border p-6 animate-fade-up">
-          {statDefs.map((s, i) => (
+          {stats.map((s, i) => (
             <div
               key={s.labelKey}
               className="flex items-center gap-4 group animate-scale-in"
@@ -396,7 +416,7 @@ const Index = () => {
             </div>
           ))}
         </div>
-      </section> */}
+      </section>
 
       {/* PILLARS */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
@@ -488,7 +508,7 @@ const Index = () => {
       </section>
 
       {/* EVENTS */}
-      <section className="bg-muted/40 border-y border-border">
+      {/* <section className="bg-muted/40 border-y border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
           <div className="grid lg:grid-cols-12 gap-10">
             <div className="lg:col-span-4 animate-slide-in-left" style={{ opacity: 0 }}>
@@ -529,10 +549,10 @@ const Index = () => {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* TESTIMONIALS */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+      {/* <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
         <div className="text-center mb-14">
           <p className="text-xs font-bold uppercase tracking-[0.25em] text-primary mb-3">
             {t("testi.eyebrow")}
@@ -562,7 +582,7 @@ const Index = () => {
             </div>
           ))}
         </div>
-      </section>
+      </section> */}
 
       {/* CTA */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">

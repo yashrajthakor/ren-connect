@@ -50,7 +50,7 @@ export const translations = {
     "stats.members": "Members",
     "stats.businesses": "Businesses",
     "stats.referrals": "Referrals",
-    "stats.cities": "Cities",
+    "stats.volume": "Business Volume",
 
     // Pillars
     "pillars.eyebrow": "The REN Code",
@@ -231,7 +231,7 @@ export const translations = {
     "stats.members": "સભ્યો",
     "stats.businesses": "વ્યવસાયો",
     "stats.referrals": "રેફરલ્સ",
-    "stats.cities": "શહેરો",
+    "stats.volume": "વ્યવસાય વોલ્યુમ",
 
     // Pillars
     "pillars.eyebrow": "REN નો કોડ",
