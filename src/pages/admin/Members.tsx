@@ -136,45 +136,54 @@ const Members = () => {
           ) : filtered.length === 0 ? (
             <div className="p-12 text-center text-muted-foreground">No members found.</div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Full Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Chapter</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Committee Badge</TableHead>
-                  <TableHead className="w-32 text-right">Action</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filtered.map((m) => (
-                  <TableRow key={m.member_id}>
-                    <TableCell className="font-medium">{m.full_name}</TableCell>
-                    <TableCell className="text-muted-foreground">{m.email || "—"}</TableCell>
-                    <TableCell className="text-muted-foreground">{m.chapter_name || "—"}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className="capitalize">{m.status || "—"}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      {m.committee_badge ? (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold border border-primary/20">
-                          <Award className="h-3 w-3" />
-                          {m.committee_badge}
-                        </span>
-                      ) : (
-                        <span className="text-xs text-muted-foreground">—</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button size="sm" variant="outline" onClick={() => openEdit(m)}>
-                        {m.committee_badge ? "Edit" : "Assign"}
-                      </Button>
-                    </TableCell>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="min-w-[200px]">Full Name</TableHead>
+                    <TableHead className="hidden sm:table-cell">Email</TableHead>
+                    <TableHead className="hidden md:table-cell">Chapter</TableHead>
+                    <TableHead className="hidden lg:table-cell">Status</TableHead>
+                    <TableHead className="min-w-[150px]">Committee Badge</TableHead>
+                    <TableHead className="w-32 text-right">Action</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {filtered.map((m) => (
+                    <TableRow key={m.member_id}>
+                      <TableCell>
+                        <div className="font-medium">{m.full_name}</div>
+                        <div className="text-xs text-muted-foreground sm:hidden">{m.email || "—"}</div>
+                        <div className="text-xs text-muted-foreground sm:hidden">{m.chapter_name || "—"}</div>
+                        <div className="text-xs text-muted-foreground sm:hidden">
+                          <Badge variant="outline" className="capitalize text-[10px]">{m.status || "—"}</Badge>
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell text-muted-foreground">{m.email || "—"}</TableCell>
+                      <TableCell className="hidden md:table-cell text-muted-foreground">{m.chapter_name || "—"}</TableCell>
+                      <TableCell className="hidden lg:table-cell">
+                        <Badge variant="outline" className="capitalize">{m.status || "—"}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        {m.committee_badge ? (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold border border-primary/20">
+                            <Award className="h-3 w-3" />
+                            {m.committee_badge}
+                          </span>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">—</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button size="sm" variant="outline" onClick={() => openEdit(m)}>
+                          {m.committee_badge ? "Edit" : "Assign"}
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </div>
       </div>

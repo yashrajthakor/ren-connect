@@ -101,7 +101,7 @@ export default function CreateLeadDialog({ open, onOpenChange, giverId }: Props)
         <DialogHeader>
           <DialogTitle>Share a new lead</DialogTitle>
           <DialogDescription>
-            Refer business to a fellow REN member.
+            Refer business to a fellow RBN member.
           </DialogDescription>
         </DialogHeader>
 

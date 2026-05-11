@@ -192,10 +192,10 @@ const Applications = () => {
               <table className="w-full text-sm">
                 <thead className="bg-muted/50">
                   <tr className="text-left">
-                    <th className="px-4 py-3 font-semibold">Applicant</th>
-                    <th className="px-4 py-3 font-semibold">Contact</th>
-                    <th className="px-4 py-3 font-semibold">City / Chapter</th>
-                    <th className="px-4 py-3 font-semibold">Submitted</th>
+                    <th className="px-4 py-3 font-semibold min-w-[200px]">Applicant</th>
+                    <th className="px-4 py-3 font-semibold hidden sm:table-cell">Contact</th>
+                    <th className="px-4 py-3 font-semibold hidden md:table-cell">City / Chapter</th>
+                    <th className="px-4 py-3 font-semibold hidden lg:table-cell">Submitted</th>
                     <th className="px-4 py-3 font-semibold">Status</th>
                     <th className="px-4 py-3 font-semibold text-right">Actions</th>
                   </tr>
@@ -205,17 +205,19 @@ const Applications = () => {
                     <tr key={a.id} className="hover:bg-muted/30 transition-colors">
                       <td className="px-4 py-3">
                         <div className="font-medium text-foreground">{a.full_name}</div>
-                        <div className="text-xs text-muted-foreground">{a.email}</div>
+                        <div className="text-xs text-muted-foreground sm:hidden">{a.phone || "—"} · {a.email || "—"}</div>
+                        <div className="text-xs text-muted-foreground sm:hidden">{a.city_name || "—"} {a.chapter_name ? `· ${a.chapter_name}` : ""}</div>
+                        <div className="text-xs text-muted-foreground sm:hidden">{new Date(a.submitted_at || a.created_at).toLocaleDateString()}</div>
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3 hidden sm:table-cell">
                         <div className="font-medium">{a.phone || "—"}</div>
                         <div className="text-xs text-muted-foreground">{a.email || "—"}</div>
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3 hidden md:table-cell">
                         <div>{a.city_name || "—"}</div>
                         <div className="text-xs text-muted-foreground">{a.chapter_name || ""}</div>
                       </td>
-                      <td className="px-4 py-3 text-muted-foreground">
+                      <td className="px-4 py-3 hidden lg:table-cell text-muted-foreground">
                         {new Date(a.submitted_at || a.created_at).toLocaleDateString()}
                       </td>
                       <td className="px-4 py-3">

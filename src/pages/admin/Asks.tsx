@@ -55,13 +55,13 @@ export default function AdminAsks() {
           <table className="w-full text-sm">
             <thead className="bg-muted/50 text-left">
               <tr>
-                <th className="px-4 py-3 font-semibold">Title</th>
-                <th className="px-4 py-3 font-semibold">Author</th>
-                <th className="px-4 py-3 font-semibold">Category</th>
-                <th className="px-4 py-3 font-semibold">City</th>
+                <th className="px-4 py-3 font-semibold min-w-[200px]">Title</th>
+                <th className="px-4 py-3 font-semibold hidden sm:table-cell">Author</th>
+                <th className="px-4 py-3 font-semibold hidden md:table-cell">Category</th>
+                <th className="px-4 py-3 font-semibold hidden lg:table-cell">City</th>
                 <th className="px-4 py-3 font-semibold">Status</th>
-                <th className="px-4 py-3 font-semibold">Priority</th>
-                <th className="px-4 py-3 font-semibold">Posted</th>
+                <th className="px-4 py-3 font-semibold hidden xl:table-cell">Priority</th>
+                <th className="px-4 py-3 font-semibold hidden xl:table-cell">Posted</th>
                 <th className="px-4 py-3 font-semibold text-right">Actions</th>
               </tr>
             </thead>
@@ -72,13 +72,21 @@ export default function AdminAsks() {
                 <tr><td colSpan={8} className="px-4 py-8 text-center text-muted-foreground">No asks yet.</td></tr>
               ) : asks.map((a) => (
                 <tr key={a.id} className="hover:bg-muted/30 cursor-pointer" onClick={() => setSelected(a)}>
-                  <td className="px-4 py-3 font-medium max-w-xs truncate">{a.title}</td>
-                  <td className="px-4 py-3">{participants[a.user_id]?.name || "—"}</td>
-                  <td className="px-4 py-3">{a.category || "—"}</td>
-                  <td className="px-4 py-3">{a.city || "—"}</td>
+                  <td className="px-4 py-3 font-medium max-w-xs truncate">
+                    {a.title}
+                    <div className="text-xs text-muted-foreground sm:hidden">
+                      By: {participants[a.user_id]?.name || "—"}
+                    </div>
+                    <div className="text-xs text-muted-foreground sm:hidden">
+                      {a.category && `${a.category} · `}{a.city && `${a.city} · `}{new Date(a.created_at).toLocaleDateString()}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 hidden sm:table-cell">{participants[a.user_id]?.name || "—"}</td>
+                  <td className="px-4 py-3 hidden md:table-cell">{a.category || "—"}</td>
+                  <td className="px-4 py-3 hidden lg:table-cell">{a.city || "—"}</td>
                   <td className="px-4 py-3"><AskStatusBadge status={a.status} /></td>
-                  <td className="px-4 py-3"><AskPriorityBadge priority={a.priority} /></td>
-                  <td className="px-4 py-3 text-xs text-muted-foreground">{new Date(a.created_at).toLocaleDateString()}</td>
+                  <td className="px-4 py-3 hidden xl:table-cell"><AskPriorityBadge priority={a.priority} /></td>
+                  <td className="px-4 py-3 text-xs text-muted-foreground hidden xl:table-cell">{new Date(a.created_at).toLocaleDateString()}</td>
                   <td className="px-4 py-3 text-right" onClick={(e) => e.stopPropagation()}>
                     <Button size="sm" variant="ghost" className="text-destructive" onClick={() => handleDelete(a.id)}>
                       <Trash2 className="h-4 w-4" />

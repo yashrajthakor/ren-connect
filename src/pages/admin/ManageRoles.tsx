@@ -179,57 +179,66 @@ const ManageRoles = () => {
           ) : filtered.length === 0 ? (
             <div className="p-12 text-center text-muted-foreground">No members found.</div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Full Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Chapter</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Current Role</TableHead>
-                  <TableHead className="w-56">Assign Role</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filtered.map((m) => (
-                  <TableRow key={m.member_id}>
-                    <TableCell className="font-medium">{m.full_name}</TableCell>
-                    <TableCell className="text-muted-foreground">{m.email || "—"}</TableCell>
-                    <TableCell className="text-muted-foreground">{m.chapter_name || "—"}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className="capitalize">{m.status || "—"}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      {m.role_name ? (
-                        <Badge className={`capitalize ${roleBadgeClass(m.role_name)}`}>
-                          {m.role_name.replace("_", " ")}
-                        </Badge>
-                      ) : (
-                        <span className="text-xs text-muted-foreground">No role</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Select
-                        value={(m.role_name || "").toLowerCase() || undefined}
-                        onValueChange={(val) => requestRoleChange(m, val)}
-                        disabled={!m.user_id || updatingId === m.member_id}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select role" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {ROLES.map((r) => (
-                            <SelectItem key={r} value={r}>
-                              {r.replace("_", " ")}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="min-w-[200px]">Full Name</TableHead>
+                    <TableHead className="hidden sm:table-cell">Email</TableHead>
+                    <TableHead className="hidden md:table-cell">Chapter</TableHead>
+                    <TableHead className="hidden lg:table-cell">Status</TableHead>
+                    <TableHead>Current Role</TableHead>
+                    <TableHead className="min-w-[200px]">Assign Role</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {filtered.map((m) => (
+                    <TableRow key={m.member_id}>
+                      <TableCell>
+                        <div className="font-medium">{m.full_name}</div>
+                        <div className="text-xs text-muted-foreground sm:hidden">{m.email || "—"}</div>
+                        <div className="text-xs text-muted-foreground sm:hidden">{m.chapter_name || "—"}</div>
+                        <div className="text-xs text-muted-foreground sm:hidden">
+                          <Badge variant="outline" className="capitalize text-[10px]">{m.status || "—"}</Badge>
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell text-muted-foreground">{m.email || "—"}</TableCell>
+                      <TableCell className="hidden md:table-cell text-muted-foreground">{m.chapter_name || "—"}</TableCell>
+                      <TableCell className="hidden lg:table-cell">
+                        <Badge variant="outline" className="capitalize">{m.status || "—"}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        {m.role_name ? (
+                          <Badge className={`capitalize ${roleBadgeClass(m.role_name)}`}>
+                            {m.role_name.replace("_", " ")}
+                          </Badge>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">No role</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Select
+                          value={(m.role_name || "").toLowerCase() || undefined}
+                          onValueChange={(val) => requestRoleChange(m, val)}
+                          disabled={!m.user_id || updatingId === m.member_id}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select role" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {ROLES.map((r) => (
+                              <SelectItem key={r} value={r}>
+                                {r.replace("_", " ")}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </div>
       </div>

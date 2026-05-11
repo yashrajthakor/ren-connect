@@ -105,7 +105,7 @@ export default function CreateAskDialog({ open, onOpenChange, userId, editAsk }:
         <DialogHeader>
           <DialogTitle>{editAsk ? "Edit ask" : "Post a new ask"}</DialogTitle>
           <DialogDescription>
-            Share a business need or requirement with the REN community.
+            Share a business need or requirement with the RBN community.
           </DialogDescription>
         </DialogHeader>
 

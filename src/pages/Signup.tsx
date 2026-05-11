@@ -176,12 +176,12 @@ const Signup = () => {
 
       toast({
         title: "Application submitted 🎉",
-        description: "Your REN membership is under review. We'll notify you once approved.",
+        description: "Your RBN membership is under review. We'll notify you once approved.",
       });
       await supabase.auth.signOut();
       navigate("/login");
     } catch (err: any) {
-      console.error("Join REN error:", err);
+      console.error("Join RBN error:", err);
       toast({
         title: "Submission failed",
         description: err?.message || "Please try again.",

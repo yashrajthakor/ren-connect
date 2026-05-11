@@ -5,7 +5,7 @@ import { useT } from "@/i18n/LanguageProvider";
 const moments = [
   {
     date: "April 2026",
-    title: "REN National Conclave 2026",
+    title: "RBN National Conclave 2026",
     city: "Jaipur",
     summary:
       "300+ entrepreneurs gathered for two days of keynotes, panel discussions and structured B2B referral exchanges.",
@@ -24,15 +24,15 @@ const moments = [
     title: "Women Entrepreneurs Spotlight",
     city: "Udaipur",
     summary:
-      "An evening dedicated to celebrating Rajput women business leaders shaping the next decade of REN.",
+      "An evening dedicated to celebrating Rajput women business leaders shaping the next decade of RBN.",
     badge: "Event",
   },
   {
     date: "January 2026",
-    title: "REN crosses 500 members",
+    title: "RBN crosses 500 members",
     city: "Pan-India",
     summary:
-      "A defining moment — REN now spans 12 chapters and 500+ verified entrepreneurs across India.",
+      "A defining moment — RBN now spans 12 chapters and 500+ verified entrepreneurs across India.",
     badge: "Milestone",
   },
   {

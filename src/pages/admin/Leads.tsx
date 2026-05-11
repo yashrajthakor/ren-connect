@@ -46,13 +46,13 @@ export default function AdminLeadsPage() {
           <table className="min-w-full text-sm">
             <thead className="bg-muted/50">
               <tr className="text-left">
-                <th className="px-4 py-3 font-semibold">Lead</th>
-                <th className="px-4 py-3 font-semibold">From</th>
-                <th className="px-4 py-3 font-semibold">To</th>
+                <th className="px-4 py-3 font-semibold min-w-[200px]">Lead</th>
+                <th className="px-4 py-3 font-semibold hidden sm:table-cell">From</th>
+                <th className="px-4 py-3 font-semibold hidden md:table-cell">To</th>
                 <th className="px-4 py-3 font-semibold">Status</th>
-                <th className="px-4 py-3 font-semibold">Priority</th>
+                <th className="px-4 py-3 font-semibold hidden lg:table-cell">Priority</th>
                 <th className="px-4 py-3 font-semibold text-right">Closure</th>
-                <th className="px-4 py-3 font-semibold">Created</th>
+                <th className="px-4 py-3 font-semibold hidden xl:table-cell">Created</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -67,15 +67,21 @@ export default function AdminLeadsPage() {
                   <td className="px-4 py-3">
                     <p className="font-medium">{l.lead_name}</p>
                     <p className="text-xs text-muted-foreground">{l.contact_number}</p>
+                    <div className="text-xs text-muted-foreground sm:hidden">
+                      From: {participants[l.giver_id]?.name || "—"} → To: {participants[l.receiver_id]?.name || "—"}
+                    </div>
+                    <div className="text-xs text-muted-foreground sm:hidden">
+                      {new Date(l.created_at).toLocaleDateString()}
+                    </div>
                   </td>
-                  <td className="px-4 py-3">{participants[l.giver_id]?.name || "—"}</td>
-                  <td className="px-4 py-3">{participants[l.receiver_id]?.name || "—"}</td>
+                  <td className="px-4 py-3 hidden sm:table-cell">{participants[l.giver_id]?.name || "—"}</td>
+                  <td className="px-4 py-3 hidden md:table-cell">{participants[l.receiver_id]?.name || "—"}</td>
                   <td className="px-4 py-3"><LeadStatusBadge status={l.status} /></td>
-                  <td className="px-4 py-3"><PriorityBadge priority={l.priority} /></td>
+                  <td className="px-4 py-3 hidden lg:table-cell"><PriorityBadge priority={l.priority} /></td>
                   <td className="px-4 py-3 text-right font-medium">
                     {l.closure_amount ? `₹${Number(l.closure_amount).toLocaleString("en-IN")}` : "—"}
                   </td>
-                  <td className="px-4 py-3 text-muted-foreground text-xs">
+                  <td className="px-4 py-3 text-muted-foreground text-xs hidden xl:table-cell">
                     {new Date(l.created_at).toLocaleDateString()}
                   </td>
                 </tr>
