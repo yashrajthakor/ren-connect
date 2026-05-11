@@ -214,10 +214,10 @@ const Signup = () => {
         </div>
         <div className="text-center mb-6">
           <div className="inline-flex items-center justify-center mb-4 bg-card/90 backdrop-blur-sm rounded-2xl p-4 shadow-lg">
-            <img src={renLogo} alt="REN" className="h-14 w-auto" />
+            <img src={renLogo} alt="RBN" className="h-14 w-auto" />
           </div>
-          <h1 className="text-3xl font-display font-bold text-card mb-1">Join REN</h1>
-          <p className="text-card/70 text-sm">Apply for membership · Rajput Entrepreneur Network</p>
+          <h1 className="text-3xl font-display font-bold text-card mb-1">Join RBN</h1>
+          <p className="text-card/70 text-sm">Apply for membership · Rajput Business Network</p>
         </div>
 
         <div className="bg-card rounded-2xl shadow-2xl p-6 sm:p-8 border border-border/50">

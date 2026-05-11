@@ -35,7 +35,7 @@ function buildWhatsAppMessage(
   const giverContact = "Not available";
   const leadDetails = lead.description || lead.lead_name || "No details provided.";
 
-  return `📌 REN Business Lead Reference
+  return `📌 RBN Business Lead Reference
 
 Receiver Details:
 Name: ${receiverName}
@@ -46,7 +46,7 @@ Name: ${giverName}
 Lead Details:
 ${leadDetails}
 
-🤝 Published through REN – Rajput Entrepreneur Network`;
+🤝 Published through RBN – Rajput Business Network`;
 }
 
 export function LeadCard({ lead, participants, currentUserId, onClick }: Props) {

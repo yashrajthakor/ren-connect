@@ -21,9 +21,9 @@ function digits(s?: string | null) {
 
 export function AskCard({ ask, participants, onClick }: Props) {
   const author = participants[ask.user_id];
-  const name = author?.name || "REN Member";
+  const name = author?.name || "RBN Member";
   const phone = digits(ask.contact_details);
-  const waUrl = phone ? `https://wa.me/${phone.replace(/^\+/, "")}?text=${encodeURIComponent(`Hi ${name}, regarding your REN ask: "${ask.title}"`)}` : null;
+  const waUrl = phone ? `https://wa.me/${phone.replace(/^\+/, "")}?text=${encodeURIComponent(`Hi ${name}, regarding your RBN ask: "${ask.title}"`)}` : null;
   const callUrl = phone ? `tel:${phone}` : null;
 
   return (

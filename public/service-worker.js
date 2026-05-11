@@ -63,11 +63,11 @@ self.addEventListener("push", (event) => {
   if (!event.data) return;
 
   let notificationData = {
-    title: "🔔 REN Notification",
+    title: "🔔 RBN Notification",
     body: "You have a new notification",
     icon: "/android-chrome-192x192.png",
     badge: "/android-chrome-192x192.png",
-    tag: "ren-notification",
+    tag: "rbn-notification",
     data: { link: "/dashboard/notifications" },
     requireInteraction: false,
     vibrate: [200, 100, 200], // Mobile vibration pattern
@@ -83,7 +83,7 @@ self.addEventListener("push", (event) => {
         link: data.link || data.data?.link || "/dashboard/notifications",
         notificationId: data.id || data.notificationId,
       },
-      tag: data.id || data.notificationId || "ren-notification",
+      tag: data.id || data.notificationId || "rbn-notification",
       requireInteraction: data.requireInteraction || false,
       vibrate: data.vibrate || [200, 100, 200],
     };

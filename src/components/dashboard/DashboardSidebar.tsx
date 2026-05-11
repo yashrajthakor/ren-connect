@@ -58,7 +58,7 @@ export function DashboardSidebar({ role }: DashboardSidebarProps) {
             <img src={renLogo} alt="REN" className="h-8 w-auto shrink-0" />
             {!collapsed && (
               <span className="font-display font-bold text-base text-sidebar-foreground">
-                REN Portal
+                RBN Portal
               </span>
             )}
           </NavLink>

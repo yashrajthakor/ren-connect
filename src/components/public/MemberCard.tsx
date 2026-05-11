@@ -15,13 +15,13 @@ import { toast } from "@/hooks/use-toast";
 
 const SHARE_MESSAGE = `👋 Hello,
 
-I'm part of REN – Rajput Entrepreneur Network.
+I'm part of RBN – Rajput Business Network.
 
 Sharing my business profile card with you 😊
 
-REN helps entrepreneurs and professionals connect and grow their business network.
+RBN helps entrepreneurs and professionals connect and grow their business network.
 
-Join REN and create your business profile:
+Join RBN and create your business profile:
 https://www.rajputbusinessnetwork.com/signup
 
 Let's connect and grow together 🤝`;

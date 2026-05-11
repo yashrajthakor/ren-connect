@@ -3,8 +3,8 @@ export type Lang = "en" | "gu";
 export const translations = {
   en: {
     // Common
-    "common.brand": "REN",
-    "common.brandFull": "Rajput Entrepreneur Network",
+    "common.brand": "RBN",
+    "common.brandFull": "Rajput Business Network",
     "common.tagline": "Business Beyond Brotherhood.",
 
     // Nav
@@ -12,10 +12,10 @@ export const translations = {
     "nav.directory": "Directory",
     "nav.keyMoments": "Key Moments",
     "nav.about": "About",
-    "nav.voice": "Voice of REN",
+    "nav.voice": "Voice of RBN",
     "nav.login": "Member Login",
     "nav.loginShort": "Login",
-    "nav.join": "Join REN",
+    "nav.join": "Join RBN",
     "nav.dashboard": "Dashboard",
     "nav.language": "Language",
 
@@ -23,7 +23,7 @@ export const translations = {
     "footer.about": "Connecting Rajput entrepreneurs across industries — building legacy through trusted business networking and referrals.",
     "footer.explore": "Explore",
     "footer.membership": "Membership",
-    "footer.joinRen": "Join REN",
+    "footer.joinRen": "Join RBN",
     "footer.findMembers": "Find Members",
     "footer.successStories": "Success Stories",
     "footer.getInTouch": "Get in Touch",
@@ -32,9 +32,9 @@ export const translations = {
 
     // Home — Hero slides
     "hero.s1.eyebrow": "Heritage. Honor. Hustle.",
-    "hero.s1.title": "Connecting Rajput Entrepreneurs.",
+    "hero.s1.title": "Connecting Rajput Businesses.",
     "hero.s1.accent": "Building Legacy Through Business.",
-    "hero.s1.desc": "REN unites Rajput founders, business owners and professionals across India — built on trust, referrals and shared ambition.",
+    "hero.s1.desc": "RBN unites Rajput founders, business owners and professionals across India — built on trust, referrals and shared ambition.",
     "hero.s2.eyebrow": "Business Beyond Brotherhood",
     "hero.s2.title": "Where Warriors Become",
     "hero.s2.accent": "Wealth Creators.",
@@ -43,7 +43,7 @@ export const translations = {
     "hero.s3.title": "One Network. One Word.",
     "hero.s3.accent": "Endless Opportunities.",
     "hero.s3.desc": "Verified members, qualified referrals, and lifelong relationships built on the Rajput code of honour.",
-    "hero.cta.join": "Join REN",
+    "hero.cta.join": "Join RBN",
     "hero.cta.explore": "Explore Directory",
 
     // Stats
@@ -53,7 +53,7 @@ export const translations = {
     "stats.volume": "Business Volume",
 
     // Pillars
-    "pillars.eyebrow": "The REN Code",
+    "pillars.eyebrow": "The RBN Code",
     "pillars.heading": "Four pillars that power our network",
     "pillars.p1.title": "Royal Legacy",
     "pillars.p1.desc": "Carry forward the Rajput tradition of honour, valour and trust into modern enterprise.",
@@ -70,7 +70,7 @@ export const translations = {
 
     // Featured
     "featured.eyebrow": "Featured Entrepreneurs",
-    "featured.heading": "Meet the leaders driving REN forward",
+    "featured.heading": "Meet the leaders driving RBN forward",
     "featured.viewAll": "View full directory",
 
     // Events
@@ -81,7 +81,7 @@ export const translations = {
     "events.rsvp": "RSVP",
 
     // Testimonials
-    "testi.eyebrow": "Voice of REN",
+    "testi.eyebrow": "Voice of RBN",
     "testi.heading": "Trusted by entrepreneurs across India",
 
     // CTA
@@ -93,7 +93,7 @@ export const translations = {
 
     // Directory
     "dir.eyebrow": "Business Directory",
-    "dir.heading": "Discover REN Entrepreneurs",
+    "dir.heading": "Discover RBN Entrepreneurs",
     "dir.desc": "Search across industries, cities and services. Connect directly with verified Rajput business owners.",
     "dir.searchPlaceholder": "Search by name, business, service or city...",
     "dir.empty": "No members match your search.",
@@ -114,9 +114,9 @@ export const translations = {
     "card.connect": "Connect",
 
     // About
-    "about.eyebrow": "About REN",
+    "about.eyebrow": "About RBN",
     "about.heading": "A community where heritage meets enterprise.",
-    "about.intro": "REN — Rajput Entrepreneur Network — is a national platform uniting Rajput business owners, founders and professionals to collaborate, refer and build legacy together.",
+    "about.intro": "RBN — Rajput Business Network — is a national platform uniting Rajput business owners, founders and professionals to collaborate, refer and build legacy together.",
     "about.mission.title": "Our Mission",
     "about.mission.text": "To create the most trusted business referral and growth network for Rajput entrepreneurs — empowering members through visibility, connection and collective opportunity.",
     "about.vision.title": "Our Vision",
@@ -134,10 +134,10 @@ export const translations = {
     "about.v.excellence.title": "Excellence",
     "about.v.excellence.text": "Setting the bar for professionalism in every category.",
     "about.v.collective.title": "Collective Success",
-    "about.v.collective.text": "When one rises, REN rises. We win as one.",
+    "about.v.collective.text": "When one rises, RBN rises. We win as one.",
     "about.benefits.eyebrow": "Membership",
-    "about.benefits.heading": "Benefits of joining REN",
-    "about.benefits.desc": "REN membership opens access to a curated network of entrepreneurs, opportunities and recognition.",
+    "about.benefits.heading": "Benefits of joining RBN",
+    "about.benefits.desc": "RBN membership opens access to a curated network of entrepreneurs, opportunities and recognition.",
     "about.benefits.apply": "Apply for Membership",
     "about.b.1": "Verified member directory access",
     "about.b.2": "Monthly chapter networking meets",
@@ -149,12 +149,12 @@ export const translations = {
     // Key Moments
     "km.eyebrow": "Key Moments",
     "km.heading": "The journey of a community in motion.",
-    "km.desc": "Milestones, meetings and memories that mark the growth of the Rajput Entrepreneur Network.",
+    "km.desc": "Milestones, meetings and memories that mark the growth of the Rajput Business Network.",
 
-    // Voice of REN
-    "voice.eyebrow": "Voice of REN",
+    // Voice of RBN
+    "voice.eyebrow": "Voice of RBN",
     "voice.heading": "Real members. Real referrals. Real growth.",
-    "voice.desc": "Every story below represents a partnership born inside REN — a deal won, a client met, a business scaled through trust.",
+    "voice.desc": "Every story below represents a partnership born inside RBN — a deal won, a client met, a business scaled through trust.",
     "voice.s.voices": "Member voices",
     "voice.s.referrals": "Referrals shared",
     "voice.s.satisfaction": "Member satisfaction",
@@ -172,8 +172,8 @@ export const translations = {
     "login.notice2": "Contact an administrator if you need access.",
 
     // Signup
-    "signup.heading": "Apply to join REN",
-    "signup.subtitle": "Become part of the Rajput Entrepreneur Network",
+    "signup.heading": "Apply to join RBN",
+    "signup.subtitle": "Become part of the Rajput Business Network",
     "signup.fullName": "Full Name",
     "signup.phone": "Phone",
     "signup.email": "Email",
@@ -194,17 +194,17 @@ export const translations = {
     "nav.directory": "ડિરેક્ટરી",
     "nav.keyMoments": "મુખ્ય ક્ષણો",
     "nav.about": "અમારા વિશે",
-    "nav.voice": "REN નો અવાજ",
+    "nav.voice": "RBN નો અવાજ",
     "nav.login": "સભ્ય લોગિન",
     "nav.loginShort": "લોગિન",
-    "nav.join": "REN માં જોડાઓ",
+    "nav.join": "RBN માં જોડાઓ",
     "nav.language": "ભાષા",
 
     // Footer
     "footer.about": "ઉદ્યોગો વચ્ચે રાજપૂત આંત્રપ્રિન્યોરોને જોડવું — વિશ્વસનીય બિઝનેસ નેટવર્કિંગ અને રેફરલ દ્વારા વારસો બનાવવો.",
     "footer.explore": "અન્વેષણ કરો",
     "footer.membership": "સભ્યપદ",
-    "footer.joinRen": "REN માં જોડાઓ",
+    "footer.joinRen": "RBN માં જોડાઓ",
     "footer.findMembers": "સભ્યો શોધો",
     "footer.successStories": "સફળતાની વાર્તાઓ",
     "footer.getInTouch": "સંપર્કમાં રહો",
@@ -215,7 +215,7 @@ export const translations = {
     "hero.s1.eyebrow": "વારસો. માન. મહેનત.",
     "hero.s1.title": "રાજપૂત આંત્રપ્રિન્યોરોને જોડવું.",
     "hero.s1.accent": "વ્યવસાય દ્વારા વારસો બનાવવો.",
-    "hero.s1.desc": "REN ભારતભરના રાજપૂત સ્થાપકો, વ્યવસાય માલિકો અને વ્યાવસાયિકોને એક કરે છે — વિશ્વાસ, રેફરલ અને સહિયારી મહત્વાકાંક્ષા પર આધારિત.",
+    "hero.s1.desc": "RBN ભારતભરના રાજપૂત સ્થાપકો, વ્યવસાય માલિકો અને વ્યાવસાયિકોને એક કરે છે — વિશ્વાસ, રેફરલ અને સહિyોગ મહત્વાકાಂક્ಷা પર આધಾರಿತ.",
     "hero.s2.eyebrow": "ભાઈચારાથી આગળ વધતો વ્યવસાય",
     "hero.s2.title": "જ્યાં યોદ્ધાઓ બને છે",
     "hero.s2.accent": "સંપત્તિના સર્જકો.",
@@ -224,7 +224,7 @@ export const translations = {
     "hero.s3.title": "એક નેટવર્ક. એક વચન.",
     "hero.s3.accent": "અનંત તકો.",
     "hero.s3.desc": "ચકાસાયેલ સભ્યો, યોગ્ય રેફરલ અને રાજપૂત માન-કોડ પર બનેલા જીવનભરના સંબંધો.",
-    "hero.cta.join": "REN માં જોડાઓ",
+    "hero.cta.join": "RBN માં જોડાઓ",
     "hero.cta.explore": "ડિરેક્ટરી જુઓ",
 
     // Stats
@@ -234,7 +234,7 @@ export const translations = {
     "stats.volume": "વ્યવસાય વોલ્યુમ",
 
     // Pillars
-    "pillars.eyebrow": "REN નો કોડ",
+    "pillars.eyebrow": "RBN નો કોડ",
     "pillars.heading": "આપણા નેટવર્કને શક્તિ આપતા ચાર સ્તંભ",
     "pillars.p1.title": "રાજસી વારસો",
     "pillars.p1.desc": "માન, શૌર્ય અને વિશ્વાસની રાજપૂત પરંપરાને આધુનિક ઉદ્યોગમાં આગળ વધારો.",
@@ -262,7 +262,7 @@ export const translations = {
     "events.rsvp": "RSVP",
 
     // Testimonials
-    "testi.eyebrow": "REN નો અવાજ",
+    "testi.eyebrow": "RBN નો અવાજ",
     "testi.heading": "ભારતભરના આંત્રપ્રિન્યોરોનો વિશ્વાસ",
 
     // CTA

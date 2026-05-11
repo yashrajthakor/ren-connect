@@ -26,9 +26,9 @@ export default defineConfig(({ mode }) => ({
       },
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'android-chrome-192x192.png', 'android-chrome-512x512.png'],
       manifest: {
-        name: 'REN | Rajput Entrepreneur Network',
-        short_name: 'REN',
-        description: 'Rajput Entrepreneur Network - Connecting entrepreneurs',
+        name: 'RBN | Rajput Business Network',
+        short_name: 'RBN',
+        description: 'Rajput Business Network - Connecting business professionals',
         theme_color: '#3D4F5F',
         background_color: '#ffffff',
         display: 'standalone',

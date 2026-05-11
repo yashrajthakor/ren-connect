@@ -90,21 +90,21 @@ const pillarDefs: { icon: any; titleKey: TranslationKey; descKey: TranslationKey
 ];
 
 const events = [
-  { date: "May 18, 2026", title: "REN Mumbai Chapter — Monthly Meet", city: "Mumbai" },
-  { date: "Jun 02, 2026", title: "Entrepreneurs Conclave 2026", city: "Jaipur" },
-  { date: "Jun 21, 2026", title: "B2B Referral Mixer", city: "Bengaluru" },
+  { date: "May 18, 2026", title: "RBN Mumbai Chapter — Monthly Meet", city: "Mumbai" },
+  { date: "Jun 02, 2026", title: "RBN Entrepreneurs Conclave 2026", city: "Jaipur" },
+  { date: "Jun 21, 2026", title: "RBN B2B Referral Mixer", city: "Bengaluru" },
 ];
 
 const testimonials = [
   {
     quote:
-      "REN opened doors to clients I would have never reached on my own. Pure trust, pure business.",
+      "RBN opened doors to clients I would have never reached on my own. Pure trust, pure business.",
     name: "Vikram Singh Chauhan",
     role: "Founder, Chauhan Realty Group",
   },
   {
     quote:
-      "From referrals to friendships — REN is the strongest entrepreneurial circle I'm part of.",
+      "From referrals to friendships — RBN is the strongest entrepreneurial circle I'm part of.",
     name: "Karan Singh Shekhawat",
     role: "CEO, Shekhawat Tech Labs",
   },
@@ -223,7 +223,7 @@ const Index = () => {
             return {
               id: m.id,
               name: fullName,
-              business: m.business_profiles?.business_name || "REN Member",
+              business: m.business_profiles?.business_name || "RBN Member",
               category: m.business_profiles?.business_categories?.name || "Member",
               city: m.business_profiles?.city || m.cities?.name || "—",
               services: servicesArr,

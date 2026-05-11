@@ -1,4 +1,4 @@
--- REN "Ask Network" — Community Business Requirement Board
+-- RBN "Ask Network" — Community Business Requirement Board
 
 DO $$ BEGIN
   CREATE TYPE public.ask_status AS ENUM ('open', 'in_progress', 'resolved', 'closed');

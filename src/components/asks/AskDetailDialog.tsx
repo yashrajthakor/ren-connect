@@ -38,7 +38,7 @@ export default function AskDetailDialog({ open, onOpenChange, ask, participants,
 
   if (!ask) return null;
   const author = participants[ask.user_id];
-  const name = author?.name || "REN Member";
+  const name = author?.name || "RBN Member";
   const isOwner = ask.user_id === currentUserId;
   const canManage = isOwner || isAdmin;
   const phone = digits(ask.contact_details);
@@ -105,7 +105,7 @@ export default function AskDetailDialog({ open, onOpenChange, ask, participants,
           {phone && !isOwner && (
             <div className="grid grid-cols-2 gap-2">
               <Button asChild variant="default">
-                <a href={`https://wa.me/${phone.replace(/^\+/, "")}?text=${encodeURIComponent(`Hi ${name}, regarding your REN ask: "${ask.title}"`)}`} target="_blank" rel="noopener noreferrer">
+                <a href={`https://wa.me/${phone.replace(/^\+/, "")}?text=${encodeURIComponent(`Hi ${name}, regarding your RBN ask: "${ask.title}"`)}`} target="_blank" rel="noopener noreferrer">
                   <MessageCircle className="h-4 w-4" /> WhatsApp
                 </a>
               </Button>

@@ -264,7 +264,7 @@ const Login = () => {
             <div className="inline-flex items-center justify-center mb-6 bg-card/90 backdrop-blur-sm rounded-2xl p-4 shadow-lg">
               <img 
                 src={renLogo} 
-                alt="Rajput Entrepreneur Network" 
+                alt="Rajput Business Network" 
                 className="h-16 w-auto"
               />
             </div>

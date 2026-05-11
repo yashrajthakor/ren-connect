@@ -8,21 +8,21 @@ const stories = [
     name: "Vikram Singh Chauhan",
     role: "Chauhan Realty Group",
     quote:
-      "Through REN referrals, I closed 14 commercial deals last year. The trust factor inside the network is unmatched.",
-    metric: "14 deals closed via REN",
+      "Through RBN referrals, I closed 14 commercial deals last year. The trust factor inside the network is unmatched.",
+    metric: "14 deals closed via RBN",
   },
   {
     name: "Karan Singh Shekhawat",
     role: "Shekhawat Tech Labs",
     quote:
-      "I found my co-founder, my first investor and three enterprise clients — all from the REN community.",
+      "I found my co-founder, my first investor and three enterprise clients — all from the RBN community.",
     metric: "3 enterprise clients onboarded",
   },
   {
     name: "Aditya Pratap Sisodia",
     role: "Sisodia Capital Advisors",
     quote:
-      "REN events feel like a chamber of commerce, but with the warmth of family. Business gets done here.",
+      "RBN events feel like a chamber of commerce, but with the warmth of family. Business gets done here.",
     metric: "₹40Cr AUM through referrals",
   },
   {

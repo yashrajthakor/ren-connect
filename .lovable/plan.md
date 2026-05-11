@@ -1,4 +1,4 @@
-## REN Lead Sharing & Business Tracking System
+## RBN Lead Sharing & Business Tracking System
 
 Build a member-to-member referral system inside the existing dashboard, with full CRUD for leads, status workflow, and admin analytics.
 
