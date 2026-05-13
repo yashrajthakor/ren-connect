@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Eye, EyeOff, Lock, Mail, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -239,6 +240,15 @@ const Login = () => {
   };
 
   return (
+    <>
+      <Helmet>
+        <title>Member Login | RBN — Rajput Business Network</title>
+        <meta name="description" content="Sign in to the RBN member portal to access leads, networking tools, and your business profile." />
+        <link rel="canonical" href="https://rajputbusinessnetwork.lovable.app/login" />
+        <meta property="og:title" content="Member Login | RBN" />
+        <meta property="og:description" content="Sign in to the RBN member portal." />
+        <meta property="og:url" content="https://rajputbusinessnetwork.lovable.app/login" />
+      </Helmet>
     <div className="min-h-screen flex flex-col bg-gradient-royal">
       {/* Decorative elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -379,12 +389,13 @@ const Login = () => {
           </div>
 
           {/* Footer */}
-          <p className="text-center text-xs text-secondary-foreground/50 mt-8">
-            © {new Date().getFullYear()} {t("common.brandFull")}. {t("footer.rights")}
+          <p className="text-center text-xs text-card/70 mt-8">
+            &copy; {new Date().getFullYear()} {t("common.brandFull")}. {t("footer.rights")}
           </p>
         </div>
       </main>
     </div>
+    </>
   );
 };
 
