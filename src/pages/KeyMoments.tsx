@@ -1,4 +1,5 @@
 import { Calendar, MapPin, Trophy } from "lucide-react";
+import { Helmet } from "react-helmet-async";
 import PublicLayout from "@/components/public/PublicLayout";
 import { useT } from "@/i18n/LanguageProvider";
 

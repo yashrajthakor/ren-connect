@@ -1,5 +1,6 @@
 import { Crown, Handshake, Target, Eye, ShieldCheck, TrendingUp, HeartHandshake, Award } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
 import PublicLayout from "@/components/public/PublicLayout";
 import { useT } from "@/i18n/LanguageProvider";

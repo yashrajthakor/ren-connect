@@ -1,4 +1,5 @@
 import { Quote, Star, TrendingUp, Users } from "lucide-react";
+import { Helmet } from "react-helmet-async";
 import PublicLayout from "@/components/public/PublicLayout";
 import { useT } from "@/i18n/LanguageProvider";
 import type { TranslationKey } from "@/i18n/translations";
