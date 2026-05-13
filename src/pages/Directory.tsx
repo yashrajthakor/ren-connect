@@ -81,6 +81,22 @@ const Directory = () => {
   }, [query, active, members]);
 
   return (
+    <>
+      <Helmet>
+        <title>Business Directory | RBN — Discover Rajput Entrepreneurs</title>
+        <meta name="description" content="Search the RBN member directory. Find verified Rajput business owners across industries, cities and services in India." />
+        <link rel="canonical" href="https://rajputbusinessnetwork.lovable.app/directory" />
+        <meta property="og:title" content="Business Directory | RBN" />
+        <meta property="og:description" content="Discover verified Rajput entrepreneurs across India. Search by industry, city or service." />
+        <meta property="og:url" content="https://rajputbusinessnetwork.lovable.app/directory" />
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          name: "RBN Business Directory",
+          description: "Verified Rajput business professionals and entrepreneurs across India.",
+          url: "https://rajputbusinessnetwork.lovable.app/directory",
+        })}</script>
+      </Helmet>
     <PublicLayout>
       <section className="bg-gradient-royal text-card">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
