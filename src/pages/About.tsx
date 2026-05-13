@@ -31,10 +31,10 @@ const About = () => {
       <Helmet>
         <title>About RBN | Rajput Business Network — Mission, Vision & Values</title>
         <meta name="description" content="Learn about the Rajput Business Network. Our mission is to unite Rajput entrepreneurs across India through trust, referrals and shared legacy." />
-        <link rel="canonical" href="https://rajputbusinessnetwork.lovable.app/about" />
+        <link rel="canonical" href="https://rajputbusinessnetwork.com/about" />
         <meta property="og:title" content="About RBN | Rajput Business Network" />
         <meta property="og:description" content="Mission, vision and values of the Rajput Business Network." />
-        <meta property="og:url" content="https://rajputbusinessnetwork.lovable.app/about" />
+        <meta property="og:url" content="https://rajputbusinessnetwork.com/about" />
       </Helmet>
     <PublicLayout>
       <section className="bg-gradient-royal text-card">

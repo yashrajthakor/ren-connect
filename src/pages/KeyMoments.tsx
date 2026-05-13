@@ -53,10 +53,10 @@ const KeyMoments = () => {
       <Helmet>
         <title>Key Moments | RBN — Milestones & Events</title>
         <meta name="description" content="Explore the journey of RBN — milestones, chapter launches, conclaves and defining moments of the Rajput Business Network." />
-        <link rel="canonical" href="https://rajputbusinessnetwork.lovable.app/key-moments" />
+        <link rel="canonical" href="https://rajputbusinessnetwork.com/key-moments" />
         <meta property="og:title" content="Key Moments | RBN" />
         <meta property="og:description" content="Milestones and defining moments of the Rajput Business Network." />
-        <meta property="og:url" content="https://rajputbusinessnetwork.lovable.app/key-moments" />
+        <meta property="og:url" content="https://rajputbusinessnetwork.com/key-moments" />
       </Helmet>
     <PublicLayout>
       <section className="bg-gradient-royal text-card">

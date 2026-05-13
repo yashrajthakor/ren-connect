@@ -244,10 +244,10 @@ const Login = () => {
       <Helmet>
         <title>Member Login | RBN — Rajput Business Network</title>
         <meta name="description" content="Sign in to the RBN member portal to access leads, networking tools, and your business profile." />
-        <link rel="canonical" href="https://rajputbusinessnetwork.lovable.app/login" />
+        <link rel="canonical" href="https://rajputbusinessnetwork.com/login" />
         <meta property="og:title" content="Member Login | RBN" />
         <meta property="og:description" content="Sign in to the RBN member portal." />
-        <meta property="og:url" content="https://rajputbusinessnetwork.lovable.app/login" />
+        <meta property="og:url" content="https://rajputbusinessnetwork.com/login" />
       </Helmet>
     <div className="min-h-screen flex flex-col bg-gradient-royal">
       {/* Decorative elements */}

@@ -277,18 +277,18 @@ const Index = () => {
       <Helmet>
         <title>RBN | Rajput Business Network — Heritage, Honor & Enterprise</title>
         <meta name="description" content="Join India's exclusive Rajput Business Network. Connect with verified entrepreneurs, share referrals, and build legacy across industries and cities." />
-        <link rel="canonical" href="https://rajputbusinessnetwork.lovable.app/" />
+        <link rel="canonical" href="https://rajputbusinessnetwork.com/" />
         <meta property="og:title" content="RBN | Rajput Business Network" />
         <meta property="og:description" content="India's exclusive network for Rajput business professionals and entrepreneurs." />
-        <meta property="og:url" content="https://rajputbusinessnetwork.lovable.app/" />
+        <meta property="og:url" content="https://rajputbusinessnetwork.com/" />
         <script type="application/ld+json">{JSON.stringify({
           "@context": "https://schema.org",
           "@type": "WebSite",
           name: "RBN | Rajput Business Network",
-          url: "https://rajputbusinessnetwork.lovable.app",
+          url: "https://rajputbusinessnetwork.com",
           potentialAction: {
             "@type": "SearchAction",
-            target: "https://rajputbusinessnetwork.lovable.app/directory?q={search_term_string}",
+            target: "https://rajputbusinessnetwork.com/directory?q={search_term_string}",
             "query-input": "required name=search_term_string",
           },
         })}</script>

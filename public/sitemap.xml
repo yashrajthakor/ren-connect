@@ -1,47 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://rajputbusinessnetwork.lovable.app/</loc>
+    <loc>https://rajputbusinessnetwork.com/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://rajputbusinessnetwork.lovable.app/about</loc>
+    <loc>https://rajputbusinessnetwork.com/about</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://rajputbusinessnetwork.lovable.app/directory</loc>
+    <loc>https://rajputbusinessnetwork.com/directory</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://rajputbusinessnetwork.lovable.app/key-moments</loc>
+    <loc>https://rajputbusinessnetwork.com/key-moments</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://rajputbusinessnetwork.lovable.app/voice</loc>
+    <loc>https://rajputbusinessnetwork.com/voice</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://rajputbusinessnetwork.lovable.app/signup</loc>
+    <loc>https://rajputbusinessnetwork.com/signup</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://rajputbusinessnetwork.lovable.app/login</loc>
+    <loc>https://rajputbusinessnetwork.com/login</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://rajputbusinessnetwork.lovable.app/forgot-password</loc>
+    <loc>https://rajputbusinessnetwork.com/forgot-password</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://rajputbusinessnetwork.lovable.app/reset-password</loc>
+    <loc>https://rajputbusinessnetwork.com/reset-password</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>

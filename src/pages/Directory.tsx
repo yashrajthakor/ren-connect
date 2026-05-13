@@ -85,16 +85,16 @@ const Directory = () => {
       <Helmet>
         <title>Business Directory | RBN — Discover Rajput Entrepreneurs</title>
         <meta name="description" content="Search the RBN member directory. Find verified Rajput business owners across industries, cities and services in India." />
-        <link rel="canonical" href="https://rajputbusinessnetwork.lovable.app/directory" />
+        <link rel="canonical" href="https://rajputbusinessnetwork.com/directory" />
         <meta property="og:title" content="Business Directory | RBN" />
         <meta property="og:description" content="Discover verified Rajput entrepreneurs across India. Search by industry, city or service." />
-        <meta property="og:url" content="https://rajputbusinessnetwork.lovable.app/directory" />
+        <meta property="og:url" content="https://rajputbusinessnetwork.com/directory" />
         <script type="application/ld+json">{JSON.stringify({
           "@context": "https://schema.org",
           "@type": "CollectionPage",
           name: "RBN Business Directory",
           description: "Verified Rajput business professionals and entrepreneurs across India.",
-          url: "https://rajputbusinessnetwork.lovable.app/directory",
+          url: "https://rajputbusinessnetwork.com/directory",
         })}</script>
       </Helmet>
     <PublicLayout>

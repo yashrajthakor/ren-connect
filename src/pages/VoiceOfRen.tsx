@@ -48,10 +48,10 @@ const VoiceOfRen = () => {
       <Helmet>
         <title>Voice of RBN | Member Success Stories & Testimonials</title>
         <meta name="description" content="Real stories from RBN members — deals closed, clients won, and businesses scaled through the Rajput Business Network." />
-        <link rel="canonical" href="https://rajputbusinessnetwork.lovable.app/voice" />
+        <link rel="canonical" href="https://rajputbusinessnetwork.com/voice" />
         <meta property="og:title" content="Voice of RBN | Member Success Stories" />
         <meta property="og:description" content="Real referrals, real growth, real trust — stories from the Rajput Business Network." />
-        <meta property="og:url" content="https://rajputbusinessnetwork.lovable.app/voice" />
+        <meta property="og:url" content="https://rajputbusinessnetwork.com/voice" />
       </Helmet>
     <PublicLayout>
       <section className="bg-gradient-royal text-card">

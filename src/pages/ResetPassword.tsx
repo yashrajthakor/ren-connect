@@ -65,10 +65,10 @@ const ResetPassword = () => {
       <Helmet>
         <title>Reset Password | RBN — Rajput Business Network</title>
         <meta name="description" content="Set a new password for your RBN member portal account." />
-        <link rel="canonical" href="https://rajputbusinessnetwork.lovable.app/reset-password" />
+        <link rel="canonical" href="https://rajputbusinessnetwork.com/reset-password" />
         <meta property="og:title" content="Reset Password | RBN" />
         <meta property="og:description" content="Set a new password for your RBN account." />
-        <meta property="og:url" content="https://rajputbusinessnetwork.lovable.app/reset-password" />
+        <meta property="og:url" content="https://rajputbusinessnetwork.com/reset-password" />
       </Helmet>
     <div className="min-h-screen flex flex-col bg-gradient-royal">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
