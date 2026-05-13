@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Mail } from "lucide-react";
+import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -40,6 +41,15 @@ const ForgotPassword = () => {
   };
 
   return (
+    <>
+      <Helmet>
+        <title>Forgot Password | RBN — Rajput Business Network</title>
+        <meta name="description" content="Reset your RBN member portal password. Enter your email to receive a secure reset link." />
+        <link rel="canonical" href="https://rajputbusinessnetwork.lovable.app/forgot-password" />
+        <meta property="og:title" content="Forgot Password | RBN" />
+        <meta property="og:description" content="Reset your RBN member portal password." />
+        <meta property="og:url" content="https://rajputbusinessnetwork.lovable.app/forgot-password" />
+      </Helmet>
     <div className="min-h-screen flex flex-col bg-gradient-royal">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/10 rounded-full blur-3xl" />
@@ -105,6 +115,7 @@ const ForgotPassword = () => {
         </div>
       </main>
     </div>
+    </>
   );
 };
 

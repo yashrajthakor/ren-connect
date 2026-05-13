@@ -12,3 +12,5 @@ Allow: /
 
 User-agent: *
 Allow: /
+
+Sitemap: https://rajputbusinessnetwork.lovable.app/sitemap.xml
