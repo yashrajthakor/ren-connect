@@ -61,6 +61,15 @@ const ResetPassword = () => {
   };
 
   return (
+    <>
+      <Helmet>
+        <title>Reset Password | RBN — Rajput Business Network</title>
+        <meta name="description" content="Set a new password for your RBN member portal account." />
+        <link rel="canonical" href="https://rajputbusinessnetwork.lovable.app/reset-password" />
+        <meta property="og:title" content="Reset Password | RBN" />
+        <meta property="og:description" content="Set a new password for your RBN account." />
+        <meta property="og:url" content="https://rajputbusinessnetwork.lovable.app/reset-password" />
+      </Helmet>
     <div className="min-h-screen flex flex-col bg-gradient-royal">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/10 rounded-full blur-3xl" />
