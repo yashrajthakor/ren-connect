@@ -273,6 +273,26 @@ const Index = () => {
   }, []);
 
   return (
+    <>
+      <Helmet>
+        <title>RBN | Rajput Business Network — Heritage, Honor & Enterprise</title>
+        <meta name="description" content="Join India's exclusive Rajput Business Network. Connect with verified entrepreneurs, share referrals, and build legacy across industries and cities." />
+        <link rel="canonical" href="https://rajputbusinessnetwork.lovable.app/" />
+        <meta property="og:title" content="RBN | Rajput Business Network" />
+        <meta property="og:description" content="India's exclusive network for Rajput business professionals and entrepreneurs." />
+        <meta property="og:url" content="https://rajputbusinessnetwork.lovable.app/" />
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "RBN | Rajput Business Network",
+          url: "https://rajputbusinessnetwork.lovable.app",
+          potentialAction: {
+            "@type": "SearchAction",
+            target: "https://rajputbusinessnetwork.lovable.app/directory?q={search_term_string}",
+            "query-input": "required name=search_term_string",
+          },
+        })}</script>
+      </Helmet>
     <PublicLayout>
       {/* HERO CAROUSEL */}
       <section className="relative h-[92vh] min-h-[520px] sm:min-h-[640px] w-full overflow-hidden bg-secondary text-card">
