@@ -158,7 +158,7 @@ const sponsors: { category: string; name: string; logo: string }[] = [
 const Index = () => {
   const t = useT();
   const [committeeMembers, setCommitteeMembers] = useState<Member[]>([]);
-  const [stats, setStats] = useState([
+  const [stats, setStats] = useState<{ labelKey: TranslationKey; value: string; icon: typeof Users }[]>([
     { labelKey: "stats.members", value: "0+", icon: Users },
     { labelKey: "stats.businesses", value: "0+", icon: Briefcase },
     { labelKey: "stats.referrals", value: "0+", icon: Handshake },
