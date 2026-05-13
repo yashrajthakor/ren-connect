@@ -196,6 +196,15 @@ const Signup = () => {
   const progress = (step / 3) * 100;
 
   return (
+    <>
+      <Helmet>
+        <title>Join RBN | Apply for Membership — Rajput Business Network</title>
+        <meta name="description" content="Apply to join the Rajput Business Network. Connect with verified Rajput entrepreneurs across India." />
+        <link rel="canonical" href="https://rajputbusinessnetwork.lovable.app/signup" />
+        <meta property="og:title" content="Join RBN | Rajput Business Network" />
+        <meta property="og:description" content="Apply for membership in India's exclusive Rajput entrepreneur network." />
+        <meta property="og:url" content="https://rajputbusinessnetwork.lovable.app/signup" />
+      </Helmet>
     <div className="min-h-screen flex items-center justify-center bg-gradient-royal px-4 py-10">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/10 rounded-full blur-3xl" />
