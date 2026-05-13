@@ -157,6 +157,7 @@ const Directory = () => {
         )}
       </section>
     </PublicLayout>
+    </>
   );
 };
 
