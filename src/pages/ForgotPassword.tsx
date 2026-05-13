@@ -115,6 +115,7 @@ const ForgotPassword = () => {
         </div>
       </main>
     </div>
+    </>
   );
 };
 
