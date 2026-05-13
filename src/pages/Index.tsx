@@ -17,6 +17,7 @@ import {
   Building2,
   ChevronLeft,
 } from "lucide-react";
+import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
 import PublicLayout from "@/components/public/PublicLayout";
 import MemberCard from "@/components/public/MemberCard";
