@@ -307,6 +307,8 @@ const Index = () => {
               src={s.image}
               alt={t(s.titleKey)}
               className="absolute inset-0 w-full h-full object-cover animate-ken-burns"
+              fetchPriority={i === slide ? "high" : "auto"}
+              loading={i === 0 ? "eager" : "lazy"}
             />
             <div className="absolute inset-0 bg-gradient-to-r from-secondary/95 via-secondary/70 to-secondary/30" />
             <div className="absolute inset-0 bg-gradient-to-t from-secondary/90 via-transparent to-transparent" />
@@ -647,6 +649,7 @@ const Index = () => {
         </div>
       </section>
     </PublicLayout>
+    </>
   );
 };
 
