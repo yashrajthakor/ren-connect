@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, FileText, CheckCircle2, XCircle, Clock, Eye, Ban, RefreshCw } from "lucide-react";
+import { ArrowLeft, FileText, CheckCircle2, XCircle, Clock, Eye, Ban, RefreshCw, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -46,6 +46,16 @@ const STATUS_LABEL: Record<AppStatus, string> = {
   active: "Active",
   rejected: "Rejected",
   suspended: "Suspended",
+};
+
+const buildApprovalMessage = (name: string, email: string | null) =>
+  `Jay Mataji ${name},\n\nYour profile has been approved successfully.\n\nYou are now officially listed in the REN Business Directory.\n\n**Login Details:**\nRegistered Email ID: ${email ?? "—"}\n\n**Login Here:**\nhttps://www.rajputbusinessnetwork.com/login\n\n**Important:**\nFor the best experience, please open the website in Google Chrome (recommended) or any modern browser that supports PWA apps.\n\nAfter login:\n* Click "Add to Home Screen"\n* Allow Notifications for future business updates, leads, and community announcements\n\nThank you for joining Rajput Business Network (RBN).\nWe look forward to growing together.`;
+
+const buildWhatsAppUrl = (phone: string | null, message: string) => {
+  if (!phone) return null;
+  const normalized = phone.replace(/[^\d+]/g, "").replace(/^\+/, "");
+  if (!normalized) return null;
+  return `https://wa.me/${normalized}?text=${encodeURIComponent(message)}`;
 };
 
 const Applications = () => {
@@ -230,6 +240,17 @@ const Applications = () => {
                           <Button size="sm" variant="outline" onClick={() => setSelected(a)}>
                             <Eye className="h-4 w-4" />
                           </Button>
+                          {a.phone ? (
+                            <Button size="sm" variant="secondary" asChild>
+                              <a
+                                href={buildWhatsAppUrl(a.phone, buildApprovalMessage(a.full_name, a.email)) ?? undefined}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <Share2 className="h-4 w-4 mr-1" /> Share
+                              </a>
+                            </Button>
+                          ) : null}
                           {a.status !== "active" && (
                             <Button
                               size="sm"
@@ -323,6 +344,17 @@ const Applications = () => {
                 </Section>
 
                 <div className="flex flex-wrap gap-2 pt-4 border-t border-border">
+                  {selected.phone ? (
+                    <Button size="sm" variant="secondary" asChild>
+                      <a
+                        href={buildWhatsAppUrl(selected.phone, buildApprovalMessage(selected.full_name, selected.email)) ?? undefined}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Share2 className="h-4 w-4 mr-2" /> Share Approval
+                      </a>
+                    </Button>
+                  ) : null}
                   {selected.status !== "active" && (
                     <Button
                       onClick={() => updateStatus(selected.id, "active")}
