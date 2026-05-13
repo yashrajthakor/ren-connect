@@ -49,6 +49,15 @@ const moments = [
 const KeyMoments = () => {
   const t = useT();
   return (
+    <>
+      <Helmet>
+        <title>Key Moments | RBN — Milestones & Events</title>
+        <meta name="description" content="Explore the journey of RBN — milestones, chapter launches, conclaves and defining moments of the Rajput Business Network." />
+        <link rel="canonical" href="https://rajputbusinessnetwork.lovable.app/key-moments" />
+        <meta property="og:title" content="Key Moments | RBN" />
+        <meta property="og:description" content="Milestones and defining moments of the Rajput Business Network." />
+        <meta property="og:url" content="https://rajputbusinessnetwork.lovable.app/key-moments" />
+      </Helmet>
     <PublicLayout>
       <section className="bg-gradient-royal text-card">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
@@ -92,6 +101,7 @@ const KeyMoments = () => {
         </div>
       </section>
     </PublicLayout>
+    </>
   );
 };
 
