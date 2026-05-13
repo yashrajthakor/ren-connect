@@ -103,6 +103,7 @@ const VoiceOfRen = () => {
         ))}
       </section>
     </PublicLayout>
+    </>
   );
 };
 
