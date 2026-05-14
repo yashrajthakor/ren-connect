@@ -88,7 +88,7 @@ export const usePushNotifications = () => {
 
     const title = typeLabels[notification.type] || notification.title;
     const options: NotificationOptions & { vibrate?: number[] } = {
-      body: notification.body || 'New notification from REN',
+      body: notification.body || 'New notification from RBN',
       icon: '/android-chrome-192x192.png',
       badge: '/android-chrome-192x192.png',
       tag: notification.id,
@@ -139,7 +139,7 @@ export const usePushNotifications = () => {
       user_id: user?.id || '',
       type: 'announcement',
       title: '🎉 Test Notification',
-      body: 'This is a test notification from REN. Click to see details!',
+      body: 'This is a test notification from RBN. Click to see details!',
       link: '/dashboard/notifications',
       metadata: { test: true },
       read_at: null,

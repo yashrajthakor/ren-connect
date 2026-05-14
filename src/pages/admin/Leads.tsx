@@ -28,7 +28,7 @@ export default function AdminLeadsPage() {
       <div className="mb-6">
         <h1 className="text-2xl sm:text-3xl font-display font-bold">Leads & Business Tracking</h1>
         <p className="text-muted-foreground text-sm mt-1">
-          Monitor referral activity and business volume across REN.
+          Monitor referral activity and business volume across RBN.
         </p>
       </div>
 

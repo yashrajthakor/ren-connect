@@ -185,7 +185,7 @@ export const translations = {
   },
   gu: {
     // Common
-    "common.brand": "REN",
+    "common.brand": "RBN",
     "common.brandFull": "રાજપૂત આંત્રપ્રિન્યોર નેટવર્ક",
     "common.tagline": "ભાઈચારાથી આગળ વધતો વ્યવસાય.",
 
