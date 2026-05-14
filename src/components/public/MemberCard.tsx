@@ -52,7 +52,7 @@ const MemberCard = ({ member }: { member: Member }) => {
       if (!result) return;
       const a = document.createElement("a");
       a.href = result.dataUrl;
-      a.download = `${member.name.replace(/\s+/g, "_")}_REN.png`;
+      a.download = `${member.name.replace(/\s+/g, "_")}_RBN.png`;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -70,9 +70,9 @@ const MemberCard = ({ member }: { member: Member }) => {
       setBusy("share");
       const result = await generatePng();
       if (!result) return;
-      const file = new File([result.blob], `${member.name.replace(/\s+/g, "_")}_REN.png`, { type: "image/png" });
+      const file = new File([result.blob], `${member.name.replace(/\s+/g, "_")}_RBN.png`, { type: "image/png" });
       const navAny = navigator as any;
-      const sharePayload = { files: [file], text: SHARE_MESSAGE, title: `${member.name} — REN` };
+      const sharePayload = { files: [file], text: SHARE_MESSAGE, title: `${member.name} — RBN` };
 
       // Preferred: native share with image + text together (mobile)
       if (navAny.canShare && navAny.canShare(sharePayload)) {
@@ -90,7 +90,7 @@ const MemberCard = ({ member }: { member: Member }) => {
         try {
           // Copy text first so user can paste alongside image
           try { await navigator.clipboard.writeText(SHARE_MESSAGE); } catch {}
-          await navAny.share({ files: [file], title: `${member.name} — REN` });
+          await navAny.share({ files: [file], title: `${member.name} — RBN` });
           toast({ title: "Message copied", description: "Paste the caption with your shared image." });
           return;
         } catch (err: any) {
@@ -102,7 +102,7 @@ const MemberCard = ({ member }: { member: Member }) => {
       try { await navigator.clipboard.writeText(SHARE_MESSAGE); } catch {}
       const a = document.createElement("a");
       a.href = result.dataUrl;
-      a.download = `${member.name.replace(/\s+/g, "_")}_REN.png`;
+      a.download = `${member.name.replace(/\s+/g, "_")}_RBN.png`;
       document.body.appendChild(a);
       a.click();
       a.remove();

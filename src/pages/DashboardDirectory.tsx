@@ -43,7 +43,7 @@ const DashboardDirectory = () => {
           return {
             id: m.member_id,
             name,
-            business: m.business_name || m.chapter_name || "REN Member",
+            business: m.business_name || m.chapter_name || "RBN Member",
             category: m.category_name || "Member",
             city: m.business_city || m.city_name || "—",
             services: servicesArr,

@@ -66,7 +66,7 @@ export default function AdminAnnouncementsPage() {
             <Label htmlFor="title">Title</Label>
             <Input id="title" value={form.title} maxLength={120}
               onChange={(e) => setForm({ ...form, title: e.target.value })}
-              placeholder="Important update from REN" />
+              placeholder="Important update from RBN" />
           </div>
           <div className="space-y-1.5">
             <Label>Target audience</Label>

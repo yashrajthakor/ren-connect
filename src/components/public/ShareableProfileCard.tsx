@@ -17,9 +17,9 @@ const ShareableProfileCard = forwardRef<HTMLDivElement, { member: Member }>(({ m
           style={{ clipPath: "polygon(0 0, 65% 0, 30% 100%, 0 100%)" }}
         />
         <div className="relative flex items-center justify-between">
-          <img src={renLogo} alt="REN" style={{ height: 56 }} className="w-auto" crossOrigin="anonymous" />
+          <img src={renLogo} alt="RBN" style={{ height: 56 }} className="w-auto" crossOrigin="anonymous" />
           <span className="text-white/90 text-sm font-bold uppercase tracking-[0.2em]">
-            Member of REN
+            Member of RBN
           </span>
         </div>
       </div>
