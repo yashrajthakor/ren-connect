@@ -96,6 +96,12 @@ self.addEventListener("push", (event) => {
     }
   }
 
+  notificationData.actions = [
+    { action: "view", title: "View" },
+    { action: "dismiss", title: "Dismiss" },
+  ];
+  notificationData.renotify = true;
+
   event.waitUntil(self.registration.showNotification(notificationData.title, notificationData));
 });
 
@@ -104,18 +110,22 @@ self.addEventListener("notificationclick", (event) => {
   console.log("Notification clicked:", event.notification.tag);
   event.notification.close();
 
+  if (event.action === "dismiss") return;
+
   const urlToOpen = event.notification.data.link || "/dashboard";
 
   event.waitUntil(
     clients.matchAll({ type: "window", includeUncontrolled: true }).then((clientList) => {
-      // Check if app is already open
+      // Focus any open RBN window and navigate it to the link
       for (let i = 0; i < clientList.length; i++) {
         const client = clientList[i];
-        if (client.url === urlToOpen && "focus" in client) {
+        if ("focus" in client) {
+          if ("navigate" in client) {
+            try { client.navigate(urlToOpen); } catch (_) {}
+          }
           return client.focus();
         }
       }
-      // If not open, open new window/tab
       if (clients.openWindow) {
         return clients.openWindow(urlToOpen);
       }
