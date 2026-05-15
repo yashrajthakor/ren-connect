@@ -52,9 +52,17 @@ self.addEventListener("fetch", (event) => {
 
 // Handle messages from the main thread (for showing notifications)
 self.addEventListener("message", (event) => {
-  if (event.data && event.data.type === "SHOW_NOTIFICATION") {
+  if (!event.data) return;
+
+  if (event.data.type === "SHOW_NOTIFICATION") {
     const { title, options } = event.data;
     self.registration.showNotification(title, options);
+    return;
+  }
+
+  if (event.data.type === "SKIP_WAITING") {
+    self.skipWaiting();
+    return;
   }
 });
 
