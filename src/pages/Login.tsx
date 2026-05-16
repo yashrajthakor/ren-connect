@@ -376,7 +376,7 @@ const Login = () => {
               </Button>
             </form>
 
-            {/* Invite-only notice */}
+            {/* Invite-only notice + Sign Up link */}
             <div className="mt-6 pt-6 border-t border-border">
               <p className="text-center text-sm text-muted-foreground">
                 {t("login.notice1")}
@@ -384,6 +384,15 @@ const Login = () => {
                 <span className="text-foreground/80">
                   {t("login.notice2")}
                 </span>
+              </p>
+              <p className="text-center text-sm text-muted-foreground mt-3">
+                Don&apos;t have an account?{" "}
+                <Link
+                  to="/signup"
+                  className="text-primary hover:text-primary/80 transition-colors font-medium"
+                >
+                  Sign up
+                </Link>
               </p>
             </div>
           </div>
