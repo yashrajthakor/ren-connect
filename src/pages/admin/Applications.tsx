@@ -198,7 +198,76 @@ const Applications = () => {
           </div>
         ) : (
           <div className="bg-card border border-border rounded-xl overflow-hidden">
-            <div className="overflow-x-auto">
+            {/* Mobile card list */}
+            <ul className="md:hidden divide-y divide-border">
+              {filtered.map((a) => (
+                <li key={a.id} className="p-4 space-y-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="font-medium text-foreground truncate">{a.full_name}</div>
+                      <div className="text-xs text-muted-foreground truncate">{a.phone || "—"}</div>
+                      <div className="text-xs text-muted-foreground truncate">{a.email || "—"}</div>
+                      <div className="text-xs text-muted-foreground truncate">
+                        {a.city_name || "—"}{a.chapter_name ? ` · ${a.chapter_name}` : ""}
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-1">
+                        {new Date(a.submitted_at || a.created_at).toLocaleDateString()}
+                      </div>
+                    </div>
+                    <Badge variant="outline" className={`${STATUS_STYLES[a.status]} shrink-0`}>
+                      {STATUS_LABEL[a.status]}
+                    </Badge>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <Button size="sm" variant="outline" onClick={() => setSelected(a)}>
+                      <Eye className="h-4 w-4 mr-1" /> View
+                    </Button>
+                    {a.phone ? (
+                      <Button size="sm" variant="secondary" asChild>
+                        <a
+                          href={buildWhatsAppUrl(a.phone, buildApprovalMessage(a.full_name, a.email)) ?? undefined}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <Share2 className="h-4 w-4 mr-1" /> Share
+                        </a>
+                      </Button>
+                    ) : null}
+                    {a.status !== "active" && (
+                      <Button
+                        size="sm"
+                        disabled={updatingId === a.id}
+                        onClick={() => updateStatus(a.id, "active")}
+                      >
+                        <CheckCircle2 className="h-4 w-4 mr-1" /> Approve
+                      </Button>
+                    )}
+                    {a.status !== "rejected" && a.status !== "active" && (
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        disabled={updatingId === a.id}
+                        onClick={() => updateStatus(a.id, "rejected")}
+                      >
+                        <XCircle className="h-4 w-4 mr-1" /> Reject
+                      </Button>
+                    )}
+                    {a.status === "active" && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={updatingId === a.id}
+                        onClick={() => updateStatus(a.id, "suspended")}
+                      >
+                        <Ban className="h-4 w-4 mr-1" /> Suspend
+                      </Button>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+            {/* Desktop / tablet table */}
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-sm">
                 <thead className="bg-muted/50">
                   <tr className="text-left">
