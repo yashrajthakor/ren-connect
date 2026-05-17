@@ -39,6 +39,7 @@ type Profile = {
   instagram_url: string | null;
   facebook_url: string | null;
   category_name: string | null;
+  profile_type: "business" | "job" | null;
 };
 
 type Category = { id: string; name: string };
@@ -62,6 +63,7 @@ const MyProfile = () => {
   const [profilePicUrl, setProfilePicUrl] = useState<string | null>(null);
 
   // Business fields
+  const [profileType, setProfileType] = useState<"business" | "job">("business");
   const [businessName, setBusinessName] = useState("");
   const [categoryId, setCategoryId] = useState<string>("");
   const [businessCity, setBusinessCity] = useState("");
@@ -103,6 +105,7 @@ const MyProfile = () => {
           setChapterId(prof.chapter_id || "");
           setCityId(prof.city_id || "");
           setProfilePicUrl(prof.profile_picture || prof.profile_image || null);
+          setProfileType(prof.profile_type === "job" ? "job" : "business");
           setBusinessName(prof.business_name || "");
           setCategoryId(prof.category_id || "");
           setBusinessCity(prof.business_city || "");
@@ -164,6 +167,7 @@ const MyProfile = () => {
       if (mErr) throw mErr;
 
       const bpPayload = {
+        profile_type: profileType,
         business_name: businessName,
         category_id: categoryId || null,
         city: businessCity || null,
@@ -286,9 +290,21 @@ const MyProfile = () => {
       <Card>
         <CardHeader><CardTitle>Business Info</CardTitle></CardHeader>
         <CardContent className="space-y-4">
+          <div>
+            <Label>Profile type</Label>
+            <Select value={profileType} onValueChange={(v) => setProfileType(v as "business" | "job")}>
+              <SelectTrigger className="mt-1">
+                <SelectValue placeholder="Select profile type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="business">Business Owner / Entrepreneur</SelectItem>
+                <SelectItem value="job">Job / Working Professional</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
-              <Label>Business Name</Label>
+              <Label>{profileType === "job" ? "Company Name" : "Business Name"}</Label>
               <Input value={businessName} onChange={(e) => setBusinessName(e.target.value)} />
             </div>
             <div>

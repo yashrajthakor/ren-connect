@@ -12,6 +12,8 @@ import renLogo from "@/assets/ren-logo.png";
 
 type AppStatus = "pending" | "under_review" | "active" | "rejected" | "suspended";
 
+type ProfileType = "business" | "job";
+
 interface Application {
   id: string;
   user_id: string | null;
@@ -28,9 +30,56 @@ interface Application {
   approved_at: string | null;
   approved_by: string | null;
   rejection_reason: string | null;
+  committee_badge?: string | null;
   city_name?: string | null;
   chapter_name?: string | null;
+  profile_type?: ProfileType | null;
+  business_name?: string | null;
+  category_name?: string | null;
+  business_city?: string | null;
+  business_state?: string | null;
+  pincode?: string | null;
+  business_address?: string | null;
+  website?: string | null;
+  services?: string | null;
+  gst_number?: string | null;
+  logo?: string | null;
+  visiting_card?: string | null;
+  linkedin_url?: string | null;
+  instagram_url?: string | null;
+  facebook_url?: string | null;
+  referral_code?: string | null;
 }
+
+const PROFILE_TYPE_LABEL: Record<ProfileType, string> = {
+  business: "Business",
+  job: "Job / Working Professional",
+};
+
+const mapMemberRow = (m: any): Application => {
+  const bp = Array.isArray(m.business_profiles) ? m.business_profiles[0] : m.business_profiles;
+  return {
+    ...m,
+    city_name: m.cities?.name ?? null,
+    chapter_name: m.chapters?.name ?? null,
+    profile_type: bp?.profile_type ?? null,
+    business_name: bp?.business_name ?? null,
+    category_name: bp?.business_categories?.name ?? null,
+    business_city: bp?.city ?? null,
+    business_state: bp?.state ?? null,
+    pincode: bp?.pincode ?? null,
+    business_address: bp?.address ?? null,
+    website: bp?.website ?? null,
+    services: bp?.services ?? null,
+    gst_number: bp?.gst_number ?? null,
+    logo: bp?.logo ?? null,
+    visiting_card: bp?.visiting_card ?? null,
+    linkedin_url: bp?.linkedin_url ?? null,
+    instagram_url: bp?.instagram_url ?? null,
+    facebook_url: bp?.facebook_url ?? null,
+    referral_code: bp?.referral_code ?? null,
+  };
+};
 
 const STATUS_STYLES: Record<AppStatus, string> = {
   pending: "bg-yellow-100 text-yellow-800 border-yellow-300",
@@ -72,17 +121,34 @@ const Applications = () => {
     setLoading(true);
     const { data, error } = await (supabase as any)
       .from("members")
-      .select("*, cities(name), chapters(name)")
+      .select(
+        `*,
+        cities(name),
+        chapters(name),
+        business_profiles(
+          profile_type,
+          business_name,
+          city,
+          state,
+          pincode,
+          address,
+          website,
+          services,
+          gst_number,
+          logo,
+          visiting_card,
+          linkedin_url,
+          instagram_url,
+          facebook_url,
+          referral_code,
+          business_categories(name)
+        )`
+      )
       .order("created_at", { ascending: false });
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
-      const mapped = (data || []).map((m: any) => ({
-        ...m,
-        city_name: m.cities?.name ?? null,
-        chapter_name: m.chapters?.name ?? null,
-      })) as Application[];
-      setApps(mapped);
+      setApps((data || []).map(mapMemberRow));
     }
     setLoading(false);
   };
@@ -376,21 +442,90 @@ const Applications = () => {
               </DialogHeader>
 
               <div className="space-y-6 mt-4">
-                {(selected.profile_image || selected.profile_picture) && (
-                  <img
-                    src={(selected.profile_image || selected.profile_picture) as string}
-                    alt="Profile"
-                    className="h-24 w-24 rounded-full object-cover border-2 border-border"
-                  />
-                )}
+                <div className="flex flex-wrap items-start gap-4">
+                  {(selected.profile_image || selected.profile_picture) && (
+                    <img
+                      src={(selected.profile_image || selected.profile_picture) as string}
+                      alt="Profile"
+                      className="h-24 w-24 rounded-full object-cover border-2 border-border shrink-0"
+                    />
+                  )}
+                  {selected.logo && (
+                    <img
+                      src={selected.logo}
+                      alt="Company logo"
+                      className="h-24 w-24 rounded-lg object-contain border border-border bg-muted/30 shrink-0"
+                    />
+                  )}
+                </div>
 
                 <Section title="Personal">
                   <Field label="Full Name" value={selected.full_name} />
                   <Field label="Email" value={selected.email} />
                   <Field label="Phone" value={selected.phone} />
-                  <Field label="City" value={selected.city_name} />
+                  <Field
+                    label="Profile Type"
+                    value={
+                      selected.profile_type
+                        ? PROFILE_TYPE_LABEL[selected.profile_type]
+                        : null
+                    }
+                  />
                   <Field label="Chapter" value={selected.chapter_name} />
+                  <Field label="City (Member)" value={selected.city_name} />
+                  {selected.committee_badge ? (
+                    <Field label="Committee Badge" value={selected.committee_badge} />
+                  ) : null}
                 </Section>
+
+                <Section title={selected.profile_type === "job" ? "Professional" : "Business"}>
+                  <Field
+                    label={selected.profile_type === "job" ? "Company Name" : "Business Name"}
+                    value={selected.business_name}
+                  />
+                  <Field label="Category" value={selected.category_name} />
+                  <Field label="Services / Description" value={selected.services} />
+                  <Field label="GST Number" value={selected.gst_number} />
+                </Section>
+
+                <Section title="Location">
+                  <Field label="City" value={selected.business_city} />
+                  <Field label="State" value={selected.business_state} />
+                  <Field label="Pincode" value={selected.pincode} />
+                  <Field label="Address" value={selected.business_address} />
+                </Section>
+
+                <Section title="Referral & Social">
+                  <Field label="Referred By" value={selected.referral_code} />
+                  <Field label="Website" value={selected.website ? <LinkValue href={selected.website} /> : null} />
+                  <Field label="LinkedIn" value={selected.linkedin_url ? <LinkValue href={selected.linkedin_url} /> : null} />
+                  <Field label="Instagram" value={selected.instagram_url ? <LinkValue href={selected.instagram_url} /> : null} />
+                  <Field label="Facebook" value={selected.facebook_url ? <LinkValue href={selected.facebook_url} /> : null} />
+                </Section>
+
+                {selected.visiting_card && (
+                  <Section title="Documents">
+                    <div>
+                      <div className="text-sm text-muted-foreground mb-2">Visiting Card</div>
+                      {selected.visiting_card.toLowerCase().endsWith(".pdf") ? (
+                        <a
+                          href={selected.visiting_card}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm text-primary hover:underline"
+                        >
+                          Open PDF
+                        </a>
+                      ) : (
+                        <img
+                          src={selected.visiting_card}
+                          alt="Visiting card"
+                          className="max-h-48 rounded-lg border border-border object-contain"
+                        />
+                      )}
+                    </div>
+                  </Section>
+                )}
 
                 <Section title="Application">
                   <Field
@@ -474,6 +609,12 @@ const Section = ({ title, children }: { title: string; children: React.ReactNode
     <h3 className="text-sm font-semibold text-foreground mb-2 uppercase tracking-wide">{title}</h3>
     <div className="space-y-2">{children}</div>
   </div>
+);
+
+const LinkValue = ({ href }: { href: string }) => (
+  <a href={href} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline break-all">
+    {href}
+  </a>
 );
 
 const Field = ({ label, value }: { label: string; value: React.ReactNode }) => (
