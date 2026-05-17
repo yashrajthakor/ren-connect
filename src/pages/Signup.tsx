@@ -25,6 +25,7 @@ const step1Schema = z.object({
 });
 
 const step2Schema = z.object({
+  profileType: z.enum(["business", "job"], { required_error: "Select profile type" }),
   businessName: z.string().trim().min(2, "Business name is required").max(160),
   categoryId: z.string().min(1, "Select a category"),
   city: z.string().trim().min(2, "City is required").max(80),
@@ -33,7 +34,6 @@ const step2Schema = z.object({
   address: z.string().trim().max(500).optional().or(z.literal("")),
   website: z.string().trim().url("Invalid URL").max(255).optional().or(z.literal("")),
   services: z.string().trim().max(1000).optional().or(z.literal("")),
-  gstNumber: z.string().trim().max(20).optional().or(z.literal("")),
 });
 
 const step3Schema = z.object({
@@ -157,6 +157,7 @@ const Signup = () => {
       // 4. Insert business profile
       const { error: bpError } = await supabase.from("business_profiles").insert({
         member_id: memberRow.id,
+        profile_type: s2.profileType,
         business_name: s2.businessName,
         category_id: s2.categoryId,
         city: s2.city,
@@ -165,7 +166,6 @@ const Signup = () => {
         address: s2.address || null,
         website: s2.website || null,
         services: s2.services || null,
-        gst_number: s2.gstNumber || null,
         logo: logoUrl,
         visiting_card: cardUrl,
         linkedin_url: data.linkedin || null,
@@ -314,7 +314,24 @@ const Signup = () => {
           {step === 2 && (
             <form onSubmit={f2.handleSubmit(onStep2)} className="space-y-4">
               <div>
-                <Label htmlFor="businessName">Business Name</Label>
+                <Label>I am joining as</Label>
+                <Select
+                  value={f2.watch("profileType") || ""}
+                  onValueChange={(v) => f2.setValue("profileType", v as "business" | "job", { shouldValidate: true })}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Select profile type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="business">Business Owner / Entrepreneur</SelectItem>
+                    <SelectItem value="job">Job / Working Professional</SelectItem>
+                  </SelectContent>
+                </Select>
+                {f2.formState.errors.profileType && <p className="text-destructive text-xs mt-1">{f2.formState.errors.profileType.message}</p>}
+              </div>
+
+              <div>
+                <Label htmlFor="businessName">{f2.watch("profileType") === "job" ? "Company Name" : "Business Name"}</Label>
                 <div className="relative mt-1">
                   <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input id="businessName" className="pl-11" {...f2.register("businessName")} />
@@ -356,10 +373,6 @@ const Signup = () => {
                 <div>
                   <Label htmlFor="pincode">Pincode</Label>
                   <Input id="pincode" className="mt-1" {...f2.register("pincode")} />
-                </div>
-                <div>
-                  <Label htmlFor="gstNumber">GST Number</Label>
-                  <Input id="gstNumber" className="mt-1" {...f2.register("gstNumber")} />
                 </div>
               </div>
 
