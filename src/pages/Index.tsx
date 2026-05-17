@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   ArrowRight,
   Users,
@@ -16,9 +16,11 @@ import {
   Globe2,
   Building2,
   ChevronLeft,
+  Search,
 } from "lucide-react";
 import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import PublicLayout from "@/components/public/PublicLayout";
 import MemberCard from "@/components/public/MemberCard";
 import heroHeritage from "@/assets/hero-heritage.jpg";
@@ -158,6 +160,10 @@ const sponsors: { category: string; name: string; logo: string }[] = [
 
 const Index = () => {
   const t = useT();
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchCategory, setSearchCategory] = useState<string>("");
+  const [allCategories, setAllCategories] = useState<string[]>([]);
   const [committeeMembers, setCommitteeMembers] = useState<Member[]>([]);
   const [stats, setStats] = useState<{ labelKey: TranslationKey; value: string; icon: typeof Users }[]>([
     { labelKey: "stats.members", value: "0+", icon: Users },
@@ -271,6 +277,24 @@ const Index = () => {
     const t = setInterval(() => setSlide((s) => (s + 1) % heroSlides.length), 6000);
     return () => clearInterval(t);
   }, []);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase.from("business_categories").select("name").order("name").limit(60);
+      if (data) setAllCategories(data.map((c: any) => c.name).filter(Boolean));
+    })();
+  }, []);
+
+  const submitSearch = (e?: React.FormEvent) => {
+    e?.preventDefault();
+    const params = new URLSearchParams();
+    if (searchQuery.trim()) params.set("q", searchQuery.trim());
+    if (searchCategory) params.set("category", searchCategory);
+    const qs = params.toString();
+    navigate(qs ? `/directory?${qs}` : "/directory");
+  };
+
+  const quickChips = ["Real Estate", "Finance", "Technology", "Manufacturing", "Retail", "Hospitality"];
 
   return (
     <>
@@ -438,6 +462,73 @@ const Index = () => {
               </div>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* SEARCH DIRECTORY */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
+        <div className="relative bg-card rounded-2xl shadow-xl border border-border p-6 sm:p-8 overflow-hidden">
+          <div className="absolute -top-20 -right-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="relative">
+            <div className="flex items-end justify-between flex-wrap gap-3 mb-5">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.25em] text-primary mb-2">
+                  Find a Member
+                </p>
+                <h2 className="font-display font-bold text-2xl sm:text-3xl text-secondary leading-tight">
+                  Search the RBN Directory
+                </h2>
+              </div>
+              <Link
+                to="/directory"
+                className="text-sm font-semibold text-primary hover:underline inline-flex items-center gap-1 group"
+              >
+                Browse all
+                <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+
+            <form onSubmit={submitSearch} className="flex flex-col md:flex-row gap-3">
+              <div className="relative flex-1">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search by name, business, category, city, or service"
+                  className="pl-12 h-12"
+                  aria-label="Search directory members"
+                />
+              </div>
+              <select
+                value={searchCategory}
+                onChange={(e) => setSearchCategory(e.target.value)}
+                className="h-12 px-4 rounded-md border border-input bg-background text-sm text-foreground md:w-56"
+                aria-label="Filter by category"
+              >
+                <option value="">All categories</option>
+                {allCategories.map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+              <Button type="submit" variant="royal" size="lg" className="h-12">
+                <Search className="h-4 w-4" /> Search
+              </Button>
+            </form>
+
+            <div className="mt-5 flex flex-wrap items-center gap-2">
+              <span className="text-xs uppercase tracking-wider text-muted-foreground mr-1">Quick:</span>
+              {quickChips.map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => navigate(`/directory?category=${encodeURIComponent(c)}`)}
+                  className="px-3 py-1.5 rounded-full text-xs font-medium bg-muted hover:bg-primary hover:text-primary-foreground border border-border transition-colors"
+                >
+                  {c}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
