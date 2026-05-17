@@ -40,7 +40,8 @@ const step3Schema = z.object({
   linkedin: z.string().trim().url("Invalid URL").max(255).optional().or(z.literal("")),
   instagram: z.string().trim().url("Invalid URL").max(255).optional().or(z.literal("")),
   facebook: z.string().trim().url("Invalid URL").max(255).optional().or(z.literal("")),
-  referralCode: z.string().trim().max(40).optional().or(z.literal("")),
+  // ✅ CHANGED: referralCode is now required (min 2 chars)
+  referralCode: z.string().trim().min(2, "Referral person name is required").max(40),
 });
 
 type Step1 = z.infer<typeof step1Schema>;
@@ -171,7 +172,7 @@ const Signup = () => {
         linkedin_url: data.linkedin || null,
         instagram_url: data.instagram || null,
         facebook_url: data.facebook || null,
-        referral_person: data.referralCode || null,
+        referral_person: data.referralCode,
       });
       if (bpError) throw bpError;
 
@@ -420,9 +421,11 @@ const Signup = () => {
                   <Label htmlFor="facebook">Facebook URL</Label>
                   <Input id="facebook" className="mt-1" placeholder="https://facebook.com/..." {...f3.register("facebook")} />
                 </div>
+                {/* ✅ CHANGED: now required — removed "Optional" placeholder, added error display */}
                 <div>
-                  <Label htmlFor="referralCode">Referral Person Name</Label>
-                  <Input id="referralCode" className="mt-1" placeholder="Optional" {...f3.register("referralCode")} />
+                  <Label htmlFor="referralCode">Referral Person Name <span className="text-destructive">*</span></Label>
+                  <Input id="referralCode" className="mt-1" placeholder="Enter referral person name" {...f3.register("referralCode")} />
+                  {f3.formState.errors.referralCode && <p className="text-destructive text-xs mt-1">{f3.formState.errors.referralCode.message}</p>}
                 </div>
               </div>
 
