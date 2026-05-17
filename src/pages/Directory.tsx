@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Search } from "lucide-react";
 import { Helmet } from "react-helmet-async";
 import { Input } from "@/components/ui/input";
@@ -11,8 +12,9 @@ import { useT } from "@/i18n/LanguageProvider";
 
 const Directory = () => {
   const t = useT();
-  const [query, setQuery] = useState("");
-  const [active, setActive] = useState("All");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [query, setQuery] = useState(searchParams.get("q") || "");
+  const [active, setActive] = useState(searchParams.get("category") || "All");
   const [members, setMembers] = useState<Member[]>([]);
   const [categories, setCategories] = useState<string[]>(["All"]);
   const [loading, setLoading] = useState(true);
@@ -65,6 +67,13 @@ const Directory = () => {
     };
     load();
   }, []);
+
+  useEffect(() => {
+    const params: Record<string, string> = {};
+    if (query.trim()) params.q = query.trim();
+    if (active && active !== "All") params.category = active;
+    setSearchParams(params, { replace: true });
+  }, [query, active, setSearchParams]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
