@@ -171,7 +171,7 @@ const Signup = () => {
         linkedin_url: data.linkedin || null,
         instagram_url: data.instagram || null,
         facebook_url: data.facebook || null,
-        referral_code: data.referralCode || null,
+        referral_person: data.referralCode || null,
       });
       if (bpError) throw bpError;
 

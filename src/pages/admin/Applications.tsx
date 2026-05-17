@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, FileText, CheckCircle2, XCircle, Clock, Eye, Ban, RefreshCw, Share2 } from "lucide-react";
+import { ArrowLeft, FileText, CheckCircle2, XCircle, Clock, Eye, Ban, RefreshCw, Share2, Pencil, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
@@ -48,8 +49,11 @@ interface Application {
   linkedin_url?: string | null;
   instagram_url?: string | null;
   facebook_url?: string | null;
-  referral_code?: string | null;
+  business_profile_id?: string | null;
+  referral_person?: string | null;
 }
+
+type MemberOption = { id: string; full_name: string };
 
 const PROFILE_TYPE_LABEL: Record<ProfileType, string> = {
   business: "Business",
@@ -77,7 +81,8 @@ const mapMemberRow = (m: any): Application => {
     linkedin_url: bp?.linkedin_url ?? null,
     instagram_url: bp?.instagram_url ?? null,
     facebook_url: bp?.facebook_url ?? null,
-    referral_code: bp?.referral_code ?? null,
+    business_profile_id: bp?.id ?? null,
+    referral_person: bp?.referral_person ?? null,
   };
 };
 
@@ -116,6 +121,8 @@ const Applications = () => {
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<Application | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [memberOptions, setMemberOptions] = useState<MemberOption[]>([]);
+  const [savingReferralId, setSavingReferralId] = useState<string | null>(null);
 
   const fetchApps = async () => {
     setLoading(true);
@@ -126,6 +133,7 @@ const Applications = () => {
         cities(name),
         chapters(name),
         business_profiles(
+          id,
           profile_type,
           business_name,
           city,
@@ -140,7 +148,7 @@ const Applications = () => {
           linkedin_url,
           instagram_url,
           facebook_url,
-          referral_code,
+          referral_person,
           business_categories(name)
         )`
       )
@@ -153,9 +161,45 @@ const Applications = () => {
     setLoading(false);
   };
 
+  const fetchMemberOptions = async () => {
+    const { data } = await (supabase as any)
+      .from("members")
+      .select("id, full_name")
+      .order("full_name");
+    if (data) setMemberOptions(data as MemberOption[]);
+  };
+
   useEffect(() => {
     fetchApps();
+    fetchMemberOptions();
   }, []);
+
+  const saveReferralPerson = async (app: Application, referralPerson: string | null) => {
+    if (!app.business_profile_id) {
+      toast({
+        title: "Cannot update",
+        description: "This applicant has no business profile record.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setSavingReferralId(app.id);
+    const value = referralPerson?.trim() || null;
+    const { error } = await (supabase as any)
+      .from("business_profiles")
+      .update({ referral_person: value })
+      .eq("id", app.business_profile_id);
+    setSavingReferralId(null);
+    if (error) {
+      toast({ title: "Update failed", description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({ title: "Referral person updated" });
+    setApps((prev) =>
+      prev.map((a) => (a.id === app.id ? { ...a, referral_person: value } : a))
+    );
+    if (selected?.id === app.id) setSelected({ ...selected, referral_person: value });
+  };
 
   const updateStatus = async (id: string, status: AppStatus) => {
     setUpdatingId(id);
@@ -496,7 +540,14 @@ const Applications = () => {
                 </Section>
 
                 <Section title="Referral & Social">
-                  <Field label="Referred By" value={selected.referral_code} />
+                  <ReferralPersonField
+                    value={selected.referral_person}
+                    memberId={selected.id}
+                    businessProfileId={selected.business_profile_id}
+                    memberOptions={memberOptions}
+                    saving={savingReferralId === selected.id}
+                    onSave={(v) => saveReferralPerson(selected, v)}
+                  />
                   <Field label="Website" value={selected.website ? <LinkValue href={selected.website} /> : null} />
                   <Field label="LinkedIn" value={selected.linkedin_url ? <LinkValue href={selected.linkedin_url} /> : null} />
                   <Field label="Instagram" value={selected.instagram_url ? <LinkValue href={selected.instagram_url} /> : null} />
@@ -616,6 +667,139 @@ const LinkValue = ({ href }: { href: string }) => (
     {href}
   </a>
 );
+
+const ReferralPersonField = ({
+  value,
+  memberId,
+  businessProfileId,
+  memberOptions,
+  saving,
+  onSave,
+}: {
+  value: string | null | undefined;
+  memberId: string;
+  businessProfileId: string | null | undefined;
+  memberOptions: MemberOption[];
+  saving: boolean;
+  onSave: (value: string | null) => void;
+}) => {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(value ?? "");
+  const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    if (!editing) setDraft(value ?? "");
+  }, [value, editing]);
+
+  const filteredMembers = memberOptions
+    .filter((m) => {
+      if (m.id === memberId) return false;
+      const q = search.trim().toLowerCase();
+      if (!q) return true;
+      return m.full_name.toLowerCase().includes(q);
+    })
+    .slice(0, search.trim() ? 50 : 40);
+
+  const handleSave = () => {
+    onSave(draft.trim() || null);
+    setEditing(false);
+    setSearch("");
+  };
+
+  const handleCancel = () => {
+    setDraft(value ?? "");
+    setEditing(false);
+    setSearch("");
+  };
+
+  if (!editing) {
+    return (
+      <div className="grid grid-cols-3 gap-2 text-sm items-start">
+        <div className="text-muted-foreground pt-0.5">Referral Person</div>
+        <div className="col-span-2 flex items-start justify-between gap-2">
+          <span className="text-foreground">
+            {value || <span className="text-muted-foreground italic">—</span>}
+          </span>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            className="shrink-0 h-8"
+            disabled={!businessProfileId}
+            onClick={() => setEditing(true)}
+          >
+            <Pencil className="h-3.5 w-3.5 mr-1" />
+            Edit
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-lg border border-border p-3 space-y-3 bg-muted/20">
+      <div className="text-sm font-medium text-foreground">Referral Person</div>
+      <p className="text-xs text-muted-foreground">Select a member from the directory or type a name.</p>
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Search members..."
+          className="pl-9 h-9"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
+      <div className="max-h-40 overflow-y-auto border border-border rounded-md divide-y bg-card">
+        {filteredMembers.length === 0 ? (
+          <div className="p-3 text-center text-xs text-muted-foreground">No members match</div>
+        ) : (
+          filteredMembers.map((m) => (
+            <button
+              key={m.id}
+              type="button"
+              className={`w-full text-left px-3 py-2 text-sm hover:bg-muted/60 transition-colors ${
+                draft === m.full_name ? "bg-primary/10 font-medium" : ""
+              }`}
+              onClick={() => setDraft(m.full_name)}
+            >
+              {m.full_name}
+            </button>
+          ))
+        )}
+      </div>
+      <div>
+        <Label htmlFor="referral-person-custom" className="text-xs text-muted-foreground">
+          Selected / custom name
+        </Label>
+        <Input
+          id="referral-person-custom"
+          className="mt-1 h-9"
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          placeholder="Member name or custom referral"
+        />
+      </div>
+      <div className="flex flex-wrap gap-2">
+        <Button type="button" size="sm" onClick={handleSave} disabled={saving}>
+          {saving ? "Saving..." : "Save"}
+        </Button>
+        <Button type="button" size="sm" variant="outline" onClick={handleCancel} disabled={saving}>
+          Cancel
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          variant="ghost"
+          className="text-muted-foreground"
+          onClick={() => setDraft("")}
+          disabled={saving}
+        >
+          Clear
+        </Button>
+      </div>
+    </div>
+  );
+};
 
 const Field = ({ label, value }: { label: string; value: React.ReactNode }) => (
   <div className="grid grid-cols-3 gap-2 text-sm">
