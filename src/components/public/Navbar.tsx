@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Link, NavLink, useLocation } from "react-router-dom";
-import { Menu, X, LogIn, UserPlus, LayoutDashboard } from "lucide-react";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
+import { Menu, X, LogIn, UserPlus, LayoutDashboard, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import renLogo from "@/assets/ren-logo.png";
 import { cn } from "@/lib/utils";
 import { useT } from "@/i18n/LanguageProvider";
@@ -10,7 +11,9 @@ import { useAuthContext } from "@/context/AuthContext";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
+  const [q, setQ] = useState("");
   const location = useLocation();
+  const navigate = useNavigate();
   const t = useT();
   const { user, loading } = useAuthContext();
 
@@ -20,6 +23,13 @@ const Navbar = () => {
     { to: "/about", label: t("nav.about") },
     { to: "/voice", label: t("nav.voice") },
   ];
+
+  const onSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const term = q.trim();
+    navigate(term ? `/directory?q=${encodeURIComponent(term)}` : "/directory");
+    setOpen(false);
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-card/85 backdrop-blur-md shadow-sm">
@@ -54,6 +64,18 @@ const Navbar = () => {
               </NavLink>
             ))}
           </nav>
+
+          <form onSubmit={onSearch} className="hidden md:flex flex-1 max-w-xs mx-4 relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+            <Input
+              type="search"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Search members…"
+              className="pl-9 h-9 bg-background/70"
+              aria-label="Search directory"
+            />
+          </form>
 
           <div className="hidden lg:flex items-center gap-2">
             <LanguageSwitcher className="mr-1" />
@@ -99,6 +121,17 @@ const Navbar = () => {
         {open && (
           <div className="lg:hidden pb-4 animate-fade-in">
             <nav className="flex flex-col gap-1">
+              <form onSubmit={onSearch} className="relative mb-2">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                <Input
+                  type="search"
+                  value={q}
+                  onChange={(e) => setQ(e.target.value)}
+                  placeholder="Search members…"
+                  className="pl-9 h-10"
+                  aria-label="Search directory"
+                />
+              </form>
               {navItems.map((item) => (
                 <NavLink
                   key={item.to}
