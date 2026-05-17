@@ -314,7 +314,24 @@ const Signup = () => {
           {step === 2 && (
             <form onSubmit={f2.handleSubmit(onStep2)} className="space-y-4">
               <div>
-                <Label htmlFor="businessName">Business Name</Label>
+                <Label>I am joining as</Label>
+                <Select
+                  value={f2.watch("profileType") || ""}
+                  onValueChange={(v) => f2.setValue("profileType", v as "business" | "job", { shouldValidate: true })}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Select profile type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="business">Business Owner / Entrepreneur</SelectItem>
+                    <SelectItem value="job">Job / Working Professional</SelectItem>
+                  </SelectContent>
+                </Select>
+                {f2.formState.errors.profileType && <p className="text-destructive text-xs mt-1">{f2.formState.errors.profileType.message}</p>}
+              </div>
+
+              <div>
+                <Label htmlFor="businessName">{f2.watch("profileType") === "job" ? "Company Name" : "Business Name"}</Label>
                 <div className="relative mt-1">
                   <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input id="businessName" className="pl-11" {...f2.register("businessName")} />
@@ -356,10 +373,6 @@ const Signup = () => {
                 <div>
                   <Label htmlFor="pincode">Pincode</Label>
                   <Input id="pincode" className="mt-1" {...f2.register("pincode")} />
-                </div>
-                <div>
-                  <Label htmlFor="gstNumber">GST Number</Label>
-                  <Input id="gstNumber" className="mt-1" {...f2.register("gstNumber")} />
                 </div>
               </div>
 
