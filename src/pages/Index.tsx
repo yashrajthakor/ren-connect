@@ -700,6 +700,9 @@ const Index = () => {
       </section> */}
 
       {/* CTA */}
+      <LatestStoriesSection />
+
+      {/* CTA */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
         <div className="relative overflow-hidden rounded-3xl bg-gradient-royal text-card p-10 sm:p-16">
           <div className="absolute -top-20 -right-20 w-80 h-80 bg-primary/30 rounded-full blur-3xl animate-float" />
