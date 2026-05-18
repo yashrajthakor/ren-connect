@@ -17,6 +17,8 @@ import Admin from "./pages/Admin";
 import AdminLayout from "./components/admin/AdminLayout";
 import Dashboard from "./pages/Dashboard";
 import DashboardDirectory from "./pages/DashboardDirectory";
+import DashboardNews from "./pages/DashboardNews";
+import DashboardNewsArticle from "./pages/DashboardNewsArticle";
 import DashboardLayout from "./components/dashboard/DashboardLayout";
 import Members from "./pages/admin/Members";
 import Applications from "./pages/admin/Applications";
@@ -123,6 +125,8 @@ const App = () => {
                 <Route path="profile" element={<MyProfile />} />
                 <Route path="settings" element={<Settings />} />
                 <Route path="directory" element={<DashboardDirectory />} />
+                <Route path="news" element={<DashboardNews />} />
+                <Route path="news/:slug" element={<DashboardNewsArticle />} />
                 <Route path="leads" element={<LeadsPage />} />
                 <Route path="asks" element={<AsksPage />} />
                 <Route path="notifications" element={<NotificationsPage />} />

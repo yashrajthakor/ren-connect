@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { LogOut, Shield, Handshake, Briefcase, UserCog, MessageCircleQuestion } from "lucide-react";
+import { LogOut, Shield, Handshake, Briefcase, UserCog, MessageCircleQuestion, Newspaper } from "lucide-react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { DashboardSidebar } from "./DashboardSidebar";
@@ -9,10 +9,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useT } from "@/i18n/LanguageProvider";
 
 const DashboardLayout = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const t = useT();
   const [userEmail, setUserEmail] = useState("");
   const [userRole, setUserRole] = useState<string | null>(null);
   const [roleLoading, setRoleLoading] = useState(true);
@@ -44,10 +46,11 @@ const DashboardLayout = () => {
   const isMobile = useIsMobile();
 
   const mobileTabs = [
-    { label: "Leads", url: "/dashboard/leads", icon: <Handshake className="h-5 w-5" /> },
-    { label: "Ask Network", url: "/dashboard/asks", icon: <MessageCircleQuestion className="h-5 w-5" /> },
-    { label: "Directory", url: "/dashboard/directory", icon: <Briefcase className="h-5 w-5" /> },
-    { label: "Profile", url: "/dashboard/profile", icon: <UserCog className="h-5 w-5" /> },
+    { label: t("dashboard.leads"), url: "/dashboard/leads", icon: <Handshake className="h-5 w-5" /> },
+    { label: t("dashboard.asks"), url: "/dashboard/asks", icon: <MessageCircleQuestion className="h-5 w-5" /> },
+    { label: t("dashboard.directory"), url: "/dashboard/directory", icon: <Briefcase className="h-5 w-5" /> },
+    { label: t("dashboard.news"), url: "/dashboard/news", icon: <Newspaper className="h-5 w-5" /> },
+    { label: t("dashboard.profile"), url: "/dashboard/profile", icon: <UserCog className="h-5 w-5" /> },
   ];
 
   const isActive = (url: string) => location.pathname === url || location.pathname.startsWith(url + "/");

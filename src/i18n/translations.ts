@@ -20,6 +20,17 @@ export const translations = {
     "nav.dashboard": "Dashboard",
     "nav.language": "Language",
 
+    // Dashboard Menu
+    "dashboard.title": "Dashboard",
+    "dashboard.leads": "My Leads",
+    "dashboard.asks": "Ask Network",
+    "dashboard.news": "News & Stories",
+    "dashboard.directory": "Business Directory",
+    "dashboard.notifications": "Notifications",
+    "dashboard.profile": "My Profile",
+    "dashboard.settings": "Settings",
+    "dashboard.applications": "Review Applications",
+
     // Footer
     "footer.about": "Connecting Rajput entrepreneurs across industries — building legacy through trusted business networking and referrals.",
     "footer.explore": "Explore",
@@ -201,6 +212,17 @@ export const translations = {
     "nav.loginShort": "લોગિન",
     "nav.join": "RBN માં જોડાઓ",
     "nav.language": "ભાષા",
+
+    // Dashboard Menu
+    "dashboard.title": "ડેશબોર્ડ",
+    "dashboard.leads": "મારા લીડ્સ",
+    "dashboard.asks": "નેટવર્ક પૂછો",
+    "dashboard.news": "સમાચાર અને વાર્તાઓ",
+    "dashboard.directory": "બિઝનેસ ડિરેક્ટરી",
+    "dashboard.notifications": "સૂચનાઓ",
+    "dashboard.profile": "મારી પ્રોફાઇલ",
+    "dashboard.settings": "સેટિંગ્સ",
+    "dashboard.applications": "અરજીઓ સમીક્ષા કરો",
 
     // Footer
     "footer.about": "ઉદ્યોગો વચ્ચે રાજપૂત આંત્રપ્રિન્યોરોને જોડવું — વિશ્વસનીય બિઝનેસ નેટવર્કિંગ અને રેફરલ દ્વારા વારસો બનાવવો.",
