@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import PublicLayout from "@/components/public/PublicLayout";
 import MemberCard from "@/components/public/MemberCard";
+import LatestStoriesSection from "@/components/public/LatestStoriesSection";
 import heroHeritage from "@/assets/hero-heritage.jpg";
 import heroBusiness from "@/assets/hero-business.jpg";
 import heroHandshake from "@/assets/hero-handshake.jpg";
