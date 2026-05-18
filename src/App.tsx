@@ -27,6 +27,9 @@ import AsksPage from "./pages/dashboard/Asks";
 import AdminAsks from "./pages/admin/Asks";
 import NotificationsPage from "./pages/dashboard/Notifications";
 import AdminAnnouncements from "./pages/admin/Announcements";
+import AdminNewsletter from "./pages/admin/Newsletter";
+import News from "./pages/News";
+import NewsArticle from "./pages/NewsArticle";
 import MyProfile from "./pages/MyProfile";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
@@ -81,6 +84,8 @@ const App = () => {
               <Route path="/key-moments" element={<KeyMoments />} />
               <Route path="/about" element={<About />} />
               <Route path="/voice" element={<VoiceOfRen />} />
+              <Route path="/news" element={<News />} />
+              <Route path="/news/:slug" element={<NewsArticle />} />
               <Route
                 path="/admin"
                 element={
@@ -95,6 +100,7 @@ const App = () => {
                 <Route path="leads" element={<AdminLeads />} />
                 <Route path="asks" element={<AdminAsks />} />
                 <Route path="announcements" element={<AdminAnnouncements />} />
+                <Route path="newsletter" element={<AdminNewsletter />} />
                 <Route
                   path="manage-roles"
                   element={
