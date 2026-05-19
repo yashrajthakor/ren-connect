@@ -27,12 +27,29 @@ function buildWhatsAppMessage(
   giver: MemberLite | undefined,
   receiver: MemberLite | undefined
 ) {
-  const receiverName = receiver?.name || "Unknown receiver";
-  const receiverBusiness = receiver?.business || "Not available";
   const giverName = giver?.name || "Unknown giver";
-  const giverBusiness = giver?.business || "Not available";
-  const receiverContact = lead.contact_number || "Not available";
-  const giverContact = "Not available";
+  const businessTitle = lead.description || lead.lead_name || "Not available";
+  const amount = lead.closure_amount != null ? `₹${Number(lead.closure_amount).toLocaleString("en-IN")}` : "Not available";
+  const note = lead.thank_you_note || "No note provided.";
+
+  if (lead.is_direct_business) {
+    return `🤝 Business Appreciation
+
+I would like to thank ${giverName} for giving me a business opportunity.
+
+💼 Work:
+${businessTitle}
+
+💰 Business Amount:
+${amount}
+
+📝 Note:
+“${note}”
+
+Shared via RBN Portal`;
+  }
+
+  const receiverName = receiver?.name || "Unknown receiver";
   const leadDetails = lead.description || lead.lead_name || "No details provided.";
 
   return `📌 RBN Business Lead Reference
@@ -55,10 +72,10 @@ export function LeadCard({ lead, participants, currentUserId, onClick }: Props) 
   const receiver = participants[lead.receiver_id];
   const counterpart = isReceiver ? giver : receiver;
   const counterName = counterpart?.name || (isReceiver ? "Unknown giver" : "Unknown receiver");
+  const isDirect = !!lead.is_direct_business;
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(
     buildWhatsAppMessage(lead, giver, receiver)
   )}`;
-  const isDirect = !!lead.is_direct_business;
 
   return (
     <Card
@@ -126,16 +143,14 @@ export function LeadCard({ lead, participants, currentUserId, onClick }: Props) 
         </div>
       </div>
 
-      {!isDirect && (
-        <div className="mt-4">
-          <Button variant="outline" size="sm" asChild className="w-full" onClick={(e) => e.stopPropagation()}>
-            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
-              <Share2 className="h-4 w-4" />
-              Share Lead
-            </a>
-          </Button>
-        </div>
-      )}
+      <div className="mt-4">
+        <Button variant="outline" size="sm" asChild className="w-full" onClick={(e) => e.stopPropagation()}>
+          <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+            <Share2 className="h-4 w-4" />
+            {isDirect ? "Share on WhatsApp" : "Share Lead"}
+          </a>
+        </Button>
+      </div>
     </Card>
   );
 }
