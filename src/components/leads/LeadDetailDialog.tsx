@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Phone, User, Calendar, IndianRupee, AlertCircle, Loader2 } from "lucide-react";
+import { Phone, Calendar, IndianRupee, AlertCircle, Loader2, Heart } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -35,10 +35,11 @@ export default function LeadDetailDialog({
   const isReceiver = lead.receiver_id === currentUserId;
   const giver = participants[lead.giver_id];
   const receiver = participants[lead.receiver_id];
+  const isDirect = !!lead.is_direct_business;
 
-  const canMarkInProcess = isReceiver && lead.status === "pending";
-  const canClose = isReceiver && (lead.status === "pending" || lead.status === "in_process");
-  const canReject = isReceiver && (lead.status === "pending" || lead.status === "in_process");
+  const canMarkInProcess = !isDirect && isReceiver && lead.status === "pending";
+  const canClose = !isDirect && isReceiver && (lead.status === "pending" || lead.status === "in_process");
+  const canReject = !isDirect && isReceiver && (lead.status === "pending" || lead.status === "in_process");
 
   return (
     <>
@@ -46,9 +47,14 @@ export default function LeadDetailDialog({
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 flex-wrap">
-              {lead.lead_name}
+              {isDirect ? (lead.description || "Direct Business") : lead.lead_name}
               <LeadStatusBadge status={lead.status} />
-              <PriorityBadge priority={lead.priority} />
+              {!isDirect && <PriorityBadge priority={lead.priority} />}
+              {isDirect && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary text-xs font-semibold px-2 py-0.5">
+                  <Heart className="h-3 w-3 fill-primary" /> Appreciation
+                </span>
+              )}
             </DialogTitle>
           </DialogHeader>
 
@@ -82,11 +88,23 @@ export default function LeadDetailDialog({
           </div>
 
           <div className="space-y-3 mt-4">
-            <Row icon={<Phone className="h-4 w-4" />} label="Contact" value={lead.contact_number} />
-            {lead.description && (
+            {!isDirect && lead.contact_number && (
+              <Row icon={<Phone className="h-4 w-4" />} label="Contact" value={lead.contact_number} />
+            )}
+            {!isDirect && lead.description && (
               <div>
                 <p className="text-xs text-muted-foreground mb-1">Description</p>
                 <p className="text-sm bg-muted/40 rounded-md p-3 whitespace-pre-wrap">{lead.description}</p>
+              </div>
+            )}
+            {isDirect && lead.thank_you_note && (
+              <div>
+                <p className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
+                  <Heart className="h-3 w-3 text-primary fill-primary" /> Thank you note
+                </p>
+                <p className="text-sm bg-primary/5 border border-primary/20 rounded-md p-3 whitespace-pre-wrap italic">
+                  “{lead.thank_you_note}”
+                </p>
               </div>
             )}
             <Row
