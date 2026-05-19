@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Plus, Inbox, Send, TrendingUp, IndianRupee } from "lucide-react";
+import { Plus, Inbox, Send, TrendingUp, IndianRupee, Heart } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -7,6 +7,7 @@ import { useCurrentUserId, useLeads, type Lead, type LeadStatus } from "@/hooks/
 import { LeadCard } from "@/components/leads/LeadCard";
 import CreateLeadDialog from "@/components/leads/CreateLeadDialog";
 import LeadDetailDialog from "@/components/leads/LeadDetailDialog";
+import ThankMemberDialog from "@/components/leads/ThankMemberDialog";
 
 const STATUS_FILTERS: Array<{ value: "all" | LeadStatus; label: string }> = [
   { value: "all", label: "All" },
@@ -20,6 +21,7 @@ export default function LeadsPage() {
   const { data: userId } = useCurrentUserId();
   const { data, isLoading } = useLeads(userId);
   const [createOpen, setCreateOpen] = useState(false);
+  const [thanksOpen, setThanksOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [tab, setTab] = useState<"received" | "given">("received");
   const [filter, setFilter] = useState<"all" | LeadStatus>("all");
@@ -47,6 +49,13 @@ export default function LeadsPage() {
             Share, track, and close business with your network.
           </p>
         </div>
+        <Button
+          onClick={() => setThanksOpen(true)}
+          className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm"
+        >
+          <Heart className="h-4 w-4 fill-primary-foreground" />
+          Thank a Member
+        </Button>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
@@ -120,6 +129,7 @@ export default function LeadsPage() {
       {userId && (
         <CreateLeadDialog open={createOpen} onOpenChange={setCreateOpen} giverId={userId} />
       )}
+      <ThankMemberDialog open={thanksOpen} onOpenChange={setThanksOpen} />
       <LeadDetailDialog
         open={!!selectedLead}
         onOpenChange={(v) => !v && setSelectedLead(null)}

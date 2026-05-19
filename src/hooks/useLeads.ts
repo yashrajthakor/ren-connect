@@ -19,6 +19,8 @@ export interface Lead {
   closure_date: string | null;
   created_at: string;
   updated_at: string;
+  is_direct_business?: boolean | null;
+  thank_you_note?: string | null;
 }
 
 export interface MemberLite {
@@ -148,6 +150,31 @@ export function useCreateLead() {
         .insert(payload)
         .select()
         .single();
+      if (error) throw error;
+      return data as Lead;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["leads"] }),
+  });
+}
+
+export function useCreateDirectBusinessThanks() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: {
+      giver_id: string;
+      amount: number;
+      description: string;
+      thank_you_note: string;
+    }) => {
+      const { data, error } = await (supabase as any).rpc(
+        "create_direct_business_thanks",
+        {
+          _giver_id: payload.giver_id,
+          _amount: payload.amount,
+          _description: payload.description,
+          _thank_you_note: payload.thank_you_note,
+        }
+      );
       if (error) throw error;
       return data as Lead;
     },
