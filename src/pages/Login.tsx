@@ -52,7 +52,33 @@ const Login = () => {
     mode: "onChange",
   });
 
+  const handleFocus = (field: string) => {
+    setFocusedField(field);
+  };
+
+  const handleBlur = (field: string) => {
+    setFocusedField((prev) => (prev === field ? null : prev));
+  };
+
+  const handleTyping = (field: string) => {
+    setTypingField(field);
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+    typingTimeoutRef.current = setTimeout(() => {
+      setTypingField((prev) => (prev === field ? null : prev));
+    }, 800);
+  };
+
   // Test Supabase configuration on mount (development only)
+  useEffect(() => {
+    return () => {
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+    };
+  }, []);
+
   useEffect(() => {
     if (import.meta.env.DEV) {
       const testConfig = async () => {
