@@ -325,19 +325,44 @@ const Login = () => {
                 <Label htmlFor="email" className="text-sm font-medium text-foreground">
                   {t("login.email")}
                 </Label>
-                <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <div className="relative group">
+                  <Mail className={`absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 transition-colors duration-300 ${
+                    focusedField === "email" ? "text-primary" : "text-muted-foreground"
+                  }`} />
                   <Input
                     id="email"
                     type="email"
                     placeholder="you@company.com"
-                    className="pl-12"
-                    {...register("email")}
+                    className={`pl-12 pr-10 transition-all duration-300 ${
+                      focusedField === "email"
+                        ? "ring-2 ring-primary/50 border-primary shadow-[0_0_20px_-4px_hsl(var(--primary)/0.25)]"
+                        : ""
+                    } ${errors.email ? "border-destructive ring-1 ring-destructive/40 animate-shake" : ""} ${
+                      watch("email") && !errors.email && touchedFields.email
+                        ? "border-green-500/70 ring-1 ring-green-500/30"
+                        : ""
+                    }`}
+                    {...register("email", {
+                      onChange: () => handleTyping("email"),
+                    })}
+                    onFocus={() => handleFocus("email")}
+                    onBlur={() => handleBlur("email")}
                     aria-invalid={errors.email ? "true" : "false"}
                   />
+                  {watch("email") && !errors.email && touchedFields.email && (
+                    <CheckCircle2 className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-green-500 animate-pop-in" />
+                  )}
+                  {typingField === "email" && !watch("email") && (
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 flex gap-0.5">
+                      <span className="h-1.5 w-1.5 rounded-full bg-primary animate-typing-pulse" />
+                      <span className="h-1.5 w-1.5 rounded-full bg-primary animate-typing-pulse [animation-delay:0.15s]" />
+                      <span className="h-1.5 w-1.5 rounded-full bg-primary animate-typing-pulse [animation-delay:0.3s]" />
+                    </span>
+                  )}
                 </div>
                 {errors.email && (
-                  <p className="text-destructive text-sm animate-slide-in" role="alert">
+                  <p className="text-destructive text-sm animate-pop-in flex items-center gap-1.5" role="alert">
+                    <span className="h-1 w-1 rounded-full bg-destructive" />
                     {errors.email.message}
                   </p>
                 )}
@@ -348,14 +373,28 @@ const Login = () => {
                 <Label htmlFor="password" className="text-sm font-medium text-foreground">
                   {t("login.password")}
                 </Label>
-                <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <div className="relative group">
+                  <Lock className={`absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 transition-colors duration-300 ${
+                    focusedField === "password" ? "text-primary" : "text-muted-foreground"
+                  }`} />
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
                     placeholder="••••••••"
-                    className="pl-12 pr-12"
-                    {...register("password")}
+                    className={`pl-12 pr-12 transition-all duration-300 ${
+                      focusedField === "password"
+                        ? "ring-2 ring-primary/50 border-primary shadow-[0_0_20px_-4px_hsl(var(--primary)/0.25)]"
+                        : ""
+                    } ${errors.password ? "border-destructive ring-1 ring-destructive/40 animate-shake" : ""} ${
+                      watch("password") && !errors.password && touchedFields.password
+                        ? "border-green-500/70 ring-1 ring-green-500/30"
+                        : ""
+                    }`}
+                    {...register("password", {
+                      onChange: () => handleTyping("password"),
+                    })}
+                    onFocus={() => handleFocus("password")}
+                    onBlur={() => handleBlur("password")}
                     aria-invalid={errors.password ? "true" : "false"}
                   />
                   <button
@@ -372,7 +411,8 @@ const Login = () => {
                   </button>
                 </div>
                 {errors.password && (
-                  <p className="text-destructive text-sm animate-slide-in" role="alert">
+                  <p className="text-destructive text-sm animate-pop-in flex items-center gap-1.5" role="alert">
+                    <span className="h-1 w-1 rounded-full bg-destructive" />
                     {errors.password.message}
                   </p>
                 )}
