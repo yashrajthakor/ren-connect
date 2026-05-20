@@ -120,6 +120,23 @@ export default {
           "0%, 100%": { boxShadow: "0 0 0 0 hsl(var(--primary) / 0.5)" },
           "50%": { boxShadow: "0 0 0 18px hsl(var(--primary) / 0)" },
         },
+        "shake": {
+          "0%, 100%": { transform: "translateX(0)" },
+          "10%, 30%, 50%, 70%, 90%": { transform: "translateX(-4px)" },
+          "20%, 40%, 60%, 80%": { transform: "translateX(4px)" },
+        },
+        "pop-in": {
+          "0%": { opacity: "0", transform: "scale(0.95) translateY(-4px)" },
+          "100%": { opacity: "1", transform: "scale(1) translateY(0)" },
+        },
+        "input-glow": {
+          "0%": { boxShadow: "0 0 0 0 hsl(var(--primary) / 0.4)" },
+          "100%": { boxShadow: "0 0 0 4px hsl(var(--primary) / 0)" },
+        },
+        "typing-pulse": {
+          "0%, 100%": { opacity: "0.4", transform: "scale(0.8)" },
+          "50%": { opacity: "1", transform: "scale(1)" },
+        },
         "ken-burns": {
           "0%": { transform: "scale(1) translate(0,0)" },
           "100%": { transform: "scale(1.15) translate(-2%, -2%)" },
@@ -143,6 +160,10 @@ export default {
         "shimmer": "shimmer 3s linear infinite",
         "float": "float 6s ease-in-out infinite",
         "pulse-glow": "pulse-glow 2s ease-in-out infinite",
+        "shake": "shake 0.5s ease-in-out",
+        "pop-in": "pop-in 0.3s ease-out forwards",
+        "input-glow": "input-glow 0.4s ease-out forwards",
+        "typing-pulse": "typing-pulse 1.2s ease-in-out infinite",
         "ken-burns": "ken-burns 12s ease-in-out infinite alternate",
         "spin-slow": "spin-slow 30s linear infinite",
       },
