@@ -15,7 +15,8 @@ const buttonVariants = cva(
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        royal: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg hover:shadow-xl hover:-translate-y-0.5 font-semibold",
+        royal:
+          "relative overflow-hidden font-semibold text-primary-foreground shadow-[0_10px_30px_-10px_hsl(var(--primary)/0.6)] hover:shadow-[0_18px_45px_-12px_hsl(var(--primary)/0.75)] hover:-translate-y-0.5 active:translate-y-0 bg-[linear-gradient(110deg,hsl(var(--primary))_0%,hsl(var(--royal-gold))_45%,hsl(var(--primary))_100%)] bg-[length:220%_100%] bg-[position:0%_50%] hover:bg-[position:100%_50%] transition-[background-position,transform,box-shadow] duration-500 before:content-[''] before:absolute before:inset-0 before:-translate-x-full hover:before:translate-x-full before:transition-transform before:duration-[1100ms] before:ease-out before:bg-[linear-gradient(110deg,transparent_30%,hsl(0_0%_100%/0.35)_50%,transparent_70%)] [&>svg:last-child]:transition-transform [&>svg:last-child]:duration-300 hover:[&>svg:last-child]:translate-x-1",
       },
       size: {
         default: "h-10 px-4 py-2",
