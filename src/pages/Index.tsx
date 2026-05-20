@@ -353,7 +353,7 @@ const Index = () => {
             </div>
             <h1 className="font-display font-bold text-4xl sm:text-5xl lg:text-7xl leading-[1.05] tracking-tight animate-fade-up">
               {t(heroSlides[slide].titleKey)}{" "}
-              <span className="text-gradient-royal block mt-2">
+              <span className="text-shimmer-royal block mt-2">
                 {t(heroSlides[slide].accentKey)}
               </span>
             </h1>
@@ -367,7 +367,7 @@ const Index = () => {
               className="mt-10 flex flex-wrap gap-3 animate-fade-up"
               style={{ animationDelay: "300ms", opacity: 0 }}
             >
-              <Button asChild variant="royal" size="lg" className="animate-pulse-glow">
+              <Button asChild variant="royal" size="lg">
                 <Link to="/signup">
                   {t("hero.cta.join")} <ArrowRight className="h-4 w-4" />
                 </Link>
