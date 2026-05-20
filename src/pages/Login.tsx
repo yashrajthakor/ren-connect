@@ -35,6 +35,9 @@ type LoginFormData = z.infer<typeof loginSchema>;
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [focusedField, setFocusedField] = useState<string | null>(null);
+  const [typingField, setTypingField] = useState<string | null>(null);
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
   const t = useT();
@@ -42,9 +45,11 @@ const Login = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, touchedFields },
+    watch,
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
+    mode: "onChange",
   });
 
   // Test Supabase configuration on mount (development only)
