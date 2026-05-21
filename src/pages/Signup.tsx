@@ -178,10 +178,11 @@ const Signup = () => {
 
       toast({
         title: "Application submitted 🎉",
-        description: "Your RBN membership is under review. We'll notify you once approved.",
+        description: "Your registration has been submitted successfully and is under review.",
       });
-      await supabase.auth.signOut();
-      navigate("/login");
+      // Keep the user signed in — pending members still have access to profile
+      // and public/limited features. Status-based access control restricts the rest.
+      navigate("/dashboard/profile");
     } catch (err: any) {
       console.error("Join RBN error:", err);
       toast({
