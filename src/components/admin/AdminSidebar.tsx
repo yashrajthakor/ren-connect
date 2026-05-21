@@ -47,11 +47,17 @@ export function AdminSidebar({ role }: AdminSidebarProps) {
   return (
     <Sidebar collapsible="icon">
       <SidebarContent>
-        <div className="flex items-center gap-2 px-3 py-4 border-b border-sidebar-border">
-          <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity bg-white rounded-lg px-2 py-1.5">
-            <img src={renLogo} alt="REN" className="h-8 w-auto shrink-0" />
+        <div className="px-3 py-4 border-b border-sidebar-border">
+          <Link
+            to="/"
+            className={`group flex items-center ${collapsed ? "justify-center" : "gap-3"} rounded-xl px-2.5 py-2 bg-gradient-to-br from-white/[0.08] to-white/[0.02] border border-white/10 backdrop-blur-sm shadow-[0_4px_20px_-8px_hsl(var(--primary)/0.35)] hover:border-primary/40 hover:from-primary/10 hover:to-white/[0.03] transition-all duration-300`}
+          >
+            <div className="relative shrink-0">
+              <div className="absolute inset-0 rounded-full bg-primary/20 blur-md opacity-0 group-hover:opacity-100 transition-opacity" />
+              <img src={renLogo} alt="REN" className="relative h-8 w-auto drop-shadow-[0_0_8px_hsl(var(--primary)/0.4)]" />
+            </div>
             {!collapsed && (
-              <span className="font-display font-bold text-base text-sidebar-foreground">
+              <span className="font-display font-bold text-base tracking-wide text-sidebar-foreground">
                 Admin Panel
               </span>
             )}
