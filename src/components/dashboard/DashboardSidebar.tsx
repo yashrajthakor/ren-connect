@@ -59,7 +59,7 @@ export function DashboardSidebar({ role }: DashboardSidebarProps) {
     <Sidebar collapsible="icon">
       <SidebarContent>
         <div className="flex items-center gap-2 px-3 py-4 border-b border-sidebar-border">
-          <NavLink to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+          <NavLink to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity bg-white rounded-lg px-2 py-1.5">
             <img src={renLogo} alt="RBN" className="h-8 w-auto shrink-0" />
             {!collapsed && (
               <span className="font-display font-bold text-base text-sidebar-foreground">
