@@ -48,12 +48,14 @@ export function AdminSidebar({ role }: AdminSidebarProps) {
     <Sidebar collapsible="icon">
       <SidebarContent>
         <div className="flex items-center gap-2 px-3 py-4 border-b border-sidebar-border">
-          <img src={renLogo} alt="REN" className="h-8 w-auto shrink-0" />
-          {!collapsed && (
-            <span className="font-display font-bold text-base text-sidebar-foreground">
-              Admin Panel
-            </span>
-          )}
+          <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity bg-white rounded-lg px-2 py-1.5">
+            <img src={renLogo} alt="REN" className="h-8 w-auto shrink-0" />
+            {!collapsed && (
+              <span className="font-display font-bold text-base text-sidebar-foreground">
+                Admin Panel
+              </span>
+            )}
+          </Link>
         </div>
         <SidebarGroup>
           <SidebarGroupLabel>Management</SidebarGroupLabel>
