@@ -9,8 +9,9 @@ import { useAsks, type Ask, type AskStatus } from "@/hooks/useAsks";
 import { AskCard } from "@/components/asks/AskCard";
 import CreateAskDialog from "@/components/asks/CreateAskDialog";
 import AskDetailDialog from "@/components/asks/AskDetailDialog";
+import PendingApprovalGate from "@/components/dashboard/PendingApprovalGate";
 
-export default function AsksPage() {
+function AsksPageInner() {
   const { user } = useAuthContext();
   const userId = user?.id ?? null;
   const { data, isLoading } = useAsks(!!userId);
@@ -155,6 +156,14 @@ export default function AsksPage() {
         onEdit={(a) => { setSelected(null); setEditAsk(a); setCreateOpen(true); }}
       />
     </div>
+  );
+}
+
+export default function AsksPage() {
+  return (
+    <PendingApprovalGate featureName="Ask Network">
+      <AsksPageInner />
+    </PendingApprovalGate>
   );
 }
 
