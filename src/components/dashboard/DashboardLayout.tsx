@@ -5,6 +5,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { DashboardSidebar } from "./DashboardSidebar";
 import NotificationBell from "@/components/notifications/NotificationBell";
+import PendingApprovalBanner from "./PendingApprovalBanner";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
@@ -97,6 +98,7 @@ const DashboardLayout = () => {
               </Button>
             </div>
           </header>
+          <PendingApprovalBanner />
           <main className="flex-1 pb-24">
             <Outlet />
           </main>
