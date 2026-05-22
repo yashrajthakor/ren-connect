@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { DashboardSidebar } from "./DashboardSidebar";
 import NotificationBell from "@/components/notifications/NotificationBell";
 import PendingApprovalBanner from "./PendingApprovalBanner";
+import ApprovalToastListener from "./ApprovalToastListener";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
@@ -67,6 +68,7 @@ const DashboardLayout = () => {
       <div className="min-h-screen flex w-full bg-background">
         <DashboardSidebar role={userRole} />
         <div className="flex-1 flex flex-col">
+          <ApprovalToastListener />
           <header className="h-16 flex items-center justify-between border-b border-border bg-card px-4">
             <div className="flex items-center gap-3">
               <SidebarTrigger />
