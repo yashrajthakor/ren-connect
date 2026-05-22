@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { LayoutDashboard, FileText, UserCog, Briefcase, Handshake, Bell, Settings, MessageCircleQuestion, Newspaper } from "lucide-react";
+import { LayoutDashboard, FileText, UserCog, Briefcase, Handshake, Bell, Settings, MessageCircleQuestion, Newspaper, Lock } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -12,6 +12,8 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useT } from "@/i18n/LanguageProvider";
+import { useMemberStatus } from "@/hooks/useMemberStatus";
+import { toast } from "sonner";
 import renLogo from "@/assets/ren-logo.png";
 
 import type { TranslationKey } from "@/i18n/translations";
@@ -21,12 +23,13 @@ type SidebarItem = {
   url: string;
   icon: typeof LayoutDashboard;
   end?: boolean;
+  restrictedForPending?: boolean;
 };
 
 const baseItems: SidebarItem[] = [
   { translationKey: "dashboard.title", url: "/dashboard", icon: LayoutDashboard, end: true },
-  { translationKey: "dashboard.leads", url: "/dashboard/leads", icon: Handshake },
-  { translationKey: "dashboard.asks", url: "/dashboard/asks", icon: MessageCircleQuestion },
+  { translationKey: "dashboard.leads", url: "/dashboard/leads", icon: Handshake, restrictedForPending: true },
+  { translationKey: "dashboard.asks", url: "/dashboard/asks", icon: MessageCircleQuestion, restrictedForPending: true },
   { translationKey: "dashboard.news", url: "/dashboard/news", icon: Newspaper },
   { translationKey: "dashboard.notifications", url: "/dashboard/notifications", icon: Bell },
   { translationKey: "dashboard.profile", url: "/dashboard/profile", icon: UserCog },
@@ -47,6 +50,7 @@ export function DashboardSidebar({ role }: DashboardSidebarProps) {
   const collapsed = state === "collapsed";
   const { pathname } = useLocation();
   const t = useT();
+  const { isPending } = useMemberStatus();
 
   const normalizedRole = (role || "").toLowerCase();
   const isAdmin = normalizedRole === "admin" || normalizedRole === "super_admin";
@@ -81,9 +85,24 @@ export function DashboardSidebar({ role }: DashboardSidebarProps) {
               {items.map((item) => (
                 <SidebarMenuItem key={item.translationKey}>
                   <SidebarMenuButton asChild isActive={isActive(item.url, item.end)}>
-                    <NavLink to={item.url} end={item.end} className="flex items-center gap-2">
+                    <NavLink
+                      to={item.url}
+                      end={item.end}
+                      className="flex items-center gap-2"
+                      onClick={(e) => {
+                        if (item.restrictedForPending && isPending) {
+                          toast.info("Profile under review", {
+                            description:
+                              "This feature will be enabled once an admin approves your profile.",
+                          });
+                        }
+                      }}
+                    >
                       <item.icon className="h-4 w-4" />
-                      {!collapsed && <span>{t(item.translationKey)}</span>}
+                      {!collapsed && <span className="flex-1">{t(item.translationKey)}</span>}
+                      {!collapsed && item.restrictedForPending && isPending && (
+                        <Lock className="h-3 w-3 text-muted-foreground" />
+                      )}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

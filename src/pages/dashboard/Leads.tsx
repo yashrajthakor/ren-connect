@@ -8,6 +8,7 @@ import { LeadCard } from "@/components/leads/LeadCard";
 import CreateLeadDialog from "@/components/leads/CreateLeadDialog";
 import LeadDetailDialog from "@/components/leads/LeadDetailDialog";
 import ThankMemberDialog from "@/components/leads/ThankMemberDialog";
+import PendingApprovalGate from "@/components/dashboard/PendingApprovalGate";
 
 const STATUS_FILTERS: Array<{ value: "all" | LeadStatus; label: string }> = [
   { value: "all", label: "All" },
@@ -17,7 +18,7 @@ const STATUS_FILTERS: Array<{ value: "all" | LeadStatus; label: string }> = [
   { value: "rejected", label: "Rejected" },
 ];
 
-export default function LeadsPage() {
+function LeadsPageInner() {
   const { data: userId } = useCurrentUserId();
   const { data, isLoading } = useLeads(userId);
   const [createOpen, setCreateOpen] = useState(false);
@@ -138,6 +139,14 @@ export default function LeadsPage() {
         currentUserId={userId || ""}
       />
     </div>
+  );
+}
+
+export default function LeadsPage() {
+  return (
+    <PendingApprovalGate featureName="My Leads">
+      <LeadsPageInner />
+    </PendingApprovalGate>
   );
 }
 
