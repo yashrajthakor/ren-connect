@@ -28,6 +28,13 @@ function buildWhatsAppMessage(
   receiver: MemberLite | undefined
 ) {
   const giverName = giver?.name || "Unknown giver";
+  const giverCategory = giver?.category || "N/A";
+  const giverPhone = giver?.phone || "N/A";
+
+  const receiverName = receiver?.name || "Unknown receiver";
+  const receiverCategory = receiver?.category || "N/A";
+  const receiverPhone = receiver?.phone || "N/A";
+
   const businessTitle = lead.description || lead.lead_name || "Not available";
   const amount = lead.closure_amount != null ? `₹${Number(lead.closure_amount).toLocaleString("en-IN")}` : "Not available";
   const note = lead.thank_you_note || "No note provided.";
@@ -44,26 +51,29 @@ ${businessTitle}
 ${amount}
 
 📝 Note:
-“${note}”
+"${note}"
 
 Shared via RBN Portal`;
   }
 
-  const receiverName = receiver?.name || "Unknown receiver";
   const leadDetails = lead.description || lead.lead_name || "No details provided.";
 
   return `📌 RBN Business Lead Reference
 
-Receiver Details:
+👤 Receiver Details:
 Name: ${receiverName}
+Category: ${receiverCategory}
+Mobile Number: ${receiverPhone}
 
-Giver Details:
+🤝 Giver Details:
 Name: ${giverName}
+Category: ${giverCategory}
+Mobile Number: ${giverPhone}
 
-Lead Details:
+📋 Lead Details:
 ${leadDetails}
 
-🤝 Published through RBN – Rajput Business Network`;
+🚀 Published through RBN – Rajput Business Network`;
 }
 
 export function LeadCard({ lead, participants, currentUserId, onClick }: Props) {
