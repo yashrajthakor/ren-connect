@@ -62,12 +62,10 @@ Shared via RBN Portal`;
 
 👤 Receiver Details:
 Name: ${receiverName}
-Category: ${receiverCategory}
 Mobile Number: ${receiverPhone}
 
 🤝 Giver Details:
 Name: ${giverName}
-Category: ${giverCategory}
 Mobile Number: ${giverPhone}
 
 📋 Lead Details:
