@@ -8,8 +8,8 @@ import { createClient } from '@supabase/supabase-js';
 // These values are provided by the Lovable Supabase integration
 // They are safe to expose as they rely on Row Level Security for protection
 // Can also be set via environment variables: VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://nfuuunxvviedhfalbnyi.supabase.co";
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5mdXV1bnh2dmllZGhmYWxibnlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc3MDA1NjAsImV4cCI6MjA5MzI3NjU2MH0.qH80WtEcFkEKjanz4OpIacgItpOzivGJyeFkyMEn20Q";
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://supabase.thinknlink.in";
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJzdXBhYmFzZSIsImlhdCI6MTc3OTQzNzcwMCwiZXhwIjo0OTM1MTExMzAwLCJyb2xlIjoiYW5vbiJ9.uABGw9NpnKA8AF8eCY9gWlMl-7SgEsww_FH0u_xM7Xk";
 
 
 // const DEV_SUPABASE_URL = "https://nfuuunxvviedhfalbnyi.supabase.co";
