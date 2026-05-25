@@ -210,49 +210,117 @@ $$;
 GRANT EXECUTE ON FUNCTION public.list_active_directory() TO anon, authenticated;
 
 DROP FUNCTION IF EXISTS public.get_members_by_user_ids(uuid[]);
+
 CREATE OR REPLACE FUNCTION public.get_members_by_user_ids(_user_ids uuid[])
 RETURNS TABLE (
-  user_id uuid, name text, business text,
-  category text, categories text[], phone text,
-  avatar_url text, city text
+  user_id uuid,
+  name text,
+  business text,
+  category text,
+  categories text[],
+  phone text,
+  avatar_url text,
+  city text
 )
-LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS $$
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
   SELECT
-    m.user_id, m.name, m.business, m.category,
+    m.user_id,
+    m.full_name AS name,
+    bp.business_name AS business,
+    bcat.name AS category,
+
     COALESCE((
       SELECT array_agg(bc.name ORDER BY bpc.created_at)
-      FROM public.business_profiles bp
-      JOIN public.business_profile_categories bpc ON bpc.business_profile_id = bp.id
-      JOIN public.business_categories bc ON bc.id = bpc.category_id
-      WHERE bp.member_id = m.id
-    ), CASE WHEN m.category IS NULL THEN ARRAY[]::text[] ELSE ARRAY[m.category] END) AS categories,
-    m.phone, m.avatar_url, m.city
-  FROM public.members m WHERE m.user_id = ANY(_user_ids);
+      FROM public.business_profile_categories bpc
+      JOIN public.business_categories bc
+        ON bc.id = bpc.category_id
+      WHERE bpc.business_profile_id = bp.id
+    ),
+    CASE
+      WHEN bcat.name IS NULL
+      THEN ARRAY[]::text[]
+      ELSE ARRAY[bcat.name]
+    END) AS categories,
+
+    m.phone,
+    COALESCE(m.profile_picture, m.profile_image) AS avatar_url,
+    bp.city
+
+  FROM public.members m
+  LEFT JOIN public.business_profiles bp
+    ON bp.member_id = m.id
+
+  LEFT JOIN public.business_categories bcat
+    ON bcat.id = bp.category_id
+
+  WHERE m.user_id = ANY(_user_ids);
 $$;
+
 GRANT EXECUTE ON FUNCTION public.get_members_by_user_ids(uuid[]) TO authenticated;
 
 DROP FUNCTION IF EXISTS public.list_active_members_for_leads();
+
 CREATE OR REPLACE FUNCTION public.list_active_members_for_leads()
 RETURNS TABLE (
-  id uuid, user_id uuid, name text, business text,
-  category text, categories text[],
-  city text, avatar_url text, committee_badge text
+  id uuid,
+  user_id uuid,
+  name text,
+  business text,
+  category text,
+  categories text[],
+  city text,
+  avatar_url text,
+  committee_badge text
 )
-LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS $$
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
   SELECT
-    m.id, m.user_id, m.name, m.business, m.category,
+    m.id,
+    m.user_id,
+    m.full_name AS name,
+    bp.business_name AS business,
+    bcat.name AS category,
+
     COALESCE((
       SELECT array_agg(bc.name ORDER BY bpc.created_at)
-      FROM public.business_profiles bp
-      JOIN public.business_profile_categories bpc ON bpc.business_profile_id = bp.id
-      JOIN public.business_categories bc ON bc.id = bpc.category_id
-      WHERE bp.member_id = m.id
-    ), CASE WHEN m.category IS NULL THEN ARRAY[]::text[] ELSE ARRAY[m.category] END) AS categories,
-    m.city, m.avatar_url, m.committee_badge
+      FROM public.business_profile_categories bpc
+      JOIN public.business_categories bc
+        ON bc.id = bpc.category_id
+      WHERE bpc.business_profile_id = bp.id
+    ),
+    CASE
+      WHEN bcat.name IS NULL
+      THEN ARRAY[]::text[]
+      ELSE ARRAY[bcat.name]
+    END) AS categories,
+
+    bp.city,
+    COALESCE(m.profile_picture, m.profile_image) AS avatar_url,
+    m.committee_badge
+
   FROM public.members m
-  WHERE m.status = 'active' AND m.user_id IS NOT NULL AND m.user_id <> auth.uid();
+
+  LEFT JOIN public.business_profiles bp
+    ON bp.member_id = m.id
+
+  LEFT JOIN public.business_categories bcat
+    ON bcat.id = bp.category_id
+
+  WHERE
+    m.status = 'active'
+    AND m.user_id IS NOT NULL
+    AND m.user_id <> auth.uid();
 $$;
-GRANT EXECUTE ON FUNCTION public.list_active_members_for_leads() TO authenticated;
+
+GRANT EXECUTE ON FUNCTION public.list_active_members_for_leads()
+TO authenticated;
 
 DROP FUNCTION IF EXISTS public.list_members_for_admin();
 CREATE OR REPLACE FUNCTION public.list_members_for_admin()
