@@ -237,7 +237,7 @@ const Applications = () => {
         `*,
         cities(name),
         chapters(name),
-        business_profiles(
+          business_profiles(
           id,
           profile_type,
           business_name,
@@ -254,7 +254,7 @@ const Applications = () => {
           instagram_url,
           facebook_url,
           referral_person,
-          business_categories(name)
+          business_categories!business_profiles_category_id_fkey(name)
         )`
       )
       .order("created_at", { ascending: false });

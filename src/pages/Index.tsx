@@ -197,7 +197,7 @@ const Index = () => {
               linkedin_url,
               instagram_url,
               facebook_url,
-              business_categories(name)
+              business_categories!business_profiles_category_id_fkey(name)
             )
           `)
           .eq("status", "active")
