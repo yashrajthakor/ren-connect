@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import MultiCategorySelect from "@/components/categories/MultiCategorySelect";
 
 type Profile = {
   member_id: string;
@@ -26,6 +27,8 @@ type Profile = {
   business_profile_id: string | null;
   business_name: string | null;
   category_id: string | null;
+  category_ids: string[] | null;
+  category_names: string[] | null;
   business_city: string | null;
   business_state: string | null;
   pincode: string | null;
@@ -65,7 +68,7 @@ const MyProfile = () => {
   // Business fields
   const [profileType, setProfileType] = useState<"business" | "job">("business");
   const [businessName, setBusinessName] = useState("");
-  const [categoryId, setCategoryId] = useState<string>("");
+  const [categoryIds, setCategoryIds] = useState<string[]>([]);
   const [businessCity, setBusinessCity] = useState("");
   const [businessState, setBusinessState] = useState("");
   const [pincode, setPincode] = useState("");
@@ -107,7 +110,11 @@ const MyProfile = () => {
           setProfilePicUrl(prof.profile_picture || prof.profile_image || null);
           setProfileType(prof.profile_type === "job" ? "job" : "business");
           setBusinessName(prof.business_name || "");
-          setCategoryId(prof.category_id || "");
+          setCategoryIds(
+            (prof.category_ids && prof.category_ids.length > 0)
+              ? prof.category_ids
+              : (prof.category_id ? [prof.category_id] : [])
+          );
           setBusinessCity(prof.business_city || "");
           setBusinessState(prof.business_state || "");
           setPincode(prof.pincode || "");
@@ -169,7 +176,7 @@ const MyProfile = () => {
       const bpPayload = {
         profile_type: profileType,
         business_name: businessName,
-        category_id: categoryId || null,
+        category_id: categoryIds[0] || null,
         city: businessCity || null,
         state: businessState || null,
         pincode: pincode || null,
@@ -195,6 +202,13 @@ const MyProfile = () => {
           .insert({ ...bpPayload, member_id: profile.member_id });
         if (bErr) throw bErr;
       }
+
+      // Sync multi-category join table via RPC
+      const { error: catErr } = await (supabase as any).rpc(
+        "set_my_business_categories",
+        { _ids: categoryIds }
+      );
+      if (catErr) throw catErr;
 
       toast({ title: "Profile updated", description: "Changes are now visible in the directory." });
     } catch (e: any) {
