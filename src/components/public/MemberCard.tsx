@@ -165,10 +165,26 @@ const MemberCard = ({ member }: { member: Member }) => {
               <h3 className="font-display font-bold text-lg text-secondary truncate">{member.name}</h3>
               <p className="text-sm text-primary font-semibold truncate">{member.business}</p>
             </div>
-            <div className="shrink-0 px-2.5 py-1 rounded-full bg-accent text-accent-foreground text-[10px] font-semibold uppercase tracking-wider">
-              {member.category}
-            </div>
           </div>
+          {(() => {
+            const cats = (member.categories && member.categories.length > 0)
+              ? member.categories
+              : [member.category];
+            return (
+              <div className="flex flex-wrap gap-1.5">
+                {cats.slice(0, 3).map((c) => (
+                  <span key={c} className="shrink-0 px-2.5 py-1 rounded-full bg-accent text-accent-foreground text-[10px] font-semibold uppercase tracking-wider">
+                    {c}
+                  </span>
+                ))}
+                {cats.length > 3 && (
+                  <span className="px-2.5 py-1 rounded-full bg-muted text-muted-foreground text-[10px] font-semibold">
+                    +{cats.length - 3}
+                  </span>
+                )}
+              </div>
+            );
+          })()}
           {member.committeeBadge && (
             <div className="flex flex-wrap gap-2">
               <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-semibold uppercase tracking-wide border border-primary/20">
@@ -244,9 +260,11 @@ const MemberCard = ({ member }: { member: Member }) => {
             <h2 className="font-display font-bold text-2xl text-secondary">{member.name}</h2>
             <p className="text-primary font-semibold">{member.business}</p>
             <div className="mt-2 flex flex-wrap gap-2">
-              <span className="px-2.5 py-1 rounded-full bg-accent text-accent-foreground text-[10px] font-semibold uppercase tracking-wider">
-                {member.category}
-              </span>
+              {((member.categories && member.categories.length > 0) ? member.categories : [member.category]).map((c) => (
+                <span key={c} className="px-2.5 py-1 rounded-full bg-accent text-accent-foreground text-[10px] font-semibold uppercase tracking-wider">
+                  {c}
+                </span>
+              ))}
               {member.committeeBadge && (
                 <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-semibold uppercase tracking-wide border border-primary/20">
                   <Award className="h-3 w-3" />
