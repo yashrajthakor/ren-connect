@@ -355,23 +355,20 @@ const Signup = () => {
               </div>
 
               <div>
-                <Label>Category</Label>
-                <Select
-                  value={f2.watch("categoryId") || ""}
-                  onValueChange={(v) => f2.setValue("categoryId", v, { shouldValidate: true })}
-                >
-                  <SelectTrigger className="mt-1">
-                    <SelectValue placeholder={categories.length === 0 ? "Loading..." : "Select category"} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.length === 0 ? (
-                      <div className="p-2 text-sm text-muted-foreground">No categories available</div>
-                    ) : (
-                      categories.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)
-                    )}
-                  </SelectContent>
-                </Select>
-                {f2.formState.errors.categoryId && <p className="text-destructive text-xs mt-1">{f2.formState.errors.categoryId.message}</p>}
+                <Label>Categories</Label>
+                <div className="mt-1">
+                  <MultiCategorySelect
+                    options={categories}
+                    value={f2.watch("categoryIds") || []}
+                    onChange={(v) => f2.setValue("categoryIds", v, { shouldValidate: true })}
+                    placeholder={categories.length === 0 ? "Loading…" : "Select one or more categories"}
+                  />
+                </div>
+                {f2.formState.errors.categoryIds && (
+                  <p className="text-destructive text-xs mt-1">
+                    {f2.formState.errors.categoryIds.message as string}
+                  </p>
+                )}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
