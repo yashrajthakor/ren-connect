@@ -322,13 +322,15 @@ const MyProfile = () => {
               <Input value={businessName} onChange={(e) => setBusinessName(e.target.value)} />
             </div>
             <div>
-              <Label>Category</Label>
-              <Select value={categoryId} onValueChange={setCategoryId}>
-                <SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger>
-                <SelectContent>
-                  {categories.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <Label>Categories</Label>
+              <div className="mt-1">
+                <MultiCategorySelect
+                  options={categories}
+                  value={categoryIds}
+                  onChange={setCategoryIds}
+                  placeholder="Select one or more categories"
+                />
+              </div>
             </div>
             <div>
               <Label>Business City</Label>
