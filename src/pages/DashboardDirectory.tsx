@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import MemberCard from "@/components/public/MemberCard";
 import { Member } from "@/data/members";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,7 +10,7 @@ import { useT } from "@/i18n/LanguageProvider";
 const DashboardDirectory = () => {
   const t = useT();
   const [query, setQuery] = useState("");
-  const [active, setActive] = useState("All");
+  const [activeCats, setActiveCats] = useState<string[]>([]);
   const [members, setMembers] = useState<Member[]>([]);
   const [categories, setCategories] = useState<string[]>(["All"]);
   const [loading, setLoading] = useState(true);
@@ -39,12 +38,16 @@ const DashboardDirectory = () => {
                 .filter(Boolean)
                 .slice(0, 6)
             : [];
+          const cats: string[] = Array.isArray(m.categories) && m.categories.length
+            ? m.categories
+            : (m.category_name ? [m.category_name] : []);
 
           return {
             id: m.member_id,
             name,
             business: m.business_name || m.chapter_name || "RBN Member",
             category: m.category_name || "Member",
+            categories: cats,
             city: m.business_city || m.city_name || "—",
             services: servicesArr,
             email: m.email || "—",
@@ -62,8 +65,10 @@ const DashboardDirectory = () => {
           };
         });
         setMembers(mapped);
-        const cats = Array.from(new Set(mapped.map((m) => m.category).filter(Boolean)));
-        setCategories(["All", ...cats.sort()]);
+        const allCats = Array.from(
+          new Set(mapped.flatMap((m) => m.categories || [m.category]).filter(Boolean))
+        ).sort();
+        setCategories(allCats);
       }
       setLoading(false);
     };
@@ -71,19 +76,24 @@ const DashboardDirectory = () => {
     load();
   }, []);
 
+  const toggleCat = (c: string) =>
+    setActiveCats((prev) => (prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c]));
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return members.filter((m) => {
-      const matchCat = active === "All" || m.category === active;
+      const mCats = m.categories && m.categories.length ? m.categories : [m.category];
+      const matchCat = activeCats.length === 0 || activeCats.some((c) => mCats.includes(c));
       const matchQuery =
         !q ||
         m.name.toLowerCase().includes(q) ||
         m.business.toLowerCase().includes(q) ||
         m.city.toLowerCase().includes(q) ||
+        mCats.some((c) => c.toLowerCase().includes(q)) ||
         m.services.some((s) => s.toLowerCase().includes(q));
       return matchCat && matchQuery;
     });
-  }, [query, active, members]);
+  }, [query, activeCats, members]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -99,7 +109,7 @@ const DashboardDirectory = () => {
         </p>
       </div>
 
-      <div className="grid gap-6 mb-8 md:grid-cols-[1fr,240px] items-end">
+      <div className="mb-6">
         <div className="relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <Input
@@ -109,21 +119,54 @@ const DashboardDirectory = () => {
             className="pl-12 h-12 bg-card text-foreground"
           />
         </div>
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-secondary">Category</label>
-          <Select value={active} onValueChange={setActive}>
-            <SelectTrigger className="h-12 w-full">
-              <SelectValue placeholder="Select category" />
-            </SelectTrigger>
-            <SelectContent>
-              {categories.map((c) => (
-                <SelectItem key={c} value={c}>
-                  {c}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+      </div>
+      <div className="mb-8 space-y-3">
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setActiveCats([])}
+            className={cn(
+              "px-4 py-2 rounded-full text-sm font-medium border transition-all",
+              activeCats.length === 0
+                ? "bg-primary text-primary-foreground border-primary shadow"
+                : "bg-card text-secondary border-border hover:border-primary/50",
+            )}
+          >
+            All
+          </button>
+          {categories.map((c) => {
+            const on = activeCats.includes(c);
+            return (
+              <button
+                key={c}
+                onClick={() => toggleCat(c)}
+                className={cn(
+                  "px-4 py-2 rounded-full text-sm font-medium border transition-all",
+                  on
+                    ? "bg-primary text-primary-foreground border-primary shadow"
+                    : "bg-card text-secondary border-border hover:border-primary/50",
+                )}
+              >
+                {c}
+              </button>
+            );
+          })}
         </div>
+        {activeCats.length > 0 && (
+          <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
+            <span>Filtering by:</span>
+            {activeCats.map((c) => (
+              <span key={c} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+                {c}
+                <button onClick={() => toggleCat(c)} aria-label={`Remove ${c}`} className="hover:text-primary/70">
+                  <X className="h-3 w-3" />
+                </button>
+              </span>
+            ))}
+            <button onClick={() => setActiveCats([])} className="underline hover:text-primary ml-1">
+              Clear all
+            </button>
+          </div>
+        )}
       </div>
 
       {loading ? (
