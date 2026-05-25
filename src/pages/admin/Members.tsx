@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import MultiCategorySelect, { CategoryOption } from "@/components/categories/MultiCategorySelect";
 
 type Member = {
   member_id: string;
@@ -24,6 +25,8 @@ type Member = {
   chapter_name: string | null;
   status: string | null;
   committee_badge: string | null;
+  category_ids?: string[] | null;
+  categories?: string[] | null;
 };
 
 const PRESET_BADGES = [
@@ -45,6 +48,10 @@ const Members = () => {
   const [badgeChoice, setBadgeChoice] = useState<string>("");
   const [customBadge, setCustomBadge] = useState<string>("");
   const [saving, setSaving] = useState(false);
+  const [catEditing, setCatEditing] = useState<Member | null>(null);
+  const [catIds, setCatIds] = useState<string[]>([]);
+  const [allCats, setAllCats] = useState<CategoryOption[]>([]);
+  const [savingCats, setSavingCats] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -58,7 +65,14 @@ const Members = () => {
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+    (async () => {
+      const { data } = await (supabase as any)
+        .from("business_categories").select("id,name").order("name");
+      setAllCats((data as CategoryOption[]) || []);
+    })();
+  }, []);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -83,6 +97,28 @@ const Members = () => {
       setBadgeChoice("");
       setCustomBadge("");
     }
+  };
+
+  const openCatEdit = (m: Member) => {
+    setCatEditing(m);
+    setCatIds(m.category_ids || []);
+  };
+
+  const saveCats = async () => {
+    if (!catEditing) return;
+    setSavingCats(true);
+    const { error } = await (supabase as any).rpc("admin_set_member_categories", {
+      _member_id: catEditing.member_id,
+      _ids: catIds,
+    });
+    setSavingCats(false);
+    if (error) {
+      toast({ title: "Update failed", description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({ title: "Categories updated", description: catEditing.full_name });
+    setCatEditing(null);
+    load();
   };
 
   const save = async (clear = false) => {
@@ -145,6 +181,7 @@ const Members = () => {
                     <TableHead className="hidden md:table-cell">Chapter</TableHead>
                     <TableHead className="hidden lg:table-cell">Status</TableHead>
                     <TableHead className="min-w-[150px]">Committee Badge</TableHead>
+                    <TableHead className="min-w-[180px]">Categories</TableHead>
                     <TableHead className="w-32 text-right">Action</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -173,6 +210,24 @@ const Members = () => {
                         ) : (
                           <span className="text-xs text-muted-foreground">—</span>
                         )}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-wrap gap-1">
+                          {(m.categories || []).slice(0, 3).map((c) => (
+                            <span key={c} className="px-2 py-0.5 rounded-full bg-accent text-accent-foreground text-[10px] font-semibold">
+                              {c}
+                            </span>
+                          ))}
+                          {(m.categories || []).length > 3 && (
+                            <span className="px-2 py-0.5 rounded-full bg-muted text-muted-foreground text-[10px] font-semibold">
+                              +{(m.categories || []).length - 3}
+                            </span>
+                          )}
+                          {(!m.categories || m.categories.length === 0) && (
+                            <span className="text-xs text-muted-foreground">—</span>
+                          )}
+                          <Button size="sm" variant="ghost" className="h-6 px-2 text-xs" onClick={() => openCatEdit(m)}>Edit</Button>
+                        </div>
                       </TableCell>
                       <TableCell className="text-right">
                         <Button size="sm" variant="outline" onClick={() => openEdit(m)}>
@@ -235,6 +290,25 @@ const Members = () => {
               disabled={saving || !badgeChoice || (badgeChoice === "__custom__" && !customBadge.trim())}
             >
               {saving && <Loader2 className="h-4 w-4 animate-spin mr-1" />}
+              Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!catEditing} onOpenChange={(o) => !o && setCatEditing(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Member Categories</DialogTitle>
+            <DialogDescription>
+              {catEditing && <>Assign business categories for <strong>{catEditing.full_name}</strong>.</>}
+            </DialogDescription>
+          </DialogHeader>
+          <MultiCategorySelect options={allCats} value={catIds} onChange={setCatIds} />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCatEditing(null)} disabled={savingCats}>Cancel</Button>
+            <Button variant="royal" onClick={saveCats} disabled={savingCats}>
+              {savingCats && <Loader2 className="h-4 w-4 animate-spin mr-1" />}
               Save
             </Button>
           </DialogFooter>
