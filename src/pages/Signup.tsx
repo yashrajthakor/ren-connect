@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import renLogo from "@/assets/ren-logo.png";
 import LanguageSwitcher from "@/components/public/LanguageSwitcher";
+import MultiCategorySelect from "@/components/categories/MultiCategorySelect";
 
 // ============= Schemas per step =============
 const step1Schema = z.object({
@@ -27,7 +28,7 @@ const step1Schema = z.object({
 const step2Schema = z.object({
   profileType: z.enum(["business", "job"], { required_error: "Select profile type" }),
   businessName: z.string().trim().min(2, "Business name is required").max(160),
-  categoryId: z.string().min(1, "Select a category"),
+  categoryIds: z.array(z.string().uuid()).min(1, "Select at least one category"),
   city: z.string().trim().min(2, "City is required").max(80),
   state: z.string().trim().min(2, "State is required").max(80),
   pincode: z.string().trim().max(15).optional().or(z.literal("")),
@@ -156,11 +157,11 @@ const Signup = () => {
       if (memberError) throw memberError;
 
       // 4. Insert business profile
-      const { error: bpError } = await supabase.from("business_profiles").insert({
+      const { data: bpRow, error: bpError } = await supabase.from("business_profiles").insert({
         member_id: memberRow.id,
         profile_type: s2.profileType,
         business_name: s2.businessName,
-        category_id: s2.categoryId,
+        category_id: s2.categoryIds[0],
         city: s2.city,
         state: s2.state,
         pincode: s2.pincode || null,
@@ -173,8 +174,20 @@ const Signup = () => {
         instagram_url: data.instagram || null,
         facebook_url: data.facebook || null,
         referral_person: data.referralCode,
-      });
+      }).select("id").single();
       if (bpError) throw bpError;
+
+      // 4b. Insert multi categories
+      if (bpRow?.id && s2.categoryIds.length > 0) {
+        const rows = s2.categoryIds.map((cid) => ({
+          business_profile_id: bpRow.id,
+          category_id: cid,
+        }));
+        const { error: bpcError } = await (supabase as any)
+          .from("business_profile_categories")
+          .insert(rows);
+        if (bpcError) console.error("multi-category insert", bpcError);
+      }
 
       toast({
         title: "Application submitted 🎉",
@@ -342,23 +355,20 @@ const Signup = () => {
               </div>
 
               <div>
-                <Label>Category</Label>
-                <Select
-                  value={f2.watch("categoryId") || ""}
-                  onValueChange={(v) => f2.setValue("categoryId", v, { shouldValidate: true })}
-                >
-                  <SelectTrigger className="mt-1">
-                    <SelectValue placeholder={categories.length === 0 ? "Loading..." : "Select category"} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.length === 0 ? (
-                      <div className="p-2 text-sm text-muted-foreground">No categories available</div>
-                    ) : (
-                      categories.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)
-                    )}
-                  </SelectContent>
-                </Select>
-                {f2.formState.errors.categoryId && <p className="text-destructive text-xs mt-1">{f2.formState.errors.categoryId.message}</p>}
+                <Label>Categories</Label>
+                <div className="mt-1">
+                  <MultiCategorySelect
+                    options={categories}
+                    value={f2.watch("categoryIds") || []}
+                    onChange={(v) => f2.setValue("categoryIds", v, { shouldValidate: true })}
+                    placeholder={categories.length === 0 ? "Loading…" : "Select one or more categories"}
+                  />
+                </div>
+                {f2.formState.errors.categoryIds && (
+                  <p className="text-destructive text-xs mt-1">
+                    {f2.formState.errors.categoryIds.message as string}
+                  </p>
+                )}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

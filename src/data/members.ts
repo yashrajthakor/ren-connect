@@ -3,6 +3,8 @@ export type Member = {
   name: string;
   business: string;
   category: string;
+  categories?: string[];
+  categoryIds?: string[];
   city: string;
   services: string[];
   email: string;

@@ -28,6 +28,7 @@ export interface MemberLite {
   name: string;
   business: string | null;
   category: string | null;
+  categories: string[] | null;
   phone: string | null;
   avatar_url: string | null;
   city: string | null;

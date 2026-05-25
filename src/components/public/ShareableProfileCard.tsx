@@ -72,9 +72,11 @@ const ShareableProfileCard = forwardRef<HTMLDivElement, { member: Member }>(({ m
       {/* Body */}
       <div className="px-10 pt-6 pb-8">
         <div className="flex flex-wrap gap-2 mb-5">
-          <span className="px-3 py-1 rounded-full bg-orange-50 text-primary text-xs font-bold uppercase tracking-wider border border-primary/20">
-            {member.category}
-          </span>
+          {((member.categories && member.categories.length > 0) ? member.categories : [member.category]).map((c) => (
+            <span key={c} className="px-3 py-1 rounded-full bg-orange-50 text-primary text-xs font-bold uppercase tracking-wider border border-primary/20">
+              {c}
+            </span>
+          ))}
           <span className="px-3 py-1 rounded-full bg-slate-100 text-secondary text-xs font-semibold inline-flex items-center gap-1">
             <MapPin style={{ height: 12, width: 12 }} /> {member.city}
           </span>

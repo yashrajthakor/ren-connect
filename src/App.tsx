@@ -24,6 +24,7 @@ import Members from "./pages/admin/Members";
 import Applications from "./pages/admin/Applications";
 import ManageRoles from "./pages/admin/ManageRoles";
 import AdminLeads from "./pages/admin/Leads";
+import AdminCategories from "./pages/admin/Categories";
 import LeadsPage from "./pages/dashboard/Leads";
 import AsksPage from "./pages/dashboard/Asks";
 import AdminAsks from "./pages/admin/Asks";
@@ -99,6 +100,7 @@ const App = () => {
                 <Route index element={<Admin />} />
                 <Route path="applications" element={<Applications />} />
                 <Route path="members" element={<Members />} />
+                <Route path="categories" element={<AdminCategories />} />
                 <Route path="leads" element={<AdminLeads />} />
                 <Route path="asks" element={<AdminAsks />} />
                 <Route path="announcements" element={<AdminAnnouncements />} />

@@ -28,11 +28,17 @@ function buildWhatsAppMessage(
   receiver: MemberLite | undefined
 ) {
   const giverName = giver?.name || "Unknown giver";
-  const giverCategory = giver?.category || "N/A";
+  const giverCategories =
+    (giver?.categories && giver.categories.length > 0
+      ? giver.categories.join(", ")
+      : giver?.category) || "N/A";
   const giverPhone = giver?.phone || "N/A";
 
   const receiverName = receiver?.name || "Unknown receiver";
-  const receiverCategory = receiver?.category || "N/A";
+  const receiverCategories =
+    (receiver?.categories && receiver.categories.length > 0
+      ? receiver.categories.join(", ")
+      : receiver?.category) || "N/A";
   const receiverPhone = receiver?.phone || "N/A";
 
   const businessTitle = lead.description || lead.lead_name || "Not available";
@@ -62,10 +68,12 @@ Shared via RBN Portal`;
 
 👤 Receiver Details:
 Name: ${receiverName}
+Category: ${receiverCategories}
 Mobile Number: ${receiverPhone}
 
 🤝 Giver Details:
 Name: ${giverName}
+Category: ${giverCategories}
 Mobile Number: ${giverPhone}
 
 📋 Lead Details:
