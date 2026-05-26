@@ -46,6 +46,20 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     autoRefreshToken: true,
     detectSessionInUrl: true,
   },
+  global: {
+    // Force every Supabase REST/RPC call to bypass browser/proxy caches.
+    // Realtime websockets and auth tokens are unaffected.
+    fetch: (input, init = {}) =>
+      fetch(input, {
+        ...init,
+        cache: "no-store",
+        headers: {
+          ...(init.headers || {}),
+          "Cache-Control": "no-cache",
+          Pragma: "no-cache",
+        },
+      }),
+  },
 });
 
 // Log configuration on import (only in development)
