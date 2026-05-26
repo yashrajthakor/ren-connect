@@ -40,7 +40,6 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import { LanguageProvider } from "./i18n/LanguageProvider";
 import { AuthProvider } from "./context/AuthContext";
 import { useServiceWorkerUpdate } from "./hooks/useServiceWorkerUpdate";
-import { useVersionCheck } from "./hooks/useVersionCheck";
 import { Button } from "./components/ui/button";
 import { Alert, AlertDescription } from "./components/ui/alert";
 import { RefreshCw } from "lucide-react";
@@ -50,10 +49,6 @@ const queryClient = new QueryClient();
 
 const App = () => {
   const { showUpdatePrompt, updateApp, dismissPrompt } = useServiceWorkerUpdate();
-  const { updateAvailable, applyUpdate } = useVersionCheck();
-  // Either signal (new SW installed OR new /version.json) shows the prompt.
-  const showPrompt = showUpdatePrompt || updateAvailable;
-  const onUpdate = updateAvailable ? applyUpdate : updateApp;
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -62,14 +57,14 @@ const App = () => {
           <TooltipProvider>
             <Toaster />
             <Sonner />
-            {showPrompt && (
+            {showUpdatePrompt && (
               <div className="fixed top-4 right-4 z-50 max-w-sm">
                 <Alert>
                   <RefreshCw className="h-4 w-4" />
                   <AlertDescription className="flex items-center justify-between">
                     <span>A new version is available!</span>
                     <div className="flex gap-2 ml-4">
-                      <Button size="sm" onClick={onUpdate}>
+                      <Button size="sm" onClick={updateApp}>
                         Update
                       </Button>
                       <Button size="sm" variant="outline" onClick={dismissPrompt}>
