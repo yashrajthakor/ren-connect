@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { defineConfig, type Plugin, type ViteDevServer } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
@@ -11,7 +11,7 @@ const BUILD_ID = `${Date.now()}`;
 
 // Vite plugin that writes /version.json into the build output. The frontend
 // polls this file to detect new deployments and force-refresh stale clients.
-function versionJsonPlugin() {
+function versionJsonPlugin(): Plugin {
   const payload = () =>
     JSON.stringify(
       {
@@ -25,8 +25,8 @@ function versionJsonPlugin() {
   return {
     name: "rbn-version-json",
     // Serve /version.json in dev so the version-check hook works locally.
-    configureServer(server) {
-      server.middlewares.use("/version.json", (_req, res) => {
+    configureServer(server: ViteDevServer) {
+      server.middlewares.use("/version.json", (_req: unknown, res: any) => {
         res.setHeader("Content-Type", "application/json");
         res.setHeader("Cache-Control", "no-store, must-revalidate");
         res.end(payload());
