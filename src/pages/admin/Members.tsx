@@ -197,6 +197,9 @@ const Members = () => {
                         <div className="text-xs text-muted-foreground sm:hidden">
                           <Badge variant="outline" className="capitalize text-[10px]">{m.status || "—"}</Badge>
                         </div>
+                        <div className="text-xs text-muted-foreground sm:hidden">
+                          Referrals: <span className="font-semibold">{m.referral_count ?? 0}</span>
+                        </div>
                       </TableCell>
                       <TableCell className="hidden sm:table-cell text-muted-foreground">{m.email || "—"}</TableCell>
                       <TableCell className="hidden md:table-cell text-muted-foreground">{m.chapter_name || "—"}</TableCell>
