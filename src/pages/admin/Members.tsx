@@ -27,6 +27,7 @@ type Member = {
   committee_badge: string | null;
   category_ids?: string[] | null;
   categories?: string[] | null;
+  referral_count?: number | null;
 };
 
 const PRESET_BADGES = [
