@@ -234,6 +234,12 @@ const Members = () => {
                           <Button size="sm" variant="ghost" className="h-6 px-2 text-xs" onClick={() => openCatEdit(m)}>Edit</Button>
                         </div>
                       </TableCell>
+                      <TableCell className="text-center">
+                        <span className={`inline-flex items-center justify-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold border ${(m.referral_count ?? 0) > 0 ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-muted text-muted-foreground border-border'}`}>
+                          <Users className="h-3 w-3" />
+                          {m.referral_count ?? 0}
+                        </span>
+                      </TableCell>
                       <TableCell className="text-right">
                         <Button size="sm" variant="outline" onClick={() => openEdit(m)}>
                           {m.committee_badge ? "Edit" : "Assign"}
