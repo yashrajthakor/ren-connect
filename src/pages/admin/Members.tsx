@@ -183,6 +183,7 @@ const Members = () => {
                     <TableHead className="hidden lg:table-cell">Status</TableHead>
                     <TableHead className="min-w-[150px]">Committee Badge</TableHead>
                     <TableHead className="min-w-[180px]">Categories</TableHead>
+                    <TableHead className="w-24 text-center">Referrals</TableHead>
                     <TableHead className="w-32 text-right">Action</TableHead>
                   </TableRow>
                 </TableHeader>
