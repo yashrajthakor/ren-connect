@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Loader2, Search, Award, X } from "lucide-react";
+import { Loader2, Search, Award, X, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -27,6 +27,7 @@ type Member = {
   committee_badge: string | null;
   category_ids?: string[] | null;
   categories?: string[] | null;
+  referral_count?: number | null;
 };
 
 const PRESET_BADGES = [
@@ -182,6 +183,7 @@ const Members = () => {
                     <TableHead className="hidden lg:table-cell">Status</TableHead>
                     <TableHead className="min-w-[150px]">Committee Badge</TableHead>
                     <TableHead className="min-w-[180px]">Categories</TableHead>
+                    <TableHead className="w-24 text-center">Referrals</TableHead>
                     <TableHead className="w-32 text-right">Action</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -194,6 +196,9 @@ const Members = () => {
                         <div className="text-xs text-muted-foreground sm:hidden">{m.chapter_name || "—"}</div>
                         <div className="text-xs text-muted-foreground sm:hidden">
                           <Badge variant="outline" className="capitalize text-[10px]">{m.status || "—"}</Badge>
+                        </div>
+                        <div className="text-xs text-muted-foreground sm:hidden">
+                          Referrals: <span className="font-semibold">{m.referral_count ?? 0}</span>
                         </div>
                       </TableCell>
                       <TableCell className="hidden sm:table-cell text-muted-foreground">{m.email || "—"}</TableCell>
@@ -228,6 +233,12 @@ const Members = () => {
                           )}
                           <Button size="sm" variant="ghost" className="h-6 px-2 text-xs" onClick={() => openCatEdit(m)}>Edit</Button>
                         </div>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <span className={`inline-flex items-center justify-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold border ${(m.referral_count ?? 0) > 0 ? 'bg-primary/10 text-primary border-primary/20' : 'bg-muted text-muted-foreground border-border'}`}>
+                          <Users className="h-3 w-3" />
+                          {m.referral_count ?? 0}
+                        </span>
                       </TableCell>
                       <TableCell className="text-right">
                         <Button size="sm" variant="outline" onClick={() => openEdit(m)}>
