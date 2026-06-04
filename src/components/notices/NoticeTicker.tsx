@@ -28,7 +28,7 @@ export default function NoticeTicker() {
           </div>
           <div className="group flex-1 overflow-hidden py-2">
             <div
-              className="flex gap-10 whitespace-nowrap animate-[ticker_45s_linear_infinite] group-hover:[animation-play-state:paused]"
+              className="flex gap-10 whitespace-nowrap animate-[marquee_45s_linear_infinite] group-hover:[animation-play-state:paused]"
               style={{ willChange: "transform" }}
             >
               {items.map((n, idx) => (
