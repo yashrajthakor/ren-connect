@@ -30,6 +30,7 @@ import AsksPage from "./pages/dashboard/Asks";
 import AdminAsks from "./pages/admin/Asks";
 import NotificationsPage from "./pages/dashboard/Notifications";
 import AdminAnnouncements from "./pages/admin/Announcements";
+import AdminNoticeBoard from "./pages/admin/NoticeBoard";
 import AdminNewsletter from "./pages/admin/Newsletter";
 import News from "./pages/News";
 import NewsArticle from "./pages/NewsArticle";
@@ -104,6 +105,7 @@ const App = () => {
                 <Route path="leads" element={<AdminLeads />} />
                 <Route path="asks" element={<AdminAsks />} />
                 <Route path="announcements" element={<AdminAnnouncements />} />
+                <Route path="notice-board" element={<AdminNoticeBoard />} />
                 <Route path="newsletter" element={<AdminNewsletter />} />
                 <Route
                   path="manage-roles"
