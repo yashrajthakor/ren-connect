@@ -1,22 +1,32 @@
 import { useNavigate } from "react-router-dom";
 import { User, Briefcase, Handshake, MessageCircleQuestion, Newspaper } from "lucide-react";
+import NoticeTicker from "@/components/notices/NoticeTicker";
+import NoticeBoardSection from "@/components/notices/NoticeBoardSection";
 
 const Dashboard = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-display font-bold text-foreground">
+    <>
+      <NoticeTicker />
+      <NoticeBoardSection
+        title="Notice Board"
+        subtitle="Latest updates from RBN — meetings, events, and reminders"
+        limit={3}
+        className="pt-6 pb-0"
+      />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-display font-bold text-foreground">
           Welcome to your Dashboard
-        </h1>
-        <p className="text-muted-foreground mt-1">
+          </h1>
+          <p className="text-muted-foreground mt-1">
           Access your member benefits and resources
-        </p>
-      </div>
+          </p>
+        </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        <button
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          <button
           type="button"
           onClick={() => navigate("/dashboard/leads")}
           className="text-left bg-card rounded-xl border border-border p-6 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
