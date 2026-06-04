@@ -469,6 +469,13 @@ const Index = () => {
         </div>
       </section>
 
+      {/* NOTICE BOARD */}
+      <NoticeBoardSection
+        title="Community Notice Board"
+        subtitle="Upcoming meetings, events, and important updates"
+        limit={6}
+      />
+
       {/* SEARCH DIRECTORY */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
         <div className="relative bg-card rounded-2xl shadow-xl border border-border p-6 sm:p-8 overflow-hidden">
