@@ -24,6 +24,8 @@ import { Input } from "@/components/ui/input";
 import PublicLayout from "@/components/public/PublicLayout";
 import MemberCard from "@/components/public/MemberCard";
 import LatestStoriesSection from "@/components/public/LatestStoriesSection";
+import NoticeTicker from "@/components/notices/NoticeTicker";
+import NoticeBoardSection from "@/components/notices/NoticeBoardSection";
 import heroHeritage from "@/assets/hero-heritage.jpg";
 import heroBusiness from "@/assets/hero-business.jpg";
 import heroHandshake from "@/assets/hero-handshake.jpg";
@@ -319,6 +321,7 @@ const Index = () => {
         })}</script>
       </Helmet>
     <PublicLayout>
+      <NoticeTicker />
       {/* HERO CAROUSEL */}
       <section className="relative h-[92vh] min-h-[520px] sm:min-h-[640px] w-full overflow-hidden bg-secondary text-card">
         {heroSlides.map((s, i) => (
@@ -465,6 +468,13 @@ const Index = () => {
           ))}
         </div>
       </section>
+
+      {/* NOTICE BOARD */}
+      <NoticeBoardSection
+        title="Community Notice Board"
+        subtitle="Upcoming meetings, events, and important updates"
+        limit={6}
+      />
 
       {/* SEARCH DIRECTORY */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
