@@ -146,11 +146,12 @@ export default function AdminNoticeBoardPage() {
       return;
     }
     try {
+      const payload = parsed.data as NoticeInput;
       if (editing) {
-        await update.mutateAsync({ id: editing.id, patch: parsed.data });
+        await update.mutateAsync({ id: editing.id, patch: payload });
         toast({ title: "Notice updated" });
       } else {
-        await create.mutateAsync(parsed.data);
+        await create.mutateAsync(payload);
         toast({ title: "Notice published" });
       }
       setOpen(false);
