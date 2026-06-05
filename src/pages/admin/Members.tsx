@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { Loader2, Search, Award, X, Users } from "lucide-react";
+import { Loader2, Search, Award, X, Users, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import * as XLSX from "xlsx";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -53,6 +54,7 @@ const Members = () => {
   const [catIds, setCatIds] = useState<string[]>([]);
   const [allCats, setAllCats] = useState<CategoryOption[]>([]);
   const [savingCats, setSavingCats] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -85,6 +87,58 @@ const Members = () => {
         (m.committee_badge || "").toLowerCase().includes(q),
     );
   }, [members, search]);
+
+  const handleExport = async () => {
+    setExporting(true);
+    try {
+      const { data, error } = await (supabase as any).rpc("export_members_for_admin");
+      if (error) throw error;
+      const q = search.trim().toLowerCase();
+      const rows = ((data as any[]) || []).filter((m) => {
+        if (!q) return true;
+        return (
+          (m.full_name || "").toLowerCase().includes(q) ||
+          (m.email || "").toLowerCase().includes(q) ||
+          (m.phone || "").toLowerCase().includes(q) ||
+          (m.city || "").toLowerCase().includes(q) ||
+          (m.committee_badge || "").toLowerCase().includes(q) ||
+          ((m.categories as string[]) || []).some((c) => (c || "").toLowerCase().includes(q))
+        );
+      });
+
+      const sheetRows = rows.map((m, i) => ({
+        "#": i + 1,
+        "Member Name": m.full_name || "",
+        "Phone Number": m.phone || "",
+        "Email Address": m.email || "",
+        "City": m.city || "",
+        "Business Category": ((m.categories as string[]) || []).join(", "),
+        "Services Offered": m.services || "",
+        "Referral Person Name": m.referral_person || "",
+        "Join Date": m.join_date ? new Date(m.join_date).toLocaleDateString("en-IN") : "",
+        "Approval Status": (m.status || "").toString().replace(/_/g, " "),
+        "Attendance": "",
+        "Signature": "",
+        "Remarks": "",
+      }));
+
+      const ws = XLSX.utils.json_to_sheet(sheetRows);
+      ws["!cols"] = [
+        { wch: 5 }, { wch: 22 }, { wch: 15 }, { wch: 26 }, { wch: 14 },
+        { wch: 24 }, { wch: 30 }, { wch: 20 }, { wch: 12 }, { wch: 14 },
+        { wch: 12 }, { wch: 18 }, { wch: 20 },
+      ];
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Members");
+      const today = new Date().toISOString().slice(0, 10);
+      XLSX.writeFile(wb, `RBN_Members_${today}.xlsx`);
+      toast({ title: "Export ready", description: `${sheetRows.length} members exported.` });
+    } catch (e: any) {
+      toast({ title: "Export failed", description: e?.message || String(e), variant: "destructive" });
+    } finally {
+      setExporting(false);
+    }
+  };
 
   const openEdit = (m: Member) => {
     setEditing(m);
@@ -155,14 +209,29 @@ const Members = () => {
           <p className="text-muted-foreground">Assign committee badges to active members.</p>
         </div>
 
-        <div className="relative mb-4 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by name, email, badge"
-            className="pl-9"
-          />
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+          <div className="relative max-w-md w-full">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search by name, email, badge"
+              className="pl-9"
+            />
+          </div>
+          <Button
+            variant="royal"
+            onClick={handleExport}
+            disabled={exporting}
+            className="sm:ml-auto whitespace-nowrap"
+          >
+            {exporting ? (
+              <Loader2 className="h-4 w-4 animate-spin mr-1" />
+            ) : (
+              <Download className="h-4 w-4 mr-1" />
+            )}
+            Export Members
+          </Button>
         </div>
 
         <div className="bg-card border border-border rounded-xl overflow-hidden">
