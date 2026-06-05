@@ -22,7 +22,7 @@ const Navbar = () => {
     { to: "/directory", label: t("nav.directory") },
     { to: "/news", label: t("nav.news") },
     { to: "/about", label: t("nav.about") },
-    { to: "/voice", label: t("nav.voice") },
+    // { to: "/voice", label: t("nav.voice") },
   ];
 
   const onSearch = (e: React.FormEvent) => {

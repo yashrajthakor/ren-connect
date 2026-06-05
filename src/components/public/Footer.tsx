@@ -33,7 +33,7 @@ const Footer = () => {
               <li><Link to="/directory" className="text-card/70 hover:text-primary transition-colors">{t("nav.directory")}</Link></li>
               <li><Link to="/key-moments" className="text-card/70 hover:text-primary transition-colors">{t("nav.keyMoments")}</Link></li>
               <li><Link to="/about" className="text-card/70 hover:text-primary transition-colors">{t("nav.about")}</Link></li>
-              <li><Link to="/voice" className="text-card/70 hover:text-primary transition-colors">{t("nav.voice")}</Link></li>
+              {/* <li><Link to="/voice" className="text-card/70 hover:text-primary transition-colors">{t("nav.voice")}</Link></li> */}
             </ul>
           </div>
 
@@ -52,13 +52,13 @@ const Footer = () => {
             <ul className="space-y-3 text-sm text-card/70">
               <li className="flex items-start gap-2">
                 <Mail className="h-4 w-4 mt-0.5 text-primary shrink-0" />
-                <a href="mailto:contact@rajputbusinessnetwork.com" className="hover:text-primary">
-                  contact@rajputbusinessnetwork.com
+                <a href="mailto:info@rajputbusinessnetwork.com" className="hover:text-primary">
+                  info@rajputbusinessnetwork.com
                 </a>
               </li>
               <li className="flex items-start gap-2">
                 <Phone className="h-4 w-4 mt-0.5 text-primary shrink-0" />
-                <span>+91 00000 00000</span>
+                <span>+91 91067 86377</span>
               </li>
               <li className="flex items-start gap-2">
                 <MapPin className="h-4 w-4 mt-0.5 text-primary shrink-0" />
