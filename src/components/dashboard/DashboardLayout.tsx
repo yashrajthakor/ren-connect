@@ -66,23 +66,23 @@ const DashboardLayout = () => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-background">
+      <div className="min-h-screen flex w-full bg-background overflow-x-hidden">
         <DashboardSidebar role={userRole} />
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col min-w-0">
           <ApprovalToastListener />
-          <header className="h-16 flex items-center justify-between border-b border-border bg-card px-4">
-            <div className="flex items-center gap-3">
+          <header className="h-16 flex items-center justify-between border-b border-border bg-card px-3 sm:px-4 gap-2">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
               <SidebarTrigger />
               <span className="hidden sm:inline-flex items-center rounded-full bg-secondary text-secondary-foreground px-2.5 py-0.5 text-xs font-semibold">
                 Member Mode
               </span>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4 min-w-0">
               <NotificationBell />
               {(userRole?.toLowerCase() === "admin" || userRole?.toLowerCase() === "super_admin") && (
-                <Button variant="default" size="sm" onClick={() => navigate("/admin")}>
-                  <Shield className="h-4 w-4 mr-2" />
-                  Switch to Admin Mode
+                <Button variant="default" size="sm" onClick={() => navigate("/admin")} className="px-2 sm:px-3">
+                  <Shield className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Switch to Admin Mode</span>
                 </Button>
               )}
               <div className="text-right hidden sm:block">
@@ -95,9 +95,9 @@ const DashboardLayout = () => {
                     : "No role assigned"}
                 </p>
               </div>
-              <Button variant="outline" size="sm" onClick={handleLogout}>
-                <LogOut className="h-4 w-4 mr-2" />
-                Sign Out
+              <Button variant="outline" size="sm" onClick={handleLogout} className="px-2 sm:px-3">
+                <LogOut className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Sign Out</span>
               </Button>
             </div>
           </header>
