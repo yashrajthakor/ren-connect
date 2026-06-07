@@ -15,17 +15,17 @@ const Dashboard = () => {
         limit={3}
         className="pt-6 pb-0"
       />
-      <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-display font-bold text-foreground">
+      <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-display font-bold text-foreground break-words">
             Welcome to your Dashboard
           </h1>
-          <p className="text-muted-foreground mt-1">
+          <p className="text-sm sm:text-base text-muted-foreground mt-1">
             Access your member benefits and resources
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
           <button
             type="button"
             onClick={() => navigate("/dashboard/leads")}
