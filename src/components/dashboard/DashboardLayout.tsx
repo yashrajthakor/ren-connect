@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { LogOut, Shield, Handshake, Briefcase, UserCog, MessageCircleQuestion, Newspaper } from "lucide-react";
+import { LogOut, Shield, Handshake, Briefcase, UserCog, Newspaper, LayoutDashboard } from "lucide-react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { DashboardSidebar } from "./DashboardSidebar";
@@ -48,14 +48,15 @@ const DashboardLayout = () => {
   const isMobile = useIsMobile();
 
   const mobileTabs = [
+    { label: t("dashboard.title"), url: "/dashboard", icon: <LayoutDashboard className="h-5 w-5" /> },
     { label: t("dashboard.leads"), url: "/dashboard/leads", icon: <Handshake className="h-5 w-5" /> },
-    { label: t("dashboard.asks"), url: "/dashboard/asks", icon: <MessageCircleQuestion className="h-5 w-5" /> },
     { label: t("dashboard.directory"), url: "/dashboard/directory", icon: <Briefcase className="h-5 w-5" /> },
     { label: t("dashboard.news"), url: "/dashboard/news", icon: <Newspaper className="h-5 w-5" /> },
     { label: t("dashboard.profile"), url: "/dashboard/profile", icon: <UserCog className="h-5 w-5" /> },
   ];
 
-  const isActive = (url: string) => location.pathname === url || location.pathname.startsWith(url + "/");
+  const isActive = (url: string, end?: boolean) =>
+    end ? location.pathname === url : location.pathname === url || location.pathname.startsWith(url + "/");
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -112,7 +113,7 @@ const DashboardLayout = () => {
                     key={item.url}
                     to={item.url}
                     className={`flex flex-1 flex-col items-center justify-center rounded-2xl px-2 py-2 text-xs font-semibold transition-all ${
-                      isActive(item.url)
+                      isActive(item.url, item.url === "/dashboard")
                         ? "bg-primary text-primary-foreground"
                         : "text-muted-foreground hover:text-foreground hover:bg-muted"
                     }`}
