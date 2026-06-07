@@ -55,7 +55,8 @@ const DashboardLayout = () => {
     { label: t("dashboard.profile"), url: "/dashboard/profile", icon: <UserCog className="h-5 w-5" /> },
   ];
 
-  const isActive = (url: string) => location.pathname === url || location.pathname.startsWith(url + "/");
+  const isActive = (url: string, end?: boolean) =>
+    end ? location.pathname === url : location.pathname === url || location.pathname.startsWith(url + "/");
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
