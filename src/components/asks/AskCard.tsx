@@ -67,7 +67,7 @@ export function AskCard({ ask, participants, onClick }: Props) {
       </div>
 
       {(waUrl || callUrl) && (
-        <div className="mt-3 grid grid-cols-2 gap-2">
+        <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
           {waUrl && (
             <Button asChild variant="outline" size="sm" onClick={(e) => e.stopPropagation()}>
               <a href={waUrl} target="_blank" rel="noopener noreferrer">

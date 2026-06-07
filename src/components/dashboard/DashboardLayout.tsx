@@ -101,7 +101,7 @@ const DashboardLayout = () => {
             </div>
           </header>
           <PendingApprovalBanner />
-          <main className="flex-1 pb-24">
+          <main className="flex-1 pb-24 overflow-x-hidden">
             <Outlet />
           </main>
           {isMobile && (

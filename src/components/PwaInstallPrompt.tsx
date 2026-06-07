@@ -128,8 +128,8 @@ const PwaInstallPrompt = () => {
         className="fixed bottom-24 right-4 sm:bottom-6 sm:right-6 z-40 flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-primary/90 px-4 py-3 text-sm font-semibold text-primary-foreground shadow-2xl shadow-primary/30 ring-1 ring-primary/40 transition-all duration-200 hover:-translate-y-0.5 hover:scale-[1.03] hover:shadow-primary/50"
       >
         <Smartphone className="h-5 w-5" />
-        <span className="hidden xs:inline sm:inline">Add RBN App</span>
-        <span className="inline xs:hidden sm:hidden">Install</span>
+        <span className="hidden sm:inline">Add RBN App</span>
+        <span className="inline sm:hidden">Install</span>
       </button>
 
       {modalOpen && (

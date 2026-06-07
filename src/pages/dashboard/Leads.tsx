@@ -59,7 +59,7 @@ function LeadsPageInner() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 mb-6">
         <Stat icon={<Inbox className="h-4 w-4" />} label="Received" value={received.length} />
         <Stat icon={<Send className="h-4 w-4" />} label="Given" value={given.length} />
         <Stat

@@ -23,10 +23,10 @@ export default function NoticeTicker() {
         <div className="flex items-center">
           <div className="flex shrink-0 items-center gap-2 bg-primary text-primary-foreground px-3 sm:px-4 py-2 font-semibold text-xs sm:text-sm uppercase tracking-wider z-10 shadow-[4px_0_12px_-4px_hsl(var(--secondary)/0.6)]">
             <Megaphone className="h-4 w-4" />
-            <span className="hidden xs:inline">RBN Notices</span>
-            <span className="xs:hidden">Notices</span>
+            <span className="hidden sm:inline">RBN Notices</span>
+            <span className="sm:hidden">Notices</span>
           </div>
-          <div className="group flex-1 overflow-hidden py-2">
+          <div className="group flex-1 min-w-0 overflow-hidden py-2">
             <div
               className="flex gap-10 whitespace-nowrap animate-[marquee_45s_linear_infinite] group-hover:[animation-play-state:paused]"
               style={{ willChange: "transform" }}

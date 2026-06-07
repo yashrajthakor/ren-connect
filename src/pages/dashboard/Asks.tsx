@@ -81,7 +81,7 @@ function AsksPageInner() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 mb-6">
         <Stat icon={<HelpCircle className="h-4 w-4" />} label="Open" value={counts.open} />
         <Stat icon={<MessageCircleQuestion className="h-4 w-4" />} label="My Asks" value={counts.mine} />
         <Stat icon={<CheckCircle2 className="h-4 w-4" />} label="Resolved" value={counts.resolved} />

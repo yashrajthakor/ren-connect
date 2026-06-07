@@ -32,7 +32,7 @@ export default function AdminLeadsPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 mb-6">
         <Stat icon={<Inbox className="h-4 w-4" />} label="Total Leads" value={stats.total} />
         <Stat icon={<TrendingUp className="h-4 w-4" />} label="In Process" value={stats.inProcess} />
         <Stat icon={<CheckCircle2 className="h-4 w-4" />} label="Closed" value={stats.closed} />

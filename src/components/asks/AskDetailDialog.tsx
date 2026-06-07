@@ -103,7 +103,7 @@ export default function AskDetailDialog({ open, onOpenChange, ask, participants,
           </div>
 
           {phone && !isOwner && (
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <Button asChild variant="default">
                 <a href={`https://wa.me/${phone.replace(/^\+/, "")}?text=${encodeURIComponent(`Hi ${name}, regarding your RBN ask: "${ask.title}"`)}`} target="_blank" rel="noopener noreferrer">
                   <MessageCircle className="h-4 w-4" /> WhatsApp

@@ -122,7 +122,7 @@ export default function CreateAskDialog({ open, onOpenChange, userId, editAsk }:
             {errors.description && <p className="text-xs text-destructive">{errors.description.message}</p>}
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-2">
               <Label htmlFor="category">Category</Label>
               <Input id="category" placeholder="e.g. Manufacturing" {...register("category")} />
@@ -133,7 +133,7 @@ export default function CreateAskDialog({ open, onOpenChange, userId, editAsk }:
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-2">
               <Label>Priority</Label>
               <Select value={watch("priority")} onValueChange={(v) => setValue("priority", v as any)}>

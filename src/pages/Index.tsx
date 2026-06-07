@@ -450,7 +450,7 @@ const Index = () => {
 
       {/* STATS */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 relative z-10">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 bg-card rounded-2xl shadow-2xl border border-border p-6 animate-fade-up">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-card rounded-2xl shadow-2xl border border-border p-6 animate-fade-up">
           {stats.map((s, i) => (
             <div
               key={s.labelKey}

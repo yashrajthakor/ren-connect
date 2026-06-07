@@ -41,7 +41,7 @@ export default function AdminAsks() {
       <h1 className="text-2xl sm:text-3xl font-display font-bold text-foreground mb-1">Asks Management</h1>
       <p className="text-muted-foreground text-sm mb-6">Moderate community asks and update statuses.</p>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 mb-6">
         {STATUSES.map((s) => (
           <Card key={s} className="p-4">
             <p className="text-xs text-muted-foreground">{ASK_STATUS_LABEL[s]}</p>
