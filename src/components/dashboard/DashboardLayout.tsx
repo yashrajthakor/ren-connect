@@ -48,8 +48,8 @@ const DashboardLayout = () => {
   const isMobile = useIsMobile();
 
   const mobileTabs = [
+    { label: t("dashboard.title"), url: "/dashboard", icon: <LayoutDashboard className="h-5 w-5" /> },
     { label: t("dashboard.leads"), url: "/dashboard/leads", icon: <Handshake className="h-5 w-5" /> },
-    { label: t("dashboard.asks"), url: "/dashboard/asks", icon: <MessageCircleQuestion className="h-5 w-5" /> },
     { label: t("dashboard.directory"), url: "/dashboard/directory", icon: <Briefcase className="h-5 w-5" /> },
     { label: t("dashboard.news"), url: "/dashboard/news", icon: <Newspaper className="h-5 w-5" /> },
     { label: t("dashboard.profile"), url: "/dashboard/profile", icon: <UserCog className="h-5 w-5" /> },
