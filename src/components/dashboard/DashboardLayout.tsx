@@ -113,7 +113,7 @@ const DashboardLayout = () => {
                     key={item.url}
                     to={item.url}
                     className={`flex flex-1 flex-col items-center justify-center rounded-2xl px-2 py-2 text-xs font-semibold transition-all ${
-                      isActive(item.url)
+                      isActive(item.url, item.url === "/dashboard")
                         ? "bg-primary text-primary-foreground"
                         : "text-muted-foreground hover:text-foreground hover:bg-muted"
                     }`}
