@@ -38,8 +38,8 @@ const ResetPassword = () => {
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password.length < 6) {
-      toast({ title: "Password too short", description: "Use at least 6 characters.", variant: "destructive" });
+    if (password.length < 8) {
+      toast({ title: "Password too short", description: "Use at least 8 characters.", variant: "destructive" });
       return;
     }
     if (password !== confirm) {
