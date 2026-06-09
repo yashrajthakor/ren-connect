@@ -21,13 +21,13 @@ const ForgotPassword = () => {
     setLoading(true);
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: "https://www.rajputbusinessnetwork.com/reset-password",
       });
       if (error) throw error;
       setSent(true);
       toast({
         title: "Reset link sent",
-        description: "Check your inbox for password reset instructions.",
+        description: "Password reset instructions have been sent to your email.",
       });
     } catch (err: any) {
       toast({
