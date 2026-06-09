@@ -17,9 +17,15 @@ const schema = z.object({
   receiver_id: z.string().uuid("Select a member"),
   lead_name: z.string().trim().min(2, "At least 2 characters").max(100),
   contact_number: z
-    .string()
-    .trim()
-    .regex(/^[+\d][\d\s\-()]{6,18}$/i, "Enter a valid contact number"),
+  .string()
+  .trim()
+  .optional()
+  .or(z.literal(""))
+  .refine(
+    (val) =>
+      !val || /^[+\d][\d\s\-()]{6,18}$/i.test(val),
+    "Enter a valid contact number"
+  ),
   description: z.string().trim().max(500).optional().or(z.literal("")),
   priority: z.enum(["low", "medium", "high"]),
 });
@@ -82,7 +88,7 @@ export default function CreateLeadDialog({ open, onOpenChange, giverId }: Props)
         giver_id: giverId,
         receiver_id: data.receiver_id,
         lead_name: data.lead_name,
-        contact_number: data.contact_number,
+        contact_number: data.contact_number || "",
         description: data.description || undefined,
         priority: data.priority,
       });
