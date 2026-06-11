@@ -62,6 +62,7 @@ const DashboardDirectory = () => {
             linkedin: m.linkedin_url || null,
             instagram: m.instagram_url || null,
             facebook: m.facebook_url || null,
+            membershipType: (m.membership_type as "visitor" | "paid_member") || "visitor",
           };
         });
         setMembers(mapped);

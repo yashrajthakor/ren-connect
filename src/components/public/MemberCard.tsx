@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Mail, Phone, MapPin, Star, Award, Globe, Building2, Linkedin, Instagram, Facebook, Share2, Download } from "lucide-react";
+import { Mail, Phone, MapPin, Star, Award, Globe, Building2, Linkedin, Instagram, Facebook, Share2, Download, Sparkles } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -140,6 +140,12 @@ const MemberCard = ({ member }: { member: Member }) => {
           <div className="absolute top-3 right-3 flex items-center gap-1 bg-card/95 text-primary px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow">
             <Star className="h-3 w-3 fill-primary" />
             {t("card.featured")}
+          </div>
+        )}
+        {member.membershipType === "paid_member" && (
+          <div className="absolute top-3 left-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow bg-gradient-to-r from-primary to-[hsl(28,85%,42%)] text-primary-foreground ring-1 ring-primary/40">
+            <Sparkles className="h-3 w-3" />
+            Valuable Member
           </div>
         )}
         {member.logoUrl && (
