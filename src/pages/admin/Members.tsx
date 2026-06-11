@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Loader2, Search, Award, X, Users, Download } from "lucide-react";
+import { Loader2, Search, Award, X, Users, Download, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -29,6 +29,7 @@ type Member = {
   category_ids?: string[] | null;
   categories?: string[] | null;
   referral_count?: number | null;
+  membership_type?: "visitor" | "paid_member" | null;
 };
 
 const PRESET_BADGES = [
@@ -55,6 +56,8 @@ const Members = () => {
   const [allCats, setAllCats] = useState<CategoryOption[]>([]);
   const [savingCats, setSavingCats] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [membershipFilter, setMembershipFilter] = useState<"all" | "paid_member" | "visitor">("all");
+  const [updatingMembershipId, setUpdatingMembershipId] = useState<string | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -79,14 +82,40 @@ const Members = () => {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return members;
-    return members.filter(
-      (m) =>
+    return members.filter((m) => {
+      const matchType =
+        membershipFilter === "all" ||
+        (m.membership_type || "visitor") === membershipFilter;
+      if (!matchType) return false;
+      if (!q) return true;
+      return (
         m.full_name?.toLowerCase().includes(q) ||
         (m.email || "").toLowerCase().includes(q) ||
-        (m.committee_badge || "").toLowerCase().includes(q),
+        (m.committee_badge || "").toLowerCase().includes(q)
+      );
+    });
+  }, [members, search, membershipFilter]);
+
+  const changeMembership = async (m: Member, value: "visitor" | "paid_member") => {
+    if ((m.membership_type || "visitor") === value) return;
+    setUpdatingMembershipId(m.member_id);
+    const { error } = await (supabase as any).rpc("set_membership_type", {
+      _member_id: m.member_id,
+      _type: value,
+    });
+    setUpdatingMembershipId(null);
+    if (error) {
+      toast({ title: "Update failed", description: error.message, variant: "destructive" });
+      return;
+    }
+    setMembers((prev) =>
+      prev.map((x) => (x.member_id === m.member_id ? { ...x, membership_type: value } : x)),
     );
-  }, [members, search]);
+    toast({
+      title: "Membership updated",
+      description: `${m.full_name} → ${value === "paid_member" ? "Paid Member" : "Visitor"}`,
+    });
+  };
 
   const handleExport = async () => {
     setExporting(true);
@@ -117,6 +146,7 @@ const Members = () => {
         "Referral Person Name": m.referral_person || "",
         "Join Date": m.join_date ? new Date(m.join_date).toLocaleDateString("en-IN") : "",
         "Approval Status": (m.status || "").toString().replace(/_/g, " "),
+        "Membership Type": (m.membership_type === "paid_member" ? "Paid Member" : "Visitor"),
         "Attendance": "",
         "Signature": "",
         "Remarks": "",
@@ -126,7 +156,7 @@ const Members = () => {
       ws["!cols"] = [
         { wch: 5 }, { wch: 22 }, { wch: 15 }, { wch: 26 }, { wch: 14 },
         { wch: 24 }, { wch: 30 }, { wch: 20 }, { wch: 12 }, { wch: 14 },
-        { wch: 12 }, { wch: 18 }, { wch: 20 },
+        { wch: 16 }, { wch: 12 }, { wch: 18 }, { wch: 20 },
       ];
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Members");
