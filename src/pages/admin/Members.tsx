@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Loader2, Search, Award, X, Users, Download } from "lucide-react";
+import { Loader2, Search, Award, X, Users, Download, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -29,6 +29,7 @@ type Member = {
   category_ids?: string[] | null;
   categories?: string[] | null;
   referral_count?: number | null;
+  membership_type?: "visitor" | "paid_member" | null;
 };
 
 const PRESET_BADGES = [
@@ -55,6 +56,8 @@ const Members = () => {
   const [allCats, setAllCats] = useState<CategoryOption[]>([]);
   const [savingCats, setSavingCats] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [membershipFilter, setMembershipFilter] = useState<"all" | "paid_member" | "visitor">("all");
+  const [updatingMembershipId, setUpdatingMembershipId] = useState<string | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -79,14 +82,40 @@ const Members = () => {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return members;
-    return members.filter(
-      (m) =>
+    return members.filter((m) => {
+      const matchType =
+        membershipFilter === "all" ||
+        (m.membership_type || "visitor") === membershipFilter;
+      if (!matchType) return false;
+      if (!q) return true;
+      return (
         m.full_name?.toLowerCase().includes(q) ||
         (m.email || "").toLowerCase().includes(q) ||
-        (m.committee_badge || "").toLowerCase().includes(q),
+        (m.committee_badge || "").toLowerCase().includes(q)
+      );
+    });
+  }, [members, search, membershipFilter]);
+
+  const changeMembership = async (m: Member, value: "visitor" | "paid_member") => {
+    if ((m.membership_type || "visitor") === value) return;
+    setUpdatingMembershipId(m.member_id);
+    const { error } = await (supabase as any).rpc("set_membership_type", {
+      _member_id: m.member_id,
+      _type: value,
+    });
+    setUpdatingMembershipId(null);
+    if (error) {
+      toast({ title: "Update failed", description: error.message, variant: "destructive" });
+      return;
+    }
+    setMembers((prev) =>
+      prev.map((x) => (x.member_id === m.member_id ? { ...x, membership_type: value } : x)),
     );
-  }, [members, search]);
+    toast({
+      title: "Membership updated",
+      description: `${m.full_name} → ${value === "paid_member" ? "Paid Member" : "Visitor"}`,
+    });
+  };
 
   const handleExport = async () => {
     setExporting(true);
@@ -117,6 +146,7 @@ const Members = () => {
         "Referral Person Name": m.referral_person || "",
         "Join Date": m.join_date ? new Date(m.join_date).toLocaleDateString("en-IN") : "",
         "Approval Status": (m.status || "").toString().replace(/_/g, " "),
+        "Membership Type": (m.membership_type === "paid_member" ? "Paid Member" : "Visitor"),
         "Attendance": "",
         "Signature": "",
         "Remarks": "",
@@ -126,7 +156,7 @@ const Members = () => {
       ws["!cols"] = [
         { wch: 5 }, { wch: 22 }, { wch: 15 }, { wch: 26 }, { wch: 14 },
         { wch: 24 }, { wch: 30 }, { wch: 20 }, { wch: 12 }, { wch: 14 },
-        { wch: 12 }, { wch: 18 }, { wch: 20 },
+        { wch: 16 }, { wch: 12 }, { wch: 18 }, { wch: 20 },
       ];
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Members");
@@ -219,6 +249,25 @@ const Members = () => {
               className="pl-9"
             />
           </div>
+          <div className="flex items-center gap-2">
+            {([
+              { v: "all", label: "All Members" },
+              { v: "paid_member", label: "Paid Members" },
+              { v: "visitor", label: "Visitors" },
+            ] as const).map((opt) => (
+              <button
+                key={opt.v}
+                onClick={() => setMembershipFilter(opt.v)}
+                className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
+                  membershipFilter === opt.v
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-card text-secondary border-border hover:border-primary/50"
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
           <Button
             variant="royal"
             onClick={handleExport}
@@ -252,6 +301,7 @@ const Members = () => {
                     <TableHead className="hidden lg:table-cell">Status</TableHead>
                     <TableHead className="min-w-[150px]">Committee Badge</TableHead>
                     <TableHead className="min-w-[180px]">Categories</TableHead>
+                    <TableHead className="min-w-[160px]">Membership Type</TableHead>
                     <TableHead className="w-24 text-center">Referrals</TableHead>
                     <TableHead className="w-32 text-right">Action</TableHead>
                   </TableRow>
@@ -301,6 +351,31 @@ const Members = () => {
                             <span className="text-xs text-muted-foreground">—</span>
                           )}
                           <Button size="sm" variant="ghost" className="h-6 px-2 text-xs" onClick={() => openCatEdit(m)}>Edit</Button>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Select
+                            value={m.membership_type || "visitor"}
+                            onValueChange={(v) => changeMembership(m, v as "visitor" | "paid_member")}
+                            disabled={updatingMembershipId === m.member_id}
+                          >
+                            <SelectTrigger className="h-8 w-[140px] text-xs">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="visitor">Visitor</SelectItem>
+                              <SelectItem value="paid_member">Paid Member</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          {(m.membership_type || "visitor") === "paid_member" && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-semibold border border-primary/20">
+                              <Sparkles className="h-3 w-3" /> Valuable
+                            </span>
+                          )}
+                          {updatingMembershipId === m.member_id && (
+                            <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
+                          )}
                         </div>
                       </TableCell>
                       <TableCell className="text-center">

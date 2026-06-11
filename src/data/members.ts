@@ -20,6 +20,7 @@ export type Member = {
   linkedin?: string | null;
   instagram?: string | null;
   facebook?: string | null;
+  membershipType?: "visitor" | "paid_member" | null;
 };
 
 export const categories = [
