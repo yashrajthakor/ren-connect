@@ -206,7 +206,7 @@ const Index = () => {
           .eq("status", "active")
           .not("committee_badge", "is", null)
           .neq("committee_badge", "")
-          .limit(7);
+          .limit(10);
 
         if (error) {
           console.error("Error fetching committee members:", error);
