@@ -249,6 +249,25 @@ const Members = () => {
               className="pl-9"
             />
           </div>
+          <div className="flex items-center gap-2">
+            {([
+              { v: "all", label: "All Members" },
+              { v: "paid_member", label: "Paid Members" },
+              { v: "visitor", label: "Visitors" },
+            ] as const).map((opt) => (
+              <button
+                key={opt.v}
+                onClick={() => setMembershipFilter(opt.v)}
+                className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
+                  membershipFilter === opt.v
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-card text-secondary border-border hover:border-primary/50"
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
           <Button
             variant="royal"
             onClick={handleExport}
