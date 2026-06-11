@@ -301,6 +301,7 @@ const Members = () => {
                     <TableHead className="hidden lg:table-cell">Status</TableHead>
                     <TableHead className="min-w-[150px]">Committee Badge</TableHead>
                     <TableHead className="min-w-[180px]">Categories</TableHead>
+                    <TableHead className="min-w-[160px]">Membership Type</TableHead>
                     <TableHead className="w-24 text-center">Referrals</TableHead>
                     <TableHead className="w-32 text-right">Action</TableHead>
                   </TableRow>
@@ -350,6 +351,31 @@ const Members = () => {
                             <span className="text-xs text-muted-foreground">—</span>
                           )}
                           <Button size="sm" variant="ghost" className="h-6 px-2 text-xs" onClick={() => openCatEdit(m)}>Edit</Button>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Select
+                            value={m.membership_type || "visitor"}
+                            onValueChange={(v) => changeMembership(m, v as "visitor" | "paid_member")}
+                            disabled={updatingMembershipId === m.member_id}
+                          >
+                            <SelectTrigger className="h-8 w-[140px] text-xs">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="visitor">Visitor</SelectItem>
+                              <SelectItem value="paid_member">Paid Member</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          {(m.membership_type || "visitor") === "paid_member" && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-semibold border border-primary/20">
+                              <Sparkles className="h-3 w-3" /> Valuable
+                            </span>
+                          )}
+                          {updatingMembershipId === m.member_id && (
+                            <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
+                          )}
                         </div>
                       </TableCell>
                       <TableCell className="text-center">
