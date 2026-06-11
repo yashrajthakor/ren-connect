@@ -82,18 +82,24 @@ const DashboardDirectory = () => {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return members.filter((m) => {
-      const mCats = m.categories && m.categories.length ? m.categories : [m.category];
-      const matchCat = activeCats.length === 0 || activeCats.some((c) => mCats.includes(c));
-      const matchQuery =
-        !q ||
-        m.name.toLowerCase().includes(q) ||
-        m.business.toLowerCase().includes(q) ||
-        m.city.toLowerCase().includes(q) ||
-        mCats.some((c) => c.toLowerCase().includes(q)) ||
-        m.services.some((s) => s.toLowerCase().includes(q));
-      return matchCat && matchQuery;
-    });
+    return members
+      .filter((m) => {
+        const mCats = m.categories && m.categories.length ? m.categories : [m.category];
+        const matchCat = activeCats.length === 0 || activeCats.some((c) => mCats.includes(c));
+        const matchQuery =
+          !q ||
+          m.name.toLowerCase().includes(q) ||
+          m.business.toLowerCase().includes(q) ||
+          m.city.toLowerCase().includes(q) ||
+          mCats.some((c) => c.toLowerCase().includes(q)) ||
+          m.services.some((s) => s.toLowerCase().includes(q));
+        return matchCat && matchQuery;
+      })
+      .sort((a, b) => {
+        const aPaid = a.membershipType === "paid_member" ? 1 : 0;
+        const bPaid = b.membershipType === "paid_member" ? 1 : 0;
+        return bPaid - aPaid;
+      });
   }, [query, activeCats, members]);
 
   return (
