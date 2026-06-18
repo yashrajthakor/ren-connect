@@ -124,6 +124,10 @@ export const translations = {
     // MemberCard
     "card.featured": "Featured",
     "card.connect": "Connect",
+    "card.viewMore": "View More",
+    "card.downloadCard": "Download Card",
+    "card.lockedMessage": "To access complete member details and connect directly, please contact RBN.",
+    "card.valuableMember": "Valuable Member",
 
     // About
     "about.eyebrow": "About RBN",
@@ -317,6 +321,10 @@ export const translations = {
     // MemberCard
     "card.featured": "વિશિષ્ટ",
     "card.connect": "જોડાઓ",
+    "card.viewMore": "વધુ જુઓ",
+    "card.downloadCard": "કાર્ડ ડાઉનલોડ કરો",
+    "card.lockedMessage": "સંપૂર્ણ સભ્ય વિગતો ઍક્સેસ કરવા અને સીધો સંપર્ક કરવા માટે, કૃપા કરીને RBN નો સંપર્ક કરો.",
+    "card.valuableMember": "મૂલ્યવાન સભ્ય",
 
     // About
     "about.eyebrow": "RBN વિશે",

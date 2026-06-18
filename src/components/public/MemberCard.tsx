@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Mail, Phone, MapPin, Star, Award, Globe, Building2, Linkedin, Instagram, Facebook, Share2, Download, Sparkles } from "lucide-react";
+import { Mail, Phone, MapPin, Star, Award, Globe, Building2, Linkedin, Instagram, Facebook, Share2, Download, Sparkles, Eye } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -12,6 +12,13 @@ import { Button } from "@/components/ui/button";
 import { toPng } from "html-to-image";
 import ShareableProfileCard from "./ShareableProfileCard";
 import { toast } from "@/hooks/use-toast";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+
+/** 1 = full profiles for all members. 0 = restrict visitors (paid members still full). */
+export const FULL_VISIBILITY: 0 | 1 = 0;
+
+const resolveFullVisibility = (membershipType?: Member["membershipType"]): 0 | 1 =>
+  FULL_VISIBILITY === 1 || membershipType === "paid_member" ? 1 : 0;
 
 const SHARE_MESSAGE = `👋 Hello,
 
@@ -31,6 +38,7 @@ const MemberCard = ({ member }: { member: Member }) => {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState<"share" | "download" | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
+  const fullVisibility = resolveFullVisibility(member.membershipType);
 
   const generatePng = async (): Promise<{ blob: Blob; dataUrl: string } | null> => {
     if (!cardRef.current) return null;
@@ -46,6 +54,7 @@ const MemberCard = ({ member }: { member: Member }) => {
 
   const handleDownload = async (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (fullVisibility === 0) return;
     try {
       setBusy("download");
       const result = await generatePng();
@@ -66,6 +75,7 @@ const MemberCard = ({ member }: { member: Member }) => {
 
   const handleShare = async (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (fullVisibility === 0) return;
     try {
       setBusy("share");
       const result = await generatePng();
@@ -74,21 +84,17 @@ const MemberCard = ({ member }: { member: Member }) => {
       const navAny = navigator as any;
       const sharePayload = { files: [file], text: SHARE_MESSAGE, title: `${member.name} — RBN` };
 
-      // Preferred: native share with image + text together (mobile)
       if (navAny.canShare && navAny.canShare(sharePayload)) {
         try {
           await navAny.share(sharePayload);
           return;
         } catch (err: any) {
           if (err?.name === "AbortError") return;
-          // fall through to fallback
         }
       }
 
-      // Try sharing just the file if text+files combo not supported
       if (navAny.canShare && navAny.canShare({ files: [file] })) {
         try {
-          // Copy text first so user can paste alongside image
           try { await navigator.clipboard.writeText(SHARE_MESSAGE); } catch {}
           await navAny.share({ files: [file], title: `${member.name} — RBN` });
           toast({ title: "Message copied", description: "Paste the caption with your shared image." });
@@ -98,7 +104,6 @@ const MemberCard = ({ member }: { member: Member }) => {
         }
       }
 
-      // Desktop fallback: copy text + download image + open WhatsApp Web
       try { await navigator.clipboard.writeText(SHARE_MESSAGE); } catch {}
       const a = document.createElement("a");
       a.href = result.dataUrl;
@@ -120,17 +125,29 @@ const MemberCard = ({ member }: { member: Member }) => {
     }
   };
 
+  const handleCardClick = () => {
+    if (fullVisibility === 1) setOpen(true);
+  };
+
+  const categories = (member.categories && member.categories.length > 0)
+    ? member.categories
+    : [member.category];
+
   return (
     <>
-    {/* Off-screen render target for image generation */}
-    <div style={{ position: "fixed", left: -10000, top: 0, pointerEvents: "none", opacity: 0 }} aria-hidden>
-      <ShareableProfileCard ref={cardRef} member={member} />
-    </div>
+    {fullVisibility === 1 && (
+      <div style={{ position: "fixed", left: -10000, top: 0, pointerEvents: "none", opacity: 0 }} aria-hidden>
+        <ShareableProfileCard ref={cardRef} member={member} />
+      </div>
+    )}
     <article
-      onClick={() => setOpen(true)}
-      className="group relative overflow-hidden rounded-2xl bg-card border border-border shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+      onClick={handleCardClick}
+      className={`group relative overflow-hidden rounded-2xl bg-card border border-border shadow-sm transition-all duration-300 ${
+        fullVisibility === 1
+          ? "hover:shadow-xl hover:-translate-y-1 cursor-pointer"
+          : "cursor-default"
+      }`}
     >
-      {/* Slanted brand banner */}
       <div className="relative h-28 bg-gradient-to-br from-secondary via-[hsl(213,25%,22%)] to-secondary">
         <div
           className="absolute inset-0 bg-primary"
@@ -145,10 +162,10 @@ const MemberCard = ({ member }: { member: Member }) => {
         {member.membershipType === "paid_member" && (
           <div className="absolute top-3 left-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow bg-gradient-to-r from-primary to-[hsl(28,85%,42%)] text-primary-foreground ring-1 ring-primary/40">
             <Sparkles className="h-3 w-3" />
-            Valuable Member
+            {t("card.valuableMember")}
           </div>
         )}
-        {member.logoUrl && (
+        {fullVisibility === 1 && member.logoUrl && (
           <div className="absolute bottom-3 right-4 h-12 w-12 rounded-lg bg-card border border-border shadow flex items-center justify-center overflow-hidden">
             <img src={member.logoUrl} alt={`${member.business} logo`} className="h-full w-full object-contain p-1" />
           </div>
@@ -172,26 +189,19 @@ const MemberCard = ({ member }: { member: Member }) => {
               <p className="text-sm text-primary font-semibold truncate">{member.business}</p>
             </div>
           </div>
-          {(() => {
-            const cats = (member.categories && member.categories.length > 0)
-              ? member.categories
-              : [member.category];
-            return (
-              <div className="flex flex-wrap gap-1.5">
-                {cats.slice(0, 3).map((c) => (
-                  <span key={c} className="shrink-0 px-2.5 py-1 rounded-full bg-accent text-accent-foreground text-[10px] font-semibold uppercase tracking-wider">
-                    {c}
-                  </span>
-                ))}
-                {cats.length > 3 && (
-                  <span className="px-2.5 py-1 rounded-full bg-muted text-muted-foreground text-[10px] font-semibold">
-                    +{cats.length - 3}
-                  </span>
-                )}
-              </div>
-            );
-          })()}
-          {member.committeeBadge && (
+          <div className="flex flex-wrap gap-1.5">
+            {categories.slice(0, 3).map((c) => (
+              <span key={c} className="shrink-0 px-2.5 py-1 rounded-full bg-accent text-accent-foreground text-[10px] font-semibold uppercase tracking-wider">
+                {c}
+              </span>
+            ))}
+            {categories.length > 3 && (
+              <span className="px-2.5 py-1 rounded-full bg-muted text-muted-foreground text-[10px] font-semibold">
+                +{categories.length - 3}
+              </span>
+            )}
+          </div>
+          {fullVisibility === 1 && member.committeeBadge && (
             <div className="flex flex-wrap gap-2">
               <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-semibold uppercase tracking-wide border border-primary/20">
                 <Award className="h-3 w-3" />
@@ -201,132 +211,196 @@ const MemberCard = ({ member }: { member: Member }) => {
           )}
         </div>
 
-        <div className="mt-4 flex flex-wrap gap-1.5">
-          {member.services.slice(0, 3).map((s) => (
-            <span key={s} className="text-[11px] px-2 py-0.5 rounded-md bg-muted text-muted-foreground">
-              {s}
-            </span>
-          ))}
-        </div>
+        {fullVisibility === 1 ? (
+          <>
+            <div className="mt-4 flex flex-wrap gap-1.5">
+              {member.services.slice(0, 3).map((s) => (
+                <span key={s} className="text-[11px] px-2 py-0.5 rounded-md bg-muted text-muted-foreground">
+                  {s}
+                </span>
+              ))}
+            </div>
 
-        <div className="mt-5 space-y-2 text-sm text-secondary/80">
-          <div className="flex items-center gap-2">
-            <Mail className="h-4 w-4 text-primary shrink-0" />
-            <span className="truncate">{member.email}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Phone className="h-4 w-4 text-primary shrink-0" />
-            <span>{member.phone}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <MapPin className="h-4 w-4 text-primary shrink-0" />
-            <span className="truncate">{member.city}</span>
-          </div>
-        </div>
+            <div className="mt-5 space-y-2 text-sm text-secondary/80">
+              <div className="flex items-center gap-2">
+                <Mail className="h-4 w-4 text-primary shrink-0" />
+                <span className="truncate">{member.email}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Phone className="h-4 w-4 text-primary shrink-0" />
+                <span>{member.phone}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <MapPin className="h-4 w-4 text-primary shrink-0" />
+                <span className="truncate">{member.city}</span>
+              </div>
+            </div>
 
-        <div className="mt-5 flex gap-2">
-          <Button
-            size="sm"
-            variant="default"
-            className="flex-1"
-            disabled={busy !== null}
-            onClick={handleShare}
-          >
-            <Share2 className="h-4 w-4" />
-            {busy === "share" ? "Sharing…" : "Share Profile"}
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            className="flex-1"
-            disabled={busy !== null}
-            onClick={handleDownload}
-          >
-            <Download className="h-4 w-4" />
-            {busy === "download" ? "Saving…" : "Download Card"}
-          </Button>
-        </div>
+            <div className="mt-5 flex gap-2">
+              <Button
+                size="sm"
+                variant="default"
+                className="flex-1"
+                disabled={busy !== null}
+                onClick={handleShare}
+              >
+                <Share2 className="h-4 w-4" />
+                {busy === "share" ? "Sharing…" : "Share Profile"}
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="flex-1"
+                disabled={busy !== null}
+                onClick={handleDownload}
+              >
+                <Download className="h-4 w-4" />
+                {busy === "download" ? "Saving…" : t("card.downloadCard")}
+              </Button>
+            </div>
+          </>
+        ) : (
+          <>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="mt-4 rounded-xl border border-border/60 bg-muted/30 cursor-default">
+                  <div className="p-4 space-y-3 blur-[6px] select-none" aria-hidden>
+                    <div className="flex flex-wrap gap-1.5">
+                      {(member.services.length > 0 ? member.services : ["Service", "Consulting"]).slice(0, 3).map((s) => (
+                        <span key={s} className="text-[11px] px-2 py-0.5 rounded-md bg-muted text-muted-foreground">
+                          {s}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="space-y-2 text-sm text-secondary/80">
+                      <div className="flex items-center gap-2">
+                        <Mail className="h-4 w-4 text-primary shrink-0" />
+                        <span className="truncate">{member.email}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Phone className="h-4 w-4 text-primary shrink-0" />
+                        <span>{member.phone}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-primary shrink-0" />
+                        <span className="truncate">{member.city}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="top" className="max-w-[240px] text-center text-xs leading-relaxed">
+                🔒 {t("card.lockedMessage")}
+              </TooltipContent>
+            </Tooltip>
+
+            <div className="mt-5 flex gap-2">
+              <Button
+                size="sm"
+                variant="default"
+                className="flex-1 opacity-50 cursor-not-allowed"
+                disabled
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Eye className="h-4 w-4" />
+                {t("card.viewMore")}
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="flex-1 opacity-50 cursor-not-allowed"
+                disabled
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Download className="h-4 w-4" />
+                {t("card.downloadCard")}
+              </Button>
+            </div>
+          </>
+        )}
       </div>
     </article>
 
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="sr-only">{member.name}</DialogTitle>
-        </DialogHeader>
-        <div className="flex items-start gap-4">
-          <div className="h-20 w-20 rounded-2xl bg-muted border flex items-center justify-center overflow-hidden shrink-0">
-            {member.avatarUrl ? (
-              <img src={member.avatarUrl} alt={member.name} className="h-full w-full object-cover" />
-            ) : (
-              <span className="font-display font-bold text-2xl text-primary">{member.initials}</span>
-            )}
-          </div>
-          <div className="min-w-0 flex-1">
-            <h2 className="font-display font-bold text-2xl text-secondary">{member.name}</h2>
-            <p className="text-primary font-semibold">{member.business}</p>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {((member.categories && member.categories.length > 0) ? member.categories : [member.category]).map((c) => (
-                <span key={c} className="px-2.5 py-1 rounded-full bg-accent text-accent-foreground text-[10px] font-semibold uppercase tracking-wider">
-                  {c}
-                </span>
-              ))}
-              {member.committeeBadge && (
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-semibold uppercase tracking-wide border border-primary/20">
-                  <Award className="h-3 w-3" />
-                  {member.committeeBadge}
-                </span>
+    {fullVisibility === 1 && (
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="sr-only">{member.name}</DialogTitle>
+          </DialogHeader>
+          <div className="flex items-start gap-4">
+            <div className="h-20 w-20 rounded-2xl bg-muted border flex items-center justify-center overflow-hidden shrink-0">
+              {member.avatarUrl ? (
+                <img src={member.avatarUrl} alt={member.name} className="h-full w-full object-cover" />
+              ) : (
+                <span className="font-display font-bold text-2xl text-primary">{member.initials}</span>
               )}
             </div>
-          </div>
-          {member.logoUrl && (
-            <div className="h-16 w-16 rounded-lg border bg-card flex items-center justify-center overflow-hidden shrink-0">
-              <img src={member.logoUrl} alt="logo" className="h-full w-full object-contain p-1" />
+            <div className="min-w-0 flex-1">
+              <h2 className="font-display font-bold text-2xl text-secondary">{member.name}</h2>
+              <p className="text-primary font-semibold">{member.business}</p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {categories.map((c) => (
+                  <span key={c} className="px-2.5 py-1 rounded-full bg-accent text-accent-foreground text-[10px] font-semibold uppercase tracking-wider">
+                    {c}
+                  </span>
+                ))}
+                {member.committeeBadge && (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-semibold uppercase tracking-wide border border-primary/20">
+                    <Award className="h-3 w-3" />
+                    {member.committeeBadge}
+                  </span>
+                )}
+              </div>
             </div>
-          )}
-        </div>
-
-        {member.services.length > 0 && (
-          <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">Services</h4>
-            <div className="flex flex-wrap gap-1.5">
-              {member.services.map((s) => (
-                <span key={s} className="text-xs px-2 py-1 rounded-md bg-muted text-secondary">{s}</span>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <div className="grid sm:grid-cols-2 gap-3 text-sm text-secondary/90">
-          <div className="flex items-center gap-2"><Mail className="h-4 w-4 text-primary" /><span className="truncate">{member.email}</span></div>
-          <div className="flex items-center gap-2"><Phone className="h-4 w-4 text-primary" /><span>{member.phone}</span></div>
-          <div className="flex items-center gap-2"><MapPin className="h-4 w-4 text-primary" /><span className="truncate">{member.city}</span></div>
-          {member.chapter && (
-            <div className="flex items-center gap-2"><Building2 className="h-4 w-4 text-primary" /><span className="truncate">{member.chapter}</span></div>
-          )}
-          {member.website && (
-            <div className="flex items-center gap-2 sm:col-span-2">
-              <Globe className="h-4 w-4 text-primary" />
-              <a href={member.website} target="_blank" rel="noreferrer" className="text-primary hover:underline truncate">{member.website}</a>
-            </div>
-          )}
-        </div>
-
-        {(member.linkedin || member.instagram || member.facebook) && (
-          <div className="flex items-center gap-3 pt-2 border-t">
-            {member.linkedin && (
-              <a href={member.linkedin} target="_blank" rel="noreferrer" className="p-2 rounded-full bg-muted hover:bg-primary/10 text-primary"><Linkedin className="h-4 w-4" /></a>
-            )}
-            {member.instagram && (
-              <a href={member.instagram} target="_blank" rel="noreferrer" className="p-2 rounded-full bg-muted hover:bg-primary/10 text-primary"><Instagram className="h-4 w-4" /></a>
-            )}
-            {member.facebook && (
-              <a href={member.facebook} target="_blank" rel="noreferrer" className="p-2 rounded-full bg-muted hover:bg-primary/10 text-primary"><Facebook className="h-4 w-4" /></a>
+            {member.logoUrl && (
+              <div className="h-16 w-16 rounded-lg border bg-card flex items-center justify-center overflow-hidden shrink-0">
+                <img src={member.logoUrl} alt="logo" className="h-full w-full object-contain p-1" />
+              </div>
             )}
           </div>
-        )}
-      </DialogContent>
-    </Dialog>
+
+          {member.services.length > 0 && (
+            <div>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">Services</h4>
+              <div className="flex flex-wrap gap-1.5">
+                {member.services.map((s) => (
+                  <span key={s} className="text-xs px-2 py-1 rounded-md bg-muted text-secondary">{s}</span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="grid sm:grid-cols-2 gap-3 text-sm text-secondary/90">
+            <div className="flex items-center gap-2"><Mail className="h-4 w-4 text-primary" /><span className="truncate">{member.email}</span></div>
+            <div className="flex items-center gap-2"><Phone className="h-4 w-4 text-primary" /><span>{member.phone}</span></div>
+            <div className="flex items-center gap-2"><MapPin className="h-4 w-4 text-primary" /><span className="truncate">{member.city}</span></div>
+            {member.chapter && (
+              <div className="flex items-center gap-2"><Building2 className="h-4 w-4 text-primary" /><span className="truncate">{member.chapter}</span></div>
+            )}
+            {member.website && (
+              <div className="flex items-center gap-2 sm:col-span-2">
+                <Globe className="h-4 w-4 text-primary" />
+                <a href={member.website} target="_blank" rel="noreferrer" className="text-primary hover:underline truncate">{member.website}</a>
+              </div>
+            )}
+          </div>
+
+          {(member.linkedin || member.instagram || member.facebook) && (
+            <div className="flex items-center gap-3 pt-2 border-t">
+              {member.linkedin && (
+                <a href={member.linkedin} target="_blank" rel="noreferrer" className="p-2 rounded-full bg-muted hover:bg-primary/10 text-primary"><Linkedin className="h-4 w-4" /></a>
+              )}
+              {member.instagram && (
+                <a href={member.instagram} target="_blank" rel="noreferrer" className="p-2 rounded-full bg-muted hover:bg-primary/10 text-primary"><Instagram className="h-4 w-4" /></a>
+              )}
+              {member.facebook && (
+                <a href={member.facebook} target="_blank" rel="noreferrer" className="p-2 rounded-full bg-muted hover:bg-primary/10 text-primary"><Facebook className="h-4 w-4" /></a>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    )}
     </>
   );
 };
