@@ -15,7 +15,7 @@ import { toast } from "@/hooks/use-toast";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 /** 1 = full profiles for all members. 0 = restrict visitors (paid members still full). */
-export const FULL_VISIBILITY: 0 | 1 = 0;
+export const FULL_VISIBILITY: 0 | 1 = 1;
 
 const resolveFullVisibility = (membershipType?: Member["membershipType"]): 0 | 1 =>
   FULL_VISIBILITY === 1 || membershipType === "paid_member" ? 1 : 0;
