@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useT } from "@/i18n/LanguageProvider";
+import { MemberStatusProvider } from "@/context/MemberStatusContext";
 
 const DashboardLayout = () => {
   const navigate = useNavigate();
@@ -65,6 +66,7 @@ const DashboardLayout = () => {
   };
 
   return (
+    <MemberStatusProvider>
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background overflow-x-hidden">
         <DashboardSidebar role={userRole} />
@@ -128,6 +130,7 @@ const DashboardLayout = () => {
         </div>
       </div>
     </SidebarProvider>
+    </MemberStatusProvider>
   );
 };
 
