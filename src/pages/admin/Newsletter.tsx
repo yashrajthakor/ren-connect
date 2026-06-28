@@ -33,6 +33,8 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthContext } from "@/context/AuthContext";
+import { RichTextEditor } from "@/components/editor/RichTextEditor";
+import { htmlToPlainText } from "@/lib/sanitizeHtml";
 import {
   Newspaper,
   Plus,
@@ -156,7 +158,7 @@ const AdminNewsletter = () => {
   };
 
   const save = async (publish: boolean) => {
-    if (!form.title.trim() || !form.content.trim()) {
+    if (!form.title.trim() || !htmlToPlainText(form.content)) {
       toast({ title: "Title and content are required", variant: "destructive" });
       return;
     }
@@ -374,11 +376,11 @@ const AdminNewsletter = () => {
             </div>
             <div className="space-y-1.5">
               <Label>Content *</Label>
-              <Textarea
-                rows={12}
+              <RichTextEditor
+                key={form.id ?? "new-post"}
                 value={form.content}
-                onChange={(e) => setForm((f) => ({ ...f, content: e.target.value }))}
-                placeholder="Write the article. Line breaks are preserved."
+                onChange={(html) => setForm((f) => ({ ...f, content: html }))}
+                placeholder="Write the article with headings, bold, lists, and links…"
               />
             </div>
 

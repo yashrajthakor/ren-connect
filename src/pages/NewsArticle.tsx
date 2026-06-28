@@ -10,6 +10,7 @@ import {
   Check,
 } from "lucide-react";
 import PublicLayout from "@/components/public/PublicLayout";
+import { NewsletterContent } from "@/components/public/NewsletterContent";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -158,11 +159,7 @@ const NewsArticle = () => {
           />
         )}
 
-        <div
-          className="prose prose-slate max-w-none prose-headings:font-display prose-headings:text-secondary prose-a:text-primary whitespace-pre-wrap"
-        >
-          {post.content}
-        </div>
+        <NewsletterContent content={post.content} />
 
         <div className="mt-10 pt-6 border-t border-border flex flex-wrap items-center gap-3">
           <span className="text-sm font-semibold text-secondary inline-flex items-center gap-1">
