@@ -1,5 +1,5 @@
 import { NavLink, Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, FileText, Users, ShieldCheck, Handshake, Megaphone, MessageCircleQuestion, Newspaper, Tags, Pin } from "lucide-react";
+import { LayoutDashboard, FileText, Users, ShieldCheck, Handshake, Megaphone, MessageCircleQuestion, Newspaper, Tags, Pin, Award } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -24,6 +24,7 @@ const baseItems: Item[] = [
   { title: "Asks", url: "/admin/asks", icon: MessageCircleQuestion },
   { title: "Announcements", url: "/admin/announcements", icon: Megaphone },
   { title: "Notice Board", url: "/admin/notice-board", icon: Pin },
+  { title: "Sponsors", url: "/admin/sponsors", icon: Award },
   { title: "News & Stories", url: "/admin/newsletter", icon: Newspaper },
 ];
 

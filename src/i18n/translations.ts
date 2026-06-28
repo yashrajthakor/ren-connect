@@ -58,6 +58,11 @@ export const translations = {
     "hero.cta.join": "Join RBN",
     "hero.cta.explore": "Explore Directory",
 
+    // Sponsorship
+    "sponsor.badge": "Proud Sponsor",
+    "sponsor.sectionLabel": "Featured sponsor",
+    "sponsor.viewSponsor": "View sponsor",
+
     // Stats
     "stats.members": "Members",
     "stats.businesses": "Businesses",
@@ -109,6 +114,10 @@ export const translations = {
     "dir.desc": "Search across industries, cities and services. Connect directly with verified Rajput business owners.",
     "dir.searchPlaceholder": "Search by name, business, service or city...",
     "dir.empty": "No members match your search.",
+    "dir.showMore": "Show more categories",
+    "dir.showLess": "Show less",
+    "dir.filteringBy": "Filtering by:",
+    "dir.clearAll": "Clear all",
     "dir.cat.All": "All",
     "dir.cat.Manufacturing": "Manufacturing",
     "dir.cat.RealEstate": "Real Estate",
@@ -255,6 +264,11 @@ export const translations = {
     "hero.cta.join": "RBN માં જોડાઓ",
     "hero.cta.explore": "ડિરેક્ટરી જુઓ",
 
+    // Sponsorship
+    "sponsor.badge": "ગૌરવપૂર્ણ પ્રાયોજક",
+    "sponsor.sectionLabel": "વિશેષ પ્રાયોજક",
+    "sponsor.viewSponsor": "પ્રાયોજક જુઓ",
+
     // Stats
     "stats.members": "સભ્યો",
     "stats.businesses": "વ્યવસાયો",
@@ -306,6 +320,10 @@ export const translations = {
     "dir.desc": "ઉદ્યોગો, શહેરો અને સેવાઓમાં શોધો. ચકાસાયેલ રાજપૂત વ્યવસાય માલિકો સાથે સીધો સંપર્ક કરો.",
     "dir.searchPlaceholder": "નામ, વ્યવસાય, સેવા અથવા શહેર દ્વારા શોધો...",
     "dir.empty": "તમારી શોધ સાથે કોઈ સભ્ય મેળ ખાતો નથી.",
+    "dir.showMore": "વધુ કેટેગરીઓ બતાવો",
+    "dir.showLess": "ઓછું બતાવો",
+    "dir.filteringBy": "ફિલ્ટર:",
+    "dir.clearAll": "બધું સાફ કરો",
     "dir.cat.All": "બધા",
     "dir.cat.Manufacturing": "ઉત્પાદન",
     "dir.cat.RealEstate": "રિયલ એસ્ટેટ",

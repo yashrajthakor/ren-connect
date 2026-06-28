@@ -27,6 +27,7 @@ import LeadershipMemberCard from "@/components/public/LeadershipMemberCard";
 import LatestStoriesSection from "@/components/public/LatestStoriesSection";
 import NoticeTicker from "@/components/notices/NoticeTicker";
 import NoticeBoardSection from "@/components/notices/NoticeBoardSection";
+import SponsorshipShowcase from "@/components/public/SponsorshipShowcase";
 import heroHeritage from "@/assets/hero-heritage.jpg";
 import heroBusiness from "@/assets/hero-business.jpg";
 import heroHandshake from "@/assets/hero-handshake.jpg";
@@ -138,29 +139,6 @@ const industries = [
   "Agriculture",
 ];
 
-
-const sponsors: { category: string; name: string; logo: string }[] = [
-  {
-    category: "",
-    name: "global compunet, Chalthan",
-    logo: "https://fplogoimages.withfloats.com/actual/69c8cbb00a0740db5e86f3b3.jpeg",
-  },
-  {
-    category: "",
-    name: "Thinknlink AI Solution, Surat",
-    logo: "https://www.thinknlink.in/lovable-uploads/ThinkNLink%20logo%20White.png",
-  },
-  {
-    category: "",
-    name: "Homeify Decor&Furnishing",
-    logo: "https://scontent.famd21-1.fna.fbcdn.net/v/t39.30808-6/393154366_122095830638143504_3446062251949276181_n.jpg?_nc_cat=100&ccb=1-7&_nc_sid=1d70fc&_nc_ohc=K6X2S_ZxdW4Q7kNvwFx7fOA&_nc_oc=Adqq-wtUOyhNXKrMmYi_7uokVawLrC5HwYPJ92w8NT8021-6uoqNGc78vQxEzO6q9GENJUIdpEb0VeA3sn6goviL&_nc_zt=23&_nc_ht=scontent.famd21-1.fna&_nc_gid=FlYllgMglSbp3y0r6mXaBQ&_nc_ss=7b289&oh=00_Af4Ms2zLEqd4JFYI5CzO9DabxNxBZjl-ct4p-SPmZutSDQ&oe=69FA0D8F",
-  },
-  {
-    category: "",
-    name: "Get set fly",
-    logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQurHrPdL-zEBwcXzkqW-v74ILR9iFDisVbIw&s",
-  },
-];
 
 const Index = () => {
   const t = useT();
@@ -350,7 +328,8 @@ const Index = () => {
 
         {/* Content */}
         <div className="relative z-20 h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center">
-          <div className="max-w-3xl" key={slide}>
+          <div className="grid w-full grid-cols-1 lg:grid-cols-[1fr_auto] gap-10 lg:gap-12 items-center">
+            <div className="max-w-3xl" key={slide}>
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 text-primary text-xs font-bold uppercase tracking-[0.2em] mb-6 animate-fade-down border border-primary/30 backdrop-blur-sm">
               <Sparkles className="h-3.5 w-3.5" />
               {t(heroSlides[slide].eyebrowKey)}
@@ -385,6 +364,8 @@ const Index = () => {
                 <Link to="/directory">{t("hero.cta.explore")}</Link>
               </Button>
             </div>
+            </div>
+            <SponsorshipShowcase />
           </div>
         </div>
 

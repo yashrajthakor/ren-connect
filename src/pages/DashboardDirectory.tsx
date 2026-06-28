@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { Search, X } from "lucide-react";
+import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import MemberCard from "@/components/public/MemberCard";
+import { CategoryFilterBar } from "@/components/public/CategoryFilterBar";
 import { Member } from "@/data/members";
 import { supabase } from "@/integrations/supabase/client";
-import { cn } from "@/lib/utils";
 import { useT } from "@/i18n/LanguageProvider";
 
 const DashboardDirectory = () => {
@@ -127,53 +127,13 @@ const DashboardDirectory = () => {
           />
         </div>
       </div>
-      <div className="mb-8 space-y-3">
-        <div className="flex flex-wrap gap-2">
-          <button
-            onClick={() => setActiveCats([])}
-            className={cn(
-              "px-4 py-2 rounded-full text-sm font-medium border transition-all",
-              activeCats.length === 0
-                ? "bg-primary text-primary-foreground border-primary shadow"
-                : "bg-card text-secondary border-border hover:border-primary/50",
-            )}
-          >
-            All
-          </button>
-          {categories.map((c) => {
-            const on = activeCats.includes(c);
-            return (
-              <button
-                key={c}
-                onClick={() => toggleCat(c)}
-                className={cn(
-                  "px-4 py-2 rounded-full text-sm font-medium border transition-all",
-                  on
-                    ? "bg-primary text-primary-foreground border-primary shadow"
-                    : "bg-card text-secondary border-border hover:border-primary/50",
-                )}
-              >
-                {c}
-              </button>
-            );
-          })}
-        </div>
-        {activeCats.length > 0 && (
-          <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
-            <span>Filtering by:</span>
-            {activeCats.map((c) => (
-              <span key={c} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
-                {c}
-                <button onClick={() => toggleCat(c)} aria-label={`Remove ${c}`} className="hover:text-primary/70">
-                  <X className="h-3 w-3" />
-                </button>
-              </span>
-            ))}
-            <button onClick={() => setActiveCats([])} className="underline hover:text-primary ml-1">
-              Clear all
-            </button>
-          </div>
-        )}
+      <div className="mb-8">
+        <CategoryFilterBar
+          categories={categories.filter((c) => c !== "All")}
+          activeCats={activeCats}
+          onToggleCat={toggleCat}
+          onClearAll={() => setActiveCats([])}
+        />
       </div>
 
       {loading ? (
