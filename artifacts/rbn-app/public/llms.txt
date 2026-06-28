@@ -1,0 +1,17 @@
+# RBN | Rajput Business Network
+
+> An exclusive community for Rajput business professionals and entrepreneurs across India.
+
+## Pages
+
+- [Home](/): RBN homepage with member directory preview, upcoming events, and membership benefits.
+- [About](/about): Mission, vision, values, and benefits of the Rajput Business Network.
+- [Directory](/directory): Searchable member directory of verified Rajput business professionals.
+- [Key Moments](/key-moments): Timeline of milestones, chapter launches, and major events.
+- [Voice of RBN](/voice): Member success stories, testimonials, and business outcomes.
+- [Join RBN](/signup): Membership application form for new entrepreneurs.
+- [Login](/login): Member and admin login portal.
+
+## Optional
+
+- [Dashboard](/dashboard): Members-only dashboard for leads, asks, and networking tools.
