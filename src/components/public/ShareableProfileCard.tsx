@@ -1,117 +1,138 @@
 import { forwardRef } from "react";
 import renLogo from "@/assets/ren-logo.png";
 import { Member } from "@/data/members";
-import { Mail, Phone, MapPin, Globe, Award } from "lucide-react";
+import { Phone, MapPin, Globe, Award } from "lucide-react";
 
 const ShareableProfileCard = forwardRef<HTMLDivElement, { member: Member }>(({ member }, ref) => {
+  const categories = member.categories && member.categories.length > 0 ? member.categories : [member.category];
+  const services = member.services;
+
   return (
     <div
       ref={ref}
-      style={{ width: 800, fontFamily: "Inter, sans-serif" }}
-      className="bg-white text-secondary overflow-hidden"
+      style={{ width: 1920, minHeight: 1080, fontFamily: "Inter, sans-serif" }}
+      className="relative bg-white text-secondary flex flex-col"
     >
       {/* Header */}
-      <div className="relative bg-gradient-to-br from-secondary via-[hsl(213,25%,22%)] to-secondary px-10 pt-8 pb-12">
+      <div className="relative shrink-0" style={{ height: 108 }}>
+        <div className="absolute inset-0 bg-gradient-to-br from-secondary via-[hsl(213,25%,22%)] to-secondary" />
         <div
           className="absolute inset-0 bg-primary"
-          style={{ clipPath: "polygon(0 0, 65% 0, 30% 100%, 0 100%)" }}
+          style={{ clipPath: "polygon(0 0, 38% 0, 24% 100%, 0 100%)" }}
         />
-        <div className="relative flex items-center justify-between">
-          <img src={renLogo} alt="RBN" style={{ height: 56 }} className="w-auto" crossOrigin="anonymous" />
-          <span className="text-white/90 text-sm font-bold uppercase tracking-[0.2em]">
+        <div className="relative h-full flex items-center justify-end px-16">
+          <span className="text-white/90 text-lg font-bold uppercase tracking-[0.3em]">
             Member of RBN
           </span>
         </div>
       </div>
 
-      {/* Avatar + name block */}
-      <div className="relative px-10 -mt-10">
-        <div className="flex items-center gap-6">
-          <div
-            className="bg-white border-4 border-white shadow-xl overflow-hidden flex items-center justify-center shrink-0"
-            style={{ height: 130, width: 130, borderRadius: 22 }}
-          >
-            {member.avatarUrl ? (
-              <img src={member.avatarUrl} alt={member.name} className="h-full w-full object-cover" crossOrigin="anonymous" />
-            ) : (
-              <span className="font-bold text-5xl text-primary">{member.initials}</span>
-            )}
-          </div>
-          {member.logoUrl && (
-            <div
-              className="ml-auto bg-white border border-slate-200 rounded-xl shadow-sm flex items-center justify-center overflow-hidden shrink-0"
-              style={{ height: 80, width: 80 }}
-            >
-              <img src={member.logoUrl} alt="logo" className="h-full w-full object-contain p-2" crossOrigin="anonymous" />
-            </div>
-          )}
-        </div>
-
-        {/* Name + business — own row, full width, no clipping */}
-        <div className="mt-5">
-          <h2
-            className="font-bold text-secondary"
-            style={{ fontSize: 36, lineHeight: 1.15, letterSpacing: "-0.01em", paddingTop: 4, paddingBottom: 2 }}
-          >
-            {member.name}
-          </h2>
-          <p className="text-primary font-semibold" style={{ fontSize: 20, marginTop: 4 }}>
-            {member.business}
-          </p>
-          {member.committeeBadge && (
-            <div className="mt-3">
-              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-50 text-primary text-xs font-bold uppercase tracking-wider border border-primary/30">
-                <Award style={{ height: 12, width: 12 }} />
-                {member.committeeBadge}
-              </span>
-            </div>
-          )}
-        </div>
+      {/* RBN logo, top-right just below the header strip */}
+      <div
+        className="absolute bg-white rounded-2xl shadow-lg flex items-center justify-center px-3"
+        style={{ top: 124, right: 64, height: 100 }}
+      >
+        <img src={renLogo} alt="RBN" style={{ height: 76 }} className="w-auto" crossOrigin="anonymous" />
       </div>
 
-      {/* Body */}
-      <div className="px-10 pt-6 pb-8">
-        <div className="flex flex-wrap gap-2 mb-5">
-          {((member.categories && member.categories.length > 0) ? member.categories : [member.category]).map((c) => (
-            <span key={c} className="px-3 py-1 rounded-full bg-orange-50 text-primary text-xs font-bold uppercase tracking-wider border border-primary/20">
-              {c}
-            </span>
-          ))}
-          <span className="px-3 py-1 rounded-full bg-slate-100 text-secondary text-xs font-semibold inline-flex items-center gap-1">
-            <MapPin style={{ height: 12, width: 12 }} /> {member.city}
-          </span>
-          {member.chapter && (
-            <span className="px-3 py-1 rounded-full bg-slate-100 text-secondary text-xs font-semibold">
-              {member.chapter}
-            </span>
-          )}
+      {/* Body: two columns, vertically centered so short content doesn't leave a dead gap at the bottom */}
+      <div className="flex-1 flex items-center px-16 gap-20" style={{ paddingTop: 140, paddingBottom: 48 }}>
+        {/* Left column: photo with overlapping firm logo + contact details */}
+        <div className="flex flex-col items-center shrink-0" style={{ width: 380 }}>
+          <div className="relative" style={{ width: 280 }}>
+            <div
+              className="bg-white border-[6px] border-white shadow-2xl overflow-hidden flex items-center justify-center ring-1 ring-slate-200"
+              style={{ height: 380, width: 280, borderRadius: 28 }}
+            >
+              {member.avatarUrl ? (
+                <img src={member.avatarUrl} alt={member.name} className="h-full w-full object-cover" crossOrigin="anonymous" />
+              ) : (
+                <span className="font-bold text-secondary" style={{ fontSize: 88 }}>{member.initials}</span>
+              )}
+            </div>
+            {member.logoUrl && (
+              <div
+                className="absolute bg-white border border-slate-200 rounded-2xl shadow-lg flex items-center justify-center overflow-hidden"
+                style={{ height: 110, width: 200, bottom: -36, left: "50%", transform: "translateX(-50%)" }}
+              >
+                <img src={member.logoUrl} alt="logo" className="h-full w-full object-contain p-2" crossOrigin="anonymous" />
+              </div>
+            )}
+          </div>
+
+          <div className="flex flex-col items-start" style={{ width: 280, marginTop: 64, gap: 22 }}>
+            <div className="flex items-center gap-3 w-full">
+              <div className="flex items-center justify-center rounded-full bg-orange-50 shrink-0" style={{ height: 40, width: 40 }}>
+                <Phone style={{ height: 20, width: 20 }} className="text-primary" />
+              </div>
+              <span className="text-secondary font-medium break-words" style={{ fontSize: 23, lineHeight: 1.3 }}>{member.phone}</span>
+            </div>
+            {member.website && (
+              <div className="flex items-start gap-3 w-full">
+                <div className="flex items-center justify-center rounded-full bg-orange-50 shrink-0" style={{ height: 40, width: 40, marginTop: 1 }}>
+                  <Globe style={{ height: 20, width: 20 }} className="text-primary" />
+                </div>
+                <span className="text-secondary font-medium break-words" style={{ fontSize: 23, lineHeight: 1.3 }}>{member.website}</span>
+              </div>
+            )}
+          </div>
         </div>
 
-        {member.services.length > 0 && (
-          <div className="mb-5">
-            <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">Services</p>
-            <div className="flex flex-wrap gap-1.5">
-              {member.services.slice(0, 6).map((s) => (
-                <span key={s} className="text-xs px-2.5 py-1 rounded-md bg-slate-100 text-secondary">
-                  {s}
-                </span>
-              ))}
-            </div>
+        {/* Right column: name, business, badges, services */}
+        <div className="flex flex-col flex-1 min-w-0" style={{ gap: 24 }}>
+          <div>
+            <h2
+              className="font-bold text-secondary"
+              style={{ fontSize: 66, lineHeight: 1.1, letterSpacing: "-0.01em" }}
+            >
+              {member.name}
+            </h2>
+            <p className="text-primary font-semibold" style={{ fontSize: 38, marginTop: 10 }}>
+              {member.business}
+            </p>
           </div>
-        )}
 
-        <div className="grid grid-cols-1 gap-2 text-sm text-secondary border-t border-slate-200 pt-4">
-          <div className="flex items-center gap-2"><Phone style={{ height: 16, width: 16 }} className="text-primary" /><span>{member.phone}</span></div>
-          <div className="flex items-center gap-2"><Mail style={{ height: 16, width: 16 }} className="text-primary" /><span>{member.email}</span></div>
-          {member.website && (
-            <div className="flex items-center gap-2"><Globe style={{ height: 16, width: 16 }} className="text-primary" /><span className="truncate">{member.website}</span></div>
+          {member.committeeBadge && (
+            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-50 text-primary font-bold uppercase tracking-wider border border-primary/30 w-fit" style={{ fontSize: 20 }}>
+              <Award style={{ height: 18, width: 18 }} />
+              {member.committeeBadge}
+            </span>
+          )}
+
+          <div className="flex flex-wrap gap-3">
+            {categories.map((c) => (
+              <span key={c} className="px-4 py-2 rounded-full bg-orange-50 text-primary font-bold uppercase tracking-wider border border-primary/20" style={{ fontSize: 20 }}>
+                {c}
+              </span>
+            ))}
+            <span className="px-4 py-2 rounded-full bg-slate-100 text-secondary font-semibold inline-flex items-center gap-2" style={{ fontSize: 20 }}>
+              <MapPin style={{ height: 18, width: 18 }} /> {member.city}
+            </span>
+            {member.chapter && (
+              <span className="px-4 py-2 rounded-full bg-slate-100 text-secondary font-semibold" style={{ fontSize: 20 }}>
+                {member.chapter}
+              </span>
+            )}
+          </div>
+
+          {services.length > 0 && (
+            <div style={{ marginTop: 12 }}>
+              <p className="font-bold uppercase tracking-wider text-slate-500 mb-3" style={{ fontSize: 20 }}>Services</p>
+              <div className="flex flex-wrap gap-3">
+                {services.map((s) => (
+                  <span key={s} className="px-5 py-2.5 rounded-full bg-slate-100 text-secondary font-medium" style={{ fontSize: 22 }}>
+                    {s}
+                  </span>
+                ))}
+              </div>
+            </div>
           )}
         </div>
       </div>
 
       {/* Footer */}
-      <div className="bg-secondary text-white px-10 py-4 text-center">
-        <p className="text-sm font-bold tracking-[0.25em] uppercase">Connect • Collaborate • Grow</p>
+      <div className="bg-secondary text-white px-16 shrink-0 flex items-center justify-center" style={{ height: 90 }}>
+        <p className="font-bold tracking-[0.3em] uppercase" style={{ fontSize: 24 }}>Connect • Collaborate • Grow</p>
       </div>
     </div>
   );
