@@ -12,7 +12,7 @@ const Footer = () => {
           <div>
             <div className="flex items-center gap-3 mb-4">
               <div className="bg-card rounded-lg p-2">
-                <img src={renLogo} alt="REN" className="h-10 w-auto" />
+                <img src={renLogo} alt="RBN" className="h-10 w-auto" />
               </div>
               <div>
                 <div className="font-display font-bold text-xl">{t("common.brand")}</div>
@@ -43,7 +43,7 @@ const Footer = () => {
               <li><Link to="/signup" className="text-card/70 hover:text-primary transition-colors">{t("footer.joinRen")}</Link></li>
               <li><Link to="/login" className="text-card/70 hover:text-primary transition-colors">{t("nav.login")}</Link></li>
               <li><Link to="/directory" className="text-card/70 hover:text-primary transition-colors">{t("footer.findMembers")}</Link></li>
-              <li><Link to="/voice" className="text-card/70 hover:text-primary transition-colors">{t("footer.successStories")}</Link></li>
+              {/* <li><Link to="/voice" className="text-card/70 hover:text-primary transition-colors">{t("footer.successStories")}</Link></li> */}
             </ul>
           </div>
 
@@ -66,15 +66,15 @@ const Footer = () => {
               </li>
             </ul>
             <div className="flex items-center gap-3 mt-4">
-              <a href="#" aria-label="LinkedIn" className="p-2 rounded-md bg-card/10 hover:bg-primary hover:text-primary-foreground transition-colors">
+              {/* <a href="#" aria-label="LinkedIn" className="p-2 rounded-md bg-card/10 hover:bg-primary hover:text-primary-foreground transition-colors">
                 <Linkedin className="h-4 w-4" />
-              </a>
-              <a href="#" aria-label="Instagram" className="p-2 rounded-md bg-card/10 hover:bg-primary hover:text-primary-foreground transition-colors">
+              </a> */}
+              <a href="https://www.instagram.com/rbn.business.network/" aria-label="Instagram" className="p-2 rounded-md bg-card/10 hover:bg-primary hover:text-primary-foreground transition-colors">
                 <Instagram className="h-4 w-4" />
               </a>
-              <a href="#" aria-label="Facebook" className="p-2 rounded-md bg-card/10 hover:bg-primary hover:text-primary-foreground transition-colors">
+              {/* <a href="#" aria-label="Facebook" className="p-2 rounded-md bg-card/10 hover:bg-primary hover:text-primary-foreground transition-colors">
                 <Facebook className="h-4 w-4" />
-              </a>
+              </a> */}
             </div>
           </div>
         </div>

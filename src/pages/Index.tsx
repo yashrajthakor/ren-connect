@@ -28,6 +28,7 @@ import LatestStoriesSection from "@/components/public/LatestStoriesSection";
 import NoticeTicker from "@/components/notices/NoticeTicker";
 import NoticeBoardSection from "@/components/notices/NoticeBoardSection";
 import SponsorshipShowcase from "@/components/public/SponsorshipShowcase";
+import InstagramShowcase from "@/components/public/InstagramShowcase";
 import heroHeritage from "@/assets/hero-heritage.jpg";
 import heroBusiness from "@/assets/hero-business.jpg";
 import heroHandshake from "@/assets/hero-handshake.jpg";
@@ -524,6 +525,9 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      {/* INSTAGRAM SHOWCASE */}
+      <InstagramShowcase />
 
       {/* PILLARS */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
