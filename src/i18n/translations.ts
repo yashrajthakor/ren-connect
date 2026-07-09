@@ -31,6 +31,7 @@ export const translations = {
     "dashboard.profile": "My Profile",
     "dashboard.settings": "Settings",
     "dashboard.applications": "Review Applications",
+    "dashboard.more": "Profile & More",
 
     // Footer
     "footer.about": "Connecting Rajput entrepreneurs across industries — building legacy through trusted business networking and referrals.",
@@ -238,6 +239,7 @@ export const translations = {
     "dashboard.profile": "મારી પ્રોફાઇલ",
     "dashboard.settings": "સેટિંગ્સ",
     "dashboard.applications": "અરજીઓ સમીક્ષા કરો",
+    "dashboard.more": "પ્રોફાઇલ અને વધુ",
 
     // Footer
     "footer.about": "ઉદ્યોગો વચ્ચે રાજપૂત આંત્રપ્રિન્યોરોને જોડવું — વિશ્વસનીય બિઝનેસ નેટવર્કિંગ અને રેફરલ દ્વારા વારસો બનાવવો.",

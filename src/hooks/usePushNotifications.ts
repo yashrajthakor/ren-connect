@@ -205,9 +205,12 @@ export const usePushNotifications = () => {
       subscribeToPush();
     }
 
-    // Subscribe to new notifications in real-time
+    // Subscribe to new notifications in real-time.
+    // Unique topic per hook instance: reusing a topic (e.g. DashboardLayout +
+    // NotificationSettings both mounted) returns the already-subscribed channel,
+    // and adding postgres_changes callbacks to it throws.
     const channel = supabase
-      .channel(`notifications-push-${user.id}`)
+      .channel(`notifications-push-${user.id}-${Math.random().toString(36).slice(2)}`)
       .on(
         'postgres_changes',
         {

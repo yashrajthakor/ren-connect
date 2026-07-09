@@ -30,8 +30,11 @@ export function useNotifications(userId: string | null | undefined) {
 
   useEffect(() => {
     if (!userId) return;
+    // Unique topic per hook instance: reusing a topic (e.g. NotificationBell +
+    // NotificationsPage both mounted) returns the already-subscribed channel,
+    // and adding postgres_changes callbacks to it throws.
     const channel = supabase
-      .channel(`notifications-${userId}`)
+      .channel(`notifications-${userId}-${Math.random().toString(36).slice(2)}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` },

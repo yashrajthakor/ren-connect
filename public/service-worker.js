@@ -1,4 +1,4 @@
-const CACHE_NAME = "ren-connect-cache-v1";
+const CACHE_NAME = "ren-connect-cache-v2";
 const ASSETS_TO_CACHE = [
   "/",
   "/index.html",
@@ -28,25 +28,25 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
+// Network-first: always serve fresh code when online, fall back to cache offline.
+// (Cache-first here served stale JS modules indefinitely, so bug fixes and new
+// deploys never reached the browser.)
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
 
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-      return fetch(event.request)
-        .then((networkResponse) => {
-          if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== "basic") {
-            return networkResponse;
-          }
-          const responseClone = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
+    fetch(event.request)
+      .then((networkResponse) => {
+        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== "basic") {
           return networkResponse;
-        })
-        .catch(() => caches.match("/index.html"));
-    }),
+        }
+        const responseClone = networkResponse.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
+        return networkResponse;
+      })
+      .catch(() =>
+        caches.match(event.request).then((cachedResponse) => cachedResponse || caches.match("/index.html")),
+      ),
   );
 });
 

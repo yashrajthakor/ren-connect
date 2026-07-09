@@ -48,16 +48,32 @@ const DashboardLayout = () => {
   const location = useLocation();
   const isMobile = useIsMobile();
 
-  const mobileTabs = [
+  const mobileTabs: { label: string; url: string; icon: JSX.Element; matchUrls?: string[] }[] = [
     { label: t("dashboard.meetings"), url: "/dashboard/meetings", icon: <Rss className="h-5 w-5" /> },
     { label: t("dashboard.leads"), url: "/dashboard/leads", icon: <Handshake className="h-5 w-5" /> },
     { label: t("dashboard.directory"), url: "/dashboard/directory", icon: <Briefcase className="h-5 w-5" /> },
     { label: t("dashboard.news"), url: "/dashboard/news", icon: <Newspaper className="h-5 w-5" /> },
-    { label: t("dashboard.profile"), url: "/dashboard/profile", icon: <UserCog className="h-5 w-5" /> },
+    {
+      label: t("dashboard.more"),
+      url: "/dashboard/more",
+      icon: <UserCog className="h-5 w-5" />,
+      // Secondary routes reachable from the Profile & More screen
+      matchUrls: [
+        "/dashboard/profile",
+        "/dashboard/settings",
+        "/dashboard/notifications",
+        "/dashboard/asks",
+        "/dashboard/applications",
+      ],
+    },
   ];
 
   const isActive = (url: string, end?: boolean) =>
     end ? location.pathname === url : location.pathname === url || location.pathname.startsWith(url + "/");
+
+  const isTabActive = (tab: (typeof mobileTabs)[number]) =>
+    isActive(tab.url, tab.url === "/dashboard") ||
+    (tab.matchUrls?.some((url) => isActive(url)) ?? false);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -115,7 +131,7 @@ const DashboardLayout = () => {
                     key={item.url}
                     to={item.url}
                     className={`flex flex-1 flex-col items-center justify-center rounded-2xl px-2 py-2 text-xs font-semibold transition-all ${
-                      isActive(item.url, item.url === "/dashboard")
+                      isTabActive(item)
                         ? "bg-primary text-primary-foreground"
                         : "text-muted-foreground hover:text-foreground hover:bg-muted"
                     }`}

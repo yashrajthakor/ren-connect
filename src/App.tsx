@@ -31,6 +31,7 @@ import MeetingsPage from "./pages/dashboard/Meetings";
 import AdminAsks from "./pages/admin/Asks";
 import AdminMeetings from "./pages/admin/Meetings";
 import NotificationsPage from "./pages/dashboard/Notifications";
+import MorePage from "./pages/dashboard/More";
 import AdminAnnouncements from "./pages/admin/Announcements";
 import AdminNoticeBoard from "./pages/admin/NoticeBoard";
 import AdminSponsors from "./pages/admin/Sponsors";
@@ -140,6 +141,7 @@ const App = () => {
                 <Route path="asks" element={<AsksPage />} />
                 <Route path="meetings" element={<MeetingsPage />} />
                 <Route path="notifications" element={<NotificationsPage />} />
+                <Route path="more" element={<MorePage />} />
               </Route>
               {/* Legacy redirect */}
               <Route path="/member" element={<Navigate to="/dashboard" replace />} />
