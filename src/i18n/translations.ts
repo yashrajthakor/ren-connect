@@ -231,6 +231,7 @@ export const translations = {
     "dashboard.title": "ડેશબોર્ડ",
     "dashboard.leads": "મારા લીડ્સ",
     "dashboard.asks": "નેટવર્ક પૂછો",
+    "dashboard.meetings": "1-to-1 મીટિંગ્સ",
     "dashboard.news": "સમાચાર અને વાર્તાઓ",
     "dashboard.directory": "બિઝનેસ ડિરેક્ટરી",
     "dashboard.notifications": "સૂચનાઓ",
