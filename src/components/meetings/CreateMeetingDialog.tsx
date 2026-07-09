@@ -81,8 +81,9 @@ export default function CreateMeetingDialog({ open, onOpenChange, currentUserId,
         photoUrl = await uploadMeetingPhoto(currentUserId, photoFile);
       }
 
-      const withMember = members.find((m) => m.user_id === receiverId);
-      const withCats = withMember?.categories ?? (withMember?.category ? [withMember.category] : []);
+      const withMember = members.find((m) => m.user_id === receiverId) as any;
+      const withCats: string[] =
+        withMember?.categories ?? (withMember?.category ? [withMember.category] : []);
 
       if (existing) {
         await updateMut.mutateAsync({
