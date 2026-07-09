@@ -24,6 +24,7 @@ export const translations = {
     "dashboard.title": "Dashboard",
     "dashboard.leads": "My Leads",
     "dashboard.asks": "Ask Network",
+    "dashboard.meetings": "1-to-1 Meetings",
     "dashboard.news": "News & Stories",
     "dashboard.directory": "Business Directory",
     "dashboard.notifications": "Notifications",
