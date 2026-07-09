@@ -1,4 +1,4 @@
-import { Calendar, Share2, Pencil, Trash2, Eye } from "lucide-react";
+import { Calendar, Share2, Pencil, Trash2, Eye, Globe, Lock } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -6,64 +6,98 @@ import { Card } from "@/components/ui/card";
 import type { MemberLite } from "@/hooks/useLeads";
 import type { Meeting } from "@/hooks/useMeetings";
 
+export type FeedCardVariant = "feed" | "mine" | "admin";
+
 interface Props {
   meeting: Meeting;
-  otherMember?: MemberLite;
-  isOwner: boolean;
+  byMember?: MemberLite;
+  withMember?: MemberLite;
+  variant: FeedCardVariant;
   onView: () => void;
   onEdit?: () => void;
   onDelete?: () => void;
   onShare: () => void;
+  onTogglePublish?: () => void;
+  togglingPublish?: boolean;
 }
 
 function initials(name: string) {
   return (name || "?").split(" ").map((p) => p[0]).filter(Boolean).slice(0, 2).join("").toUpperCase();
 }
 
-export default function MeetingCard({ meeting, otherMember, isOwner, onView, onEdit, onDelete, onShare }: Props) {
+function MiniMember({ label, member }: { label: string; member?: MemberLite }) {
+  return (
+    <div className="flex items-center gap-2 min-w-0 flex-1">
+      <Avatar className="h-8 w-8 shrink-0">
+        <AvatarImage src={member?.avatar_url ?? undefined} />
+        <AvatarFallback className="text-xs">{initials(member?.name ?? "?")}</AvatarFallback>
+      </Avatar>
+      <div className="min-w-0">
+        <p className="text-[10px] uppercase tracking-wide text-muted-foreground leading-none mb-0.5">{label}</p>
+        <p className="text-sm font-medium text-foreground truncate leading-tight">{member?.name ?? "Member"}</p>
+      </div>
+    </div>
+  );
+}
+
+export default function FeedCard({
+  meeting, byMember, withMember, variant, onView, onEdit, onDelete, onShare, onTogglePublish, togglingPublish,
+}: Props) {
   const date = new Date(meeting.created_at).toLocaleDateString("en-IN", {
     day: "numeric", month: "short", year: "numeric",
   });
-  const cats = meeting.meeting_with_categories?.length
-    ? meeting.meeting_with_categories
-    : otherMember?.categories ?? [];
+
+  const categories = Array.from(
+    new Set([...(meeting.meeting_by_categories || []), ...(meeting.meeting_with_categories || [])])
+  );
+
+  const showStatusBadge = variant === "mine" || variant === "admin";
+  const publishLabel = variant === "admin"
+    ? (meeting.is_published ? "Hide" : "Unhide")
+    : (meeting.is_published ? "Unpublish" : "Publish");
+  const PublishIcon = meeting.is_published ? Lock : Globe;
 
   return (
     <Card className="overflow-hidden flex flex-col">
-      {meeting.meeting_photo_url ? (
-        <button onClick={onView} className="block w-full">
-          <img
-            src={meeting.meeting_photo_url}
-            alt="Meeting"
-            className="w-full h-44 sm:h-52 object-cover"
-            loading="lazy"
-          />
-        </button>
-      ) : (
-        <div className="w-full h-44 sm:h-52 bg-muted grid place-items-center text-muted-foreground text-sm">
-          No photo
-        </div>
-      )}
+      <div className="relative">
+        {meeting.meeting_photo_url ? (
+          <button onClick={onView} className="block w-full">
+            <img
+              src={meeting.meeting_photo_url}
+              alt="Networking meeting"
+              className="w-full h-44 sm:h-52 object-cover"
+              loading="lazy"
+            />
+          </button>
+        ) : (
+          <div className="w-full h-44 sm:h-52 bg-muted grid place-items-center text-muted-foreground text-sm">
+            No photo
+          </div>
+        )}
+        {showStatusBadge && (
+          <Badge
+            variant={meeting.is_published ? "default" : "secondary"}
+            className="absolute top-2 right-2 text-[10px] shadow"
+          >
+            {meeting.is_published ? "Published" : "Private"}
+          </Badge>
+        )}
+      </div>
 
       <div className="p-4 flex flex-col gap-3 flex-1">
-        <div className="flex items-center gap-3 min-w-0">
-          <Avatar className="h-10 w-10">
-            <AvatarImage src={otherMember?.avatar_url ?? undefined} />
-            <AvatarFallback>{initials(otherMember?.name ?? "?")}</AvatarFallback>
-          </Avatar>
-          <div className="min-w-0 flex-1">
-            <p className="font-semibold text-foreground truncate">{otherMember?.name ?? "Member"}</p>
-            <p className="text-xs text-muted-foreground truncate">{otherMember?.business ?? ""}</p>
-          </div>
+        <div className="flex items-center gap-2 min-w-0">
+          <MiniMember label="Meeting By" member={byMember} />
+          <span className="text-muted-foreground text-sm shrink-0">🤝</span>
+          <MiniMember label="Meeting With" member={withMember} />
         </div>
 
-        {cats.length > 0 && (
+        {categories.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
-            {cats.slice(0, 3).map((c) => (
+            {categories.slice(0, 4).map((c) => (
               <Badge key={c} variant="secondary" className="text-[10px]">{c}</Badge>
             ))}
-            {cats.length > 3 && (
-              <Badge variant="outline" className="text-[10px]">+{cats.length - 3}</Badge>
+            {categories.length > 4 && (
+              <Badge variant="outline" className="text-[10px]">+{categories.length - 4}</Badge>
             )}
           </div>
         )}
@@ -84,12 +118,17 @@ export default function MeetingCard({ meeting, otherMember, isOwner, onView, onE
           <Button size="sm" variant="outline" onClick={onShare} className="flex-1 min-w-0">
             <Share2 className="h-3.5 w-3.5" /> Share
           </Button>
-          {isOwner && onEdit && (
+          {variant === "mine" && onEdit && (
             <Button size="sm" variant="outline" onClick={onEdit}>
               <Pencil className="h-3.5 w-3.5" />
             </Button>
           )}
-          {isOwner && onDelete && (
+          {onTogglePublish && (
+            <Button size="sm" variant="outline" onClick={onTogglePublish} disabled={togglingPublish}>
+              <PublishIcon className="h-3.5 w-3.5" /> {publishLabel}
+            </Button>
+          )}
+          {onDelete && (
             <Button size="sm" variant="outline" onClick={onDelete} className="text-destructive hover:text-destructive">
               <Trash2 className="h-3.5 w-3.5" />
             </Button>

@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { useActiveMembers } from "@/hooks/useLeads";
@@ -26,7 +27,7 @@ function initials(name: string) {
   return (name || "?").split(" ").map((p) => p[0]).filter(Boolean).slice(0, 2).join("").toUpperCase();
 }
 
-export default function CreateMeetingDialog({ open, onOpenChange, currentUserId, existing }: Props) {
+export default function AddNetworkingLogDialog({ open, onOpenChange, currentUserId, existing }: Props) {
   const { data: members = [], isLoading: membersLoading } = useActiveMembers();
   const createMut = useCreateMeeting();
   const updateMut = useUpdateMeeting();
@@ -37,6 +38,7 @@ export default function CreateMeetingDialog({ open, onOpenChange, currentUserId,
   const [summary, setSummary] = useState("");
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [publish, setPublish] = useState(true);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -46,6 +48,7 @@ export default function CreateMeetingDialog({ open, onOpenChange, currentUserId,
       setSummary(existing?.discussion_summary ?? "");
       setPhotoPreview(existing?.meeting_photo_url ?? null);
       setPhotoFile(null);
+      setPublish(existing ? existing.is_published : true);
       setSearch("");
     }
   }, [open, existing]);
@@ -81,9 +84,8 @@ export default function CreateMeetingDialog({ open, onOpenChange, currentUserId,
         photoUrl = await uploadMeetingPhoto(currentUserId, photoFile);
       }
 
-      const withMember = members.find((m) => m.user_id === receiverId) as any;
-      const withCats: string[] =
-        withMember?.categories ?? (withMember?.category ? [withMember.category] : []);
+      const withMember = members.find((m) => m.user_id === receiverId);
+      const withCats: string[] = withMember?.categories ?? (withMember?.category ? [withMember.category] : []);
 
       if (existing) {
         await updateMut.mutateAsync({
@@ -93,11 +95,12 @@ export default function CreateMeetingDialog({ open, onOpenChange, currentUserId,
             meeting_with_categories: withCats,
             discussion_summary: summary.trim(),
             meeting_photo_url: photoUrl,
+            is_published: publish,
           },
         });
-        toast({ title: "Meeting updated" });
+        toast({ title: "Networking log updated" });
       } else {
-        // Snapshot my own categories
+        // Snapshot my own categories at the time of logging.
         const { data: mine } = await (supabase as any).rpc("get_members_by_user_ids", {
           _user_ids: [currentUserId],
         });
@@ -111,12 +114,13 @@ export default function CreateMeetingDialog({ open, onOpenChange, currentUserId,
           meeting_with_categories: withCats,
           meeting_photo_url: photoUrl,
           discussion_summary: summary.trim(),
+          is_published: publish,
         });
-        toast({ title: "Meeting saved" });
+        toast({ title: "Networking log saved" });
       }
       onOpenChange(false);
     } catch (e: any) {
-      toast({ title: "Could not save meeting", description: e.message, variant: "destructive" });
+      toast({ title: "Could not save networking log", description: e.message, variant: "destructive" });
     } finally {
       setUploading(false);
     }
@@ -128,15 +132,15 @@ export default function CreateMeetingDialog({ open, onOpenChange, currentUserId,
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg max-h-[92vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{existing ? "Edit meeting" : "Log a 1-to-1 meeting"}</DialogTitle>
+          <DialogTitle>{existing ? "Edit networking log" : "Log a networking meeting"}</DialogTitle>
           <DialogDescription>
-            Record your networking meeting with a fellow RBN member.
+            Record your networking meeting with a fellow RBN member, and optionally share it to the community feed.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label>Meeting with</Label>
+            <Label>Select RBN Member</Label>
             {selected ? (
               <div className="flex items-center justify-between border rounded-lg p-3 bg-muted/30">
                 <div className="flex items-center gap-3 min-w-0">
@@ -198,7 +202,7 @@ export default function CreateMeetingDialog({ open, onOpenChange, currentUserId,
           </div>
 
           <div className="space-y-2">
-            <Label>Meeting photo</Label>
+            <Label>Upload Meeting Photo</Label>
             {photoPreview ? (
               <div className="relative rounded-lg overflow-hidden border">
                 <img src={photoPreview} alt="Meeting" className="w-full max-h-64 object-cover" />
@@ -231,7 +235,7 @@ export default function CreateMeetingDialog({ open, onOpenChange, currentUserId,
           </div>
 
           <div className="space-y-2">
-            <Label>Discussion summary</Label>
+            <Label>Discussion Summary</Label>
             <Textarea
               placeholder="Discussed referral opportunities, business collaboration, and future networking plans."
               rows={5}
@@ -242,13 +246,23 @@ export default function CreateMeetingDialog({ open, onOpenChange, currentUserId,
             <p className="text-xs text-muted-foreground text-right">{summary.length}/1000</p>
           </div>
 
+          <div className="flex items-center justify-between border rounded-lg p-3">
+            <div className="space-y-0.5 pr-4">
+              <Label htmlFor="publish-toggle" className="cursor-pointer">Publish to Networking Feed</Label>
+              <p className="text-xs text-muted-foreground">
+                Visible to all RBN members. Turn off to keep this a private log.
+              </p>
+            </div>
+            <Switch id="publish-toggle" checked={publish} onCheckedChange={setPublish} />
+          </div>
+
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>
               Cancel
             </Button>
             <Button onClick={handleSubmit} disabled={submitting}>
               {submitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              {existing ? "Update meeting" : "Save meeting"}
+              {existing ? "Update log" : "Save log"}
             </Button>
           </div>
         </div>

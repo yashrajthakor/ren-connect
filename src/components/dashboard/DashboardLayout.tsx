@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { LogOut, Shield, Handshake, Briefcase, UserCog, Newspaper, LayoutDashboard } from "lucide-react";
+import { LogOut, Shield, Handshake, Briefcase, UserCog, Newspaper, Rss } from "lucide-react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { DashboardSidebar } from "./DashboardSidebar";
@@ -49,7 +49,7 @@ const DashboardLayout = () => {
   const isMobile = useIsMobile();
 
   const mobileTabs = [
-    { label: t("dashboard.title"), url: "/dashboard", icon: <LayoutDashboard className="h-5 w-5" /> },
+    { label: t("dashboard.meetings"), url: "/dashboard/meetings", icon: <Rss className="h-5 w-5" /> },
     { label: t("dashboard.leads"), url: "/dashboard/leads", icon: <Handshake className="h-5 w-5" /> },
     { label: t("dashboard.directory"), url: "/dashboard/directory", icon: <Briefcase className="h-5 w-5" /> },
     { label: t("dashboard.news"), url: "/dashboard/news", icon: <Newspaper className="h-5 w-5" /> },

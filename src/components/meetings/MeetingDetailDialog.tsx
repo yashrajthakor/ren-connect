@@ -1,4 +1,4 @@
-import { Calendar, Share2 } from "lucide-react";
+import { Calendar, Share2, Globe, Lock } from "lucide-react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
@@ -18,9 +18,10 @@ interface Props {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   onShare: (m: Meeting) => void;
+  showStatus?: boolean;
 }
 
-export default function MeetingDetailDialog({ meeting, participants, open, onOpenChange, onShare }: Props) {
+export default function FeedDetailDialog({ meeting, participants, open, onOpenChange, onShare, showStatus }: Props) {
   if (!meeting) return null;
   const by = participants[meeting.meeting_by_user_id];
   const wth = participants[meeting.meeting_with_user_id];
@@ -32,13 +33,24 @@ export default function MeetingDetailDialog({ meeting, participants, open, onOpe
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg max-h-[92vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Meeting details</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            Networking meeting
+            {showStatus && (
+              <Badge variant={meeting.is_published ? "default" : "secondary"} className="text-[10px]">
+                {meeting.is_published ? (
+                  <span className="flex items-center gap-1"><Globe className="h-3 w-3" /> Published</span>
+                ) : (
+                  <span className="flex items-center gap-1"><Lock className="h-3 w-3" /> Private</span>
+                )}
+              </Badge>
+            )}
+          </DialogTitle>
         </DialogHeader>
 
         {meeting.meeting_photo_url && (
           <img
             src={meeting.meeting_photo_url}
-            alt="Meeting"
+            alt="Networking meeting"
             className="w-full max-h-72 object-cover rounded-lg"
           />
         )}

@@ -113,6 +113,7 @@ export function useActiveMembers() {
         name: string;
         business: string | null;
         category: string | null;
+        categories: string[] | null;
         city: string | null;
         avatar_url: string | null;
         committee_badge: string | null;
