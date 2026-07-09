@@ -1,5 +1,18 @@
 import { useEffect, useMemo, useState } from "react";
-import { Smartphone, Download, Bell, Share2, MoreVertical, Plus, X, Check } from "lucide-react";
+import {
+  Smartphone,
+  Download,
+  Bell,
+  Share2,
+  MoreVertical,
+  Plus,
+  X,
+  Check,
+  Zap,
+  Handshake,
+  ChevronDown,
+  HelpCircle,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuthContext } from "@/context/AuthContext";
 
@@ -16,6 +29,10 @@ const STORAGE = {
 };
 const REPROMPT_DAYS = 7;
 
+/** Event other parts of the app (e.g. Profile & More) dispatch to open the install flow. */
+export const PWA_INSTALL_EVENT = "rbn:open-install-prompt";
+export const openPwaInstall = () => window.dispatchEvent(new Event(PWA_INSTALL_EVENT));
+
 const detectBrowser = (): Browser => {
   if (typeof navigator === "undefined") return "other";
   const ua = navigator.userAgent.toLowerCase();
@@ -30,7 +47,7 @@ const detectBrowser = (): Browser => {
   return "other";
 };
 
-const isStandalone = () =>
+export const isPwaStandalone = () =>
   typeof window !== "undefined" &&
   (window.matchMedia("(display-mode: standalone)").matches ||
     ("standalone" in window.navigator && (window.navigator as any).standalone));
@@ -40,14 +57,11 @@ const PwaInstallPrompt = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [installed, setInstalled] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
-  const [notifPermission, setNotifPermission] = useState<NotificationPermission>(
-    typeof Notification !== "undefined" ? Notification.permission : "default"
-  );
 
   const browser = useMemo(detectBrowser, []);
 
   useEffect(() => {
-    setInstalled(isStandalone());
+    setInstalled(isPwaStandalone());
     const onBip = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
@@ -102,15 +116,15 @@ const PwaInstallPrompt = () => {
     setModalOpen(true);
   };
 
-  const enableNotifications = async () => {
-    if (typeof Notification === "undefined") return;
-    try {
-      const result = await Notification.requestPermission();
-      setNotifPermission(result);
-    } catch (e) {
-      console.error(e);
-    }
-  };
+  // Let other screens (Profile & More) reuse the exact same install flow.
+  useEffect(() => {
+    const onOpen = () => {
+      handleInstall();
+    };
+    window.addEventListener(PWA_INSTALL_EVENT, onOpen);
+    return () => window.removeEventListener(PWA_INSTALL_EVENT, onOpen);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deferredPrompt]);
 
   const dismissModal = () => {
     setModalOpen(false);
@@ -135,10 +149,8 @@ const PwaInstallPrompt = () => {
       {modalOpen && (
         <InstallModal
           browser={browser}
-          notifPermission={notifPermission}
           canNativeInstall={!!deferredPrompt}
           onNativeInstall={handleInstall}
-          onEnableNotifications={enableNotifications}
           onClose={dismissModal}
         />
       )}
@@ -146,151 +158,135 @@ const PwaInstallPrompt = () => {
   );
 };
 
+const BENEFITS = [
+  { icon: Handshake, label: "Instant Lead & Networking Alerts" },
+  { icon: Bell, label: "Push Notifications" },
+  { icon: Zap, label: "Faster Access to RBN" },
+  { icon: Smartphone, label: "Better Mobile Experience" },
+];
+
 const InstallModal = ({
   browser,
-  notifPermission,
   canNativeInstall,
   onNativeInstall,
-  onEnableNotifications,
   onClose,
 }: {
   browser: Browser;
-  notifPermission: NotificationPermission;
   canNativeInstall: boolean;
   onNativeInstall: () => void;
-  onEnableNotifications: () => void;
   onClose: () => void;
 }) => {
+  const [showHelp, setShowHelp] = useState(false);
   const steps = getSteps(browser);
+
+  const handlePrimary = () => {
+    if (canNativeInstall) {
+      onNativeInstall();
+    } else {
+      // No native prompt available (e.g. iOS) — guide the user instead.
+      setShowHelp(true);
+    }
+  };
+
   return (
-    <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/50 backdrop-blur-sm p-0 sm:items-center sm:p-4 animate-in fade-in duration-200">
-      <div className="w-full max-w-lg max-h-[92vh] overflow-y-auto rounded-t-3xl sm:rounded-3xl bg-card shadow-2xl border border-border animate-in slide-in-from-bottom-4 duration-300">
+    <div
+      className="fixed inset-0 z-[60] flex items-end justify-center bg-black/60 backdrop-blur-sm p-0 sm:items-center sm:p-4 animate-in fade-in duration-200"
+      onClick={onClose}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="pwa-install-title"
+        className="w-full max-w-sm max-h-[90vh] overflow-y-auto rounded-t-3xl bg-card shadow-2xl border border-border sm:rounded-3xl animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-300"
+      >
         {/* Header */}
-        <div className="relative bg-gradient-to-br from-primary via-primary to-primary/80 px-6 pt-6 pb-8 text-primary-foreground rounded-t-3xl">
+        <div className="relative px-6 pt-7 pb-5 text-center">
           <button
             onClick={onClose}
             aria-label="Close"
-            className="absolute top-4 right-4 rounded-full bg-white/15 p-1.5 text-primary-foreground hover:bg-white/25 transition"
+            className="absolute top-3.5 right-3.5 rounded-full p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition"
           >
             <X className="h-4 w-4" />
           </button>
-          <div className="flex items-center gap-3">
-            <div className="h-12 w-12 rounded-2xl bg-white/15 flex items-center justify-center ring-1 ring-white/20">
-              <Smartphone className="h-6 w-6" />
-            </div>
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.25em] opacity-80">
-                Install RBN
-              </p>
-              <h2 className="text-xl font-bold leading-tight">
-                Install Rajput Business Network App
-              </h2>
-            </div>
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-lg shadow-primary/25 ring-1 ring-primary/30">
+            <Smartphone className="h-7 w-7" />
           </div>
-          <p className="mt-3 text-sm leading-relaxed opacity-95">
-            Add RBN to your home screen for faster access, instant lead alerts,
-            and seamless networking with the Rajput entrepreneur community.
+          <h2 id="pwa-install-title" className="mt-4 font-display text-xl font-bold text-foreground">
+            Install RBN App
+          </h2>
+          <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+            Get faster access, instant notifications, and stay connected with the RBN community.
           </p>
         </div>
 
         {/* Benefits */}
-        <div className="px-6 pt-5">
-          <ul className="grid gap-2 text-sm">
-            {[
-              "Connect instantly with Rajput entrepreneurs",
-              "Receive lead updates & member notifications",
-              "Quick access to Directory, Asks & Leads",
-              "Stay in the community anytime, anywhere",
-            ].map((b) => (
-              <li key={b} className="flex items-start gap-2 text-foreground">
-                <Check className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                <span>{b}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Native install CTA */}
-        {canNativeInstall && (
-          <div className="px-6 pt-5">
-            <Button onClick={onNativeInstall} className="w-full" size="lg">
-              <Download className="h-4 w-4 mr-2" />
-              Install RBN App Now
-            </Button>
-          </div>
-        )}
-
-        {/* Browser-specific guide */}
-        <div className="px-6 pt-5">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground mb-3">
-            {steps.title}
-          </p>
-          <ol className="space-y-2.5">
-            {steps.steps.map((s, i) => (
-              <li
-                key={i}
-                className="flex items-start gap-3 rounded-2xl border border-border bg-muted/40 p-3"
-              >
-                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
-                  {i + 1}
-                </div>
-                <div className="flex-1 text-sm text-foreground flex items-center gap-2">
-                  {s.icon}
-                  <span>{s.text}</span>
-                </div>
-              </li>
-            ))}
-          </ol>
-          {steps.gu && (
-            <p className="mt-3 text-xs text-muted-foreground italic">
-              ગુજરાતી: {steps.gu}
-            </p>
-          )}
-        </div>
-
-        {/* Notifications */}
-        <div className="px-6 pt-5 pb-6">
-          <div className="rounded-2xl border border-border bg-gradient-to-br from-primary/5 to-transparent p-4">
-            <div className="flex items-start gap-3">
-              <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                <Bell className="h-4 w-4 text-primary" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-foreground">
-                  Enable Notifications
-                </p>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Get alerts for new leads, member requests, community asks &
-                  admin announcements.
-                </p>
-                {notifPermission === "granted" ? (
-                  <p className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-primary">
-                    <Check className="h-3 w-3" /> Notifications enabled
-                  </p>
-                ) : notifPermission === "denied" ? (
-                  <p className="mt-2 text-xs text-muted-foreground">
-                    Blocked — enable from your browser settings.
-                  </p>
-                ) : (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="mt-2"
-                    onClick={onEnableNotifications}
-                  >
-                    Allow Notifications
-                  </Button>
-                )}
-              </div>
+        <div className="grid grid-cols-2 gap-2 px-6">
+          {BENEFITS.map(({ icon: Icon, label }) => (
+            <div
+              key={label}
+              className="flex items-start gap-2 rounded-xl border border-border bg-muted/40 p-2.5"
+            >
+              <Icon className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+              <span className="text-xs font-medium leading-snug text-foreground">{label}</span>
             </div>
-          </div>
+          ))}
+        </div>
 
+        {/* Actions */}
+        <div className="px-6 pt-5">
+          <Button onClick={handlePrimary} className="w-full" size="lg">
+            <Download className="mr-2 h-4 w-4" />
+            Install RBN App
+          </Button>
           <button
             onClick={onClose}
-            className="mt-4 w-full text-center text-sm text-muted-foreground hover:text-foreground transition"
+            className="mt-1.5 w-full py-2.5 text-center text-sm font-medium text-muted-foreground transition hover:text-foreground"
           >
-            Maybe later
+            Maybe Later
           </button>
+        </div>
+
+        {/* Collapsible platform-specific help */}
+        <div className="border-t border-border px-6 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+          <button
+            onClick={() => setShowHelp((v) => !v)}
+            aria-expanded={showHelp}
+            className="flex w-full items-center justify-center gap-1.5 py-1 text-xs font-semibold text-primary transition hover:opacity-80"
+          >
+            <HelpCircle className="h-3.5 w-3.5" />
+            Need help installing?
+            <ChevronDown
+              className={`h-3.5 w-3.5 transition-transform duration-200 ${showHelp ? "rotate-180" : ""}`}
+            />
+          </button>
+
+          {showHelp && (
+            <div className="pt-3 animate-in fade-in slide-in-from-top-1 duration-200">
+              <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                {steps.title}
+              </p>
+              <ol className="space-y-1.5">
+                {steps.steps.map((s, i) => (
+                  <li
+                    key={i}
+                    className="flex items-center gap-2.5 rounded-xl border border-border bg-muted/40 px-3 py-2"
+                  >
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                      {i + 1}
+                    </span>
+                    <span className="flex items-center gap-2 text-xs text-foreground">
+                      {s.icon}
+                      {s.text}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+              {steps.gu && (
+                <p className="mt-2 text-[11px] italic text-muted-foreground">ગુજરાતી: {steps.gu}</p>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -11,7 +11,9 @@ import {
   LogOut,
   ChevronRight,
   Lock,
+  Smartphone,
 } from "lucide-react";
+import { openPwaInstall, isPwaStandalone } from "@/components/PwaInstallPrompt";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -44,6 +46,13 @@ const More = () => {
   const [userEmail, setUserEmail] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [appInstalled, setAppInstalled] = useState<boolean>(() => isPwaStandalone());
+
+  useEffect(() => {
+    const onInstalled = () => setAppInstalled(true);
+    window.addEventListener("appinstalled", onInstalled);
+    return () => window.removeEventListener("appinstalled", onInstalled);
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -204,6 +213,32 @@ const More = () => {
           </div>
         </div>
       ))}
+
+      {!appInstalled && (
+        <div>
+          <p className="mb-2 px-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            App
+          </p>
+          <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+            <button
+              type="button"
+              onClick={openPwaInstall}
+              className="flex w-full items-center gap-3 p-4 text-left transition-colors hover:bg-muted"
+            >
+              <div className="rounded-lg bg-primary/10 p-2 shrink-0">
+                <Smartphone className="h-5 w-5 text-primary" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="font-medium text-foreground">Install RBN App</p>
+                <p className="text-xs text-muted-foreground truncate">
+                  Faster access & instant notifications
+                </p>
+              </div>
+              <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground" />
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="space-y-3">
         {isAdmin && (
