@@ -27,7 +27,9 @@ import AdminLeads from "./pages/admin/Leads";
 import AdminCategories from "./pages/admin/Categories";
 import LeadsPage from "./pages/dashboard/Leads";
 import AsksPage from "./pages/dashboard/Asks";
+import MeetingsPage from "./pages/dashboard/Meetings";
 import AdminAsks from "./pages/admin/Asks";
+import AdminMeetings from "./pages/admin/Meetings";
 import NotificationsPage from "./pages/dashboard/Notifications";
 import AdminAnnouncements from "./pages/admin/Announcements";
 import AdminNoticeBoard from "./pages/admin/NoticeBoard";
@@ -105,6 +107,7 @@ const App = () => {
                 <Route path="categories" element={<AdminCategories />} />
                 <Route path="leads" element={<AdminLeads />} />
                 <Route path="asks" element={<AdminAsks />} />
+                <Route path="meetings" element={<AdminMeetings />} />
                 <Route path="announcements" element={<AdminAnnouncements />} />
                 <Route path="notice-board" element={<AdminNoticeBoard />} />
                 <Route path="sponsors" element={<AdminSponsors />} />
@@ -135,6 +138,7 @@ const App = () => {
                 <Route path="news/:slug" element={<DashboardNewsArticle />} />
                 <Route path="leads" element={<LeadsPage />} />
                 <Route path="asks" element={<AsksPage />} />
+                <Route path="meetings" element={<MeetingsPage />} />
                 <Route path="notifications" element={<NotificationsPage />} />
               </Route>
               {/* Legacy redirect */}

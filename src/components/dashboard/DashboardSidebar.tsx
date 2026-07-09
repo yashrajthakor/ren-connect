@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { LayoutDashboard, FileText, UserCog, Briefcase, Handshake, Bell, Settings, MessageCircleQuestion, Newspaper, Lock } from "lucide-react";
+import { LayoutDashboard, FileText, UserCog, Briefcase, Handshake, Bell, Settings, MessageCircleQuestion, Newspaper, Lock, Users2 } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -30,6 +30,7 @@ const baseItems: SidebarItem[] = [
   { translationKey: "dashboard.title", url: "/dashboard", icon: LayoutDashboard, end: true },
   { translationKey: "dashboard.leads", url: "/dashboard/leads", icon: Handshake, restrictedForPending: true },
   { translationKey: "dashboard.asks", url: "/dashboard/asks", icon: MessageCircleQuestion, restrictedForPending: true },
+  { translationKey: "dashboard.meetings" as TranslationKey, url: "/dashboard/meetings", icon: Users2, restrictedForPending: true },
   { translationKey: "dashboard.news", url: "/dashboard/news", icon: Newspaper },
   { translationKey: "dashboard.notifications", url: "/dashboard/notifications", icon: Bell },
   { translationKey: "dashboard.profile", url: "/dashboard/profile", icon: UserCog },
