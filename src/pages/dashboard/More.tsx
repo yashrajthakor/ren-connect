@@ -304,6 +304,10 @@ const More = () => {
           Sign Out
         </Button>
       </div>
+
+      <p className="border-t border-border pt-4 text-center text-xs text-muted-foreground">
+        Version v{__APP_VERSION__}
+      </p>
     </div>
   );
 };

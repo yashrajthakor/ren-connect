@@ -79,7 +79,7 @@ export function DashboardSidebar({ role }: DashboardSidebarProps) {
             )}
           </NavLink>
         </div>
-        <SidebarGroup>
+        <SidebarGroup className="flex-1">
           <SidebarGroupLabel>Menu</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -111,6 +111,11 @@ export function DashboardSidebar({ role }: DashboardSidebarProps) {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        {!collapsed && (
+          <p className="border-t border-sidebar-border px-3 py-3 text-center text-[11px] text-sidebar-foreground/50">
+            Version v{__APP_VERSION__}
+          </p>
+        )}
       </SidebarContent>
     </Sidebar>
   );

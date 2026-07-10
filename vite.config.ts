@@ -3,9 +3,14 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 import { VitePWA } from "vite-plugin-pwa";
+import { version } from "./package.json";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
+  // App version injected from package.json at build time (shown in the More menu / sidebar).
+  define: {
+    __APP_VERSION__: JSON.stringify(version),
+  },
   server: {
     host: "::",
     port: 8080,
