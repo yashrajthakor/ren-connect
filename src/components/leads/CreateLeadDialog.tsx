@@ -12,9 +12,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useActiveMembers, useCreateLead } from "@/hooks/useLeads";
+import { friendlyError } from "@/lib/errors";
 
 const schema = z.object({
-  receiver_id: z.string().uuid("Select a member"),
+  receiver_id: z.string({ required_error: "Select a member" }).uuid("Select a member"),
   lead_name: z.string().trim().min(2, "At least 2 characters").max(100),
   contact_number: z
   .string()
@@ -50,7 +51,12 @@ function initials(name: string) {
 
 export default function CreateLeadDialog({ open, onOpenChange, giverId }: Props) {
   const [search, setSearch] = useState("");
-  const { data: members = [], isLoading: membersLoading } = useActiveMembers();
+  const {
+    data: members = [],
+    isLoading: membersLoading,
+    isError: membersError,
+    refetch: refetchMembers,
+  } = useActiveMembers();
   const createLead = useCreateLead();
   const { toast } = useToast();
 
@@ -67,12 +73,18 @@ export default function CreateLeadDialog({ open, onOpenChange, giverId }: Props)
   });
 
   const selectedReceiver = watch("receiver_id");
-  const selectedMember = members.find((m) => m.user_id === selectedReceiver);
+
+  // A member can't refer a lead to themselves.
+  const selectable = useMemo(
+    () => members.filter((m) => m.user_id !== giverId),
+    [members, giverId]
+  );
+  const selectedMember = selectable.find((m) => m.user_id === selectedReceiver);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return members.slice(0, 30);
-    return members
+    if (!q) return selectable.slice(0, 30);
+    return selectable
       .filter(
         (m) =>
           m.name?.toLowerCase().includes(q) ||
@@ -80,9 +92,20 @@ export default function CreateLeadDialog({ open, onOpenChange, giverId }: Props)
           m.city?.toLowerCase().includes(q)
       )
       .slice(0, 30);
-  }, [members, search]);
+  }, [selectable, search]);
+
+  const busy = isSubmitting || createLead.isPending;
 
   const onSubmit = async (data: FormData) => {
+    if (busy) return; // guard against double submission
+    if (data.receiver_id === giverId) {
+      toast({
+        title: "Invalid member",
+        description: "You cannot share a lead with yourself.",
+        variant: "destructive",
+      });
+      return;
+    }
     try {
       await createLead.mutateAsync({
         giver_id: giverId,
@@ -96,13 +119,25 @@ export default function CreateLeadDialog({ open, onOpenChange, giverId }: Props)
       reset();
       setSearch("");
       onOpenChange(false);
-    } catch (e: any) {
-      toast({ title: "Could not create lead", description: e.message, variant: "destructive" });
+    } catch (e) {
+      // Keep the dialog open with all input intact so the user can retry.
+      toast({
+        title: "Could not create lead",
+        description: friendlyError(e, "Something went wrong. Your details are kept — please try again."),
+        variant: "destructive",
+      });
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={(v) => { onOpenChange(v); if (!v) { reset(); setSearch(""); } }}>
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        if (!v && busy) return; // don't allow closing while a submission is in flight
+        onOpenChange(v);
+        if (!v) { reset(); setSearch(""); }
+      }}
+    >
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Share a new lead</DialogTitle>
@@ -146,6 +181,19 @@ export default function CreateLeadDialog({ open, onOpenChange, giverId }: Props)
                 <div className="max-h-56 overflow-y-auto border rounded-lg divide-y">
                   {membersLoading ? (
                     <div className="p-4 text-center text-sm text-muted-foreground">Loading…</div>
+                  ) : membersError ? (
+                    <div className="p-4 text-center text-sm">
+                      <p className="text-destructive">Couldn't load members.</p>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="mt-2"
+                        onClick={() => refetchMembers()}
+                      >
+                        Try again
+                      </Button>
+                    </div>
                   ) : filtered.length === 0 ? (
                     <div className="p-4 text-center text-sm text-muted-foreground">No members found</div>
                   ) : (
@@ -213,12 +261,12 @@ export default function CreateLeadDialog({ open, onOpenChange, giverId }: Props)
           </div>
 
           <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button type="button" variant="outline" disabled={busy} onClick={() => { onOpenChange(false); reset(); setSearch(""); }}>
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting || createLead.isPending}>
-              {createLead.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-              Share Lead
+            <Button type="submit" disabled={busy}>
+              {busy && <Loader2 className="h-4 w-4 animate-spin" />}
+              {busy ? "Sharing…" : "Share Lead"}
             </Button>
           </div>
         </form>

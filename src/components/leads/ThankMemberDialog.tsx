@@ -10,11 +10,15 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
-import { useActiveMembers, useCreateDirectBusinessThanks } from "@/hooks/useLeads";
+import { useActiveMembers, useCreateDirectBusinessThanks, useCurrentUserId } from "@/hooks/useLeads";
+import { friendlyError } from "@/lib/errors";
 
 const schema = z.object({
-  giver_id: z.string().uuid("Select a member to appreciate"),
-  amount: z.coerce.number().positive("Enter business amount").max(99999999999),
+  giver_id: z.string({ required_error: "Select a member to appreciate" }).uuid("Select a member to appreciate"),
+  amount: z.coerce
+    .number({ invalid_type_error: "Enter the business amount" })
+    .positive("Amount must be greater than zero")
+    .max(99999999999, "Amount is too large"),
   description: z.string().trim().min(2, "Add a short title").max(200),
   thank_you_note: z.string().trim().min(5, "Add a thank you note").max(500),
 });
@@ -33,7 +37,13 @@ function initials(name: string) {
 
 export default function ThankMemberDialog({ open, onOpenChange }: Props) {
   const [search, setSearch] = useState("");
-  const { data: members = [], isLoading: membersLoading } = useActiveMembers();
+  const {
+    data: members = [],
+    isLoading: membersLoading,
+    isError: membersError,
+    refetch: refetchMembers,
+  } = useActiveMembers();
+  const { data: currentUserId } = useCurrentUserId();
   const createThanks = useCreateDirectBusinessThanks();
   const { toast } = useToast();
 
@@ -43,21 +53,38 @@ export default function ThankMemberDialog({ open, onOpenChange }: Props) {
   } = useForm<FormData>({ resolver: zodResolver(schema) });
 
   const selectedId = watch("giver_id");
-  const selectedMember = members.find((m) => m.user_id === selectedId);
+
+  // You can't thank yourself for business.
+  const selectable = useMemo(
+    () => members.filter((m) => m.user_id !== currentUserId),
+    [members, currentUserId]
+  );
+  const selectedMember = selectable.find((m) => m.user_id === selectedId);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return members.slice(0, 30);
-    return members
+    if (!q) return selectable.slice(0, 30);
+    return selectable
       .filter((m) =>
         m.name?.toLowerCase().includes(q) ||
         m.business?.toLowerCase().includes(q) ||
         m.city?.toLowerCase().includes(q)
       )
       .slice(0, 30);
-  }, [members, search]);
+  }, [selectable, search]);
+
+  const busy = isSubmitting || createThanks.isPending;
 
   const onSubmit = async (data: FormData) => {
+    if (busy) return; // guard against double submission
+    if (currentUserId && data.giver_id === currentUserId) {
+      toast({
+        title: "Invalid member",
+        description: "You cannot thank yourself.",
+        variant: "destructive",
+      });
+      return;
+    }
     try {
       await createThanks.mutateAsync({
         giver_id: data.giver_id,
@@ -72,15 +99,24 @@ export default function ThankMemberDialog({ open, onOpenChange }: Props) {
       reset();
       setSearch("");
       onOpenChange(false);
-    } catch (e: any) {
-      toast({ title: "Could not record appreciation", description: e.message, variant: "destructive" });
+    } catch (e) {
+      // Keep the dialog open with all input intact so the user can retry.
+      toast({
+        title: "Could not record appreciation",
+        description: friendlyError(e, "Something went wrong. Your details are kept — please try again."),
+        variant: "destructive",
+      });
     }
   };
 
   return (
     <Dialog
       open={open}
-      onOpenChange={(v) => { onOpenChange(v); if (!v) { reset(); setSearch(""); } }}
+      onOpenChange={(v) => {
+        if (!v && busy) return; // don't allow closing while a submission is in flight
+        onOpenChange(v);
+        if (!v) { reset(); setSearch(""); }
+      }}
     >
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
@@ -132,6 +168,19 @@ export default function ThankMemberDialog({ open, onOpenChange }: Props) {
                 <div className="max-h-56 overflow-y-auto border rounded-lg divide-y">
                   {membersLoading ? (
                     <div className="p-4 text-center text-sm text-muted-foreground">Loading…</div>
+                  ) : membersError ? (
+                    <div className="p-4 text-center text-sm">
+                      <p className="text-destructive">Couldn't load members.</p>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="mt-2"
+                        onClick={() => refetchMembers()}
+                      >
+                        Try again
+                      </Button>
+                    </div>
                   ) : filtered.length === 0 ? (
                     <div className="p-4 text-center text-sm text-muted-foreground">No members found</div>
                   ) : (
@@ -200,13 +249,12 @@ export default function ThankMemberDialog({ open, onOpenChange }: Props) {
           </div>
 
           <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button type="button" variant="outline" disabled={busy} onClick={() => { onOpenChange(false); reset(); setSearch(""); }}>
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting || createThanks.isPending}>
-              {createThanks.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-              <Heart className="h-4 w-4" />
-              Send Appreciation
+            <Button type="submit" disabled={busy}>
+              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Heart className="h-4 w-4" />}
+              {busy ? "Sending…" : "Send Appreciation"}
             </Button>
           </div>
         </form>
