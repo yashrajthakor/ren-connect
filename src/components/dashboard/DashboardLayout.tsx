@@ -48,7 +48,7 @@ const DashboardLayout = () => {
   const location = useLocation();
   const isMobile = useIsMobile();
 
-  const mobileTabs: { label: string; url: string; icon: JSX.Element; matchUrls?: string[] }[] = [
+  const mobileTabs: { label: string; url: string; icon: JSX.Element; matchUrls?: string[]; iconOnly?: boolean }[] = [
     { label: t("mobileNav.dashboard"), url: "/dashboard", icon: <LayoutDashboard className="h-5 w-5" /> },
     { label: t("mobileNav.feed"), url: "/dashboard/meetings", icon: <Rss className="h-5 w-5" /> },
     { label: t("mobileNav.leads"), url: "/dashboard/leads", icon: <Handshake className="h-5 w-5" /> },
@@ -58,6 +58,7 @@ const DashboardLayout = () => {
       label: t("mobileNav.more"),
       url: "/dashboard/more",
       icon: <MoreVertical className="h-5 w-5" />,
+      iconOnly: true,
       // Secondary routes reachable from the Profile & More screen
       matchUrls: [
         "/dashboard/profile",
@@ -131,14 +132,19 @@ const DashboardLayout = () => {
                   <Link
                     key={item.url}
                     to={item.url}
-                    className={`flex min-w-0 flex-1 flex-col items-center justify-center rounded-xl px-0.5 py-1.5 text-[10px] font-semibold leading-tight tracking-tight transition-all ${
+                    aria-label={item.label}
+                    className={`flex flex-col items-center justify-center rounded-xl py-1.5 text-[10px] font-semibold leading-tight tracking-tight transition-all ${
+                      item.iconOnly ? "w-10 shrink-0 self-stretch" : "min-w-0 flex-1 px-0.5"
+                    } ${
                       isTabActive(item)
                         ? "bg-primary text-primary-foreground"
                         : "text-muted-foreground hover:text-foreground hover:bg-muted"
                     }`}
                   >
                     {item.icon}
-                    <span className="mt-0.5 max-w-full truncate text-center">{item.label}</span>
+                    {!item.iconOnly && (
+                      <span className="mt-0.5 max-w-full truncate text-center">{item.label}</span>
+                    )}
                   </Link>
                 ))}
               </div>
