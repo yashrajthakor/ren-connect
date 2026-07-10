@@ -1,8 +1,11 @@
 import { useState, useMemo, useRef, useEffect } from "react";
-import { Search, Loader2, ImagePlus, X } from "lucide-react";
+import { Search, Loader2, ImagePlus, X, Camera, Image as ImageIcon } from "lucide-react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -40,7 +43,8 @@ export default function AddNetworkingLogDialog({ open, onOpenChange, currentUser
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [publish, setPublish] = useState(true);
   const [uploading, setUploading] = useState(false);
-  const fileRef = useRef<HTMLInputElement>(null);
+  const cameraRef = useRef<HTMLInputElement>(null);
+  const galleryRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (open) {
@@ -215,22 +219,55 @@ export default function AddNetworkingLogDialog({ open, onOpenChange, currentUser
                 </button>
               </div>
             ) : (
-              <button
-                type="button"
-                onClick={() => fileRef.current?.click()}
-                className="w-full border-2 border-dashed border-border rounded-lg p-6 flex flex-col items-center gap-2 hover:border-primary hover:bg-primary/5 transition-colors"
-              >
-                <ImagePlus className="h-6 w-6 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Tap to upload a meeting photo</span>
-              </button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    type="button"
+                    className="w-full border-2 border-dashed border-border rounded-lg p-6 flex flex-col items-center gap-2 hover:border-primary hover:bg-primary/5 transition-colors"
+                  >
+                    <ImagePlus className="h-6 w-6 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">Tap to upload a meeting photo</span>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="center" className="w-56">
+                  <DropdownMenuItem
+                    className="py-2.5"
+                    // Defer so the menu can close before the native picker opens (iOS quirk).
+                    onSelect={() => setTimeout(() => cameraRef.current?.click(), 0)}
+                  >
+                    <Camera className="h-4 w-4 mr-2 text-primary" /> Take Photo
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="py-2.5"
+                    onSelect={() => setTimeout(() => galleryRef.current?.click(), 0)}
+                  >
+                    <ImageIcon className="h-4 w-4 mr-2 text-primary" /> Choose from Gallery
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             )}
+            {/* Camera capture */}
             <input
-              ref={fileRef}
+              ref={cameraRef}
               type="file"
               accept="image/*"
               capture="environment"
               className="hidden"
-              onChange={(e) => onPickPhoto(e.target.files?.[0] ?? null)}
+              onChange={(e) => {
+                onPickPhoto(e.target.files?.[0] ?? null);
+                e.target.value = "";
+              }}
+            />
+            {/* Photo gallery / file picker */}
+            <input
+              ref={galleryRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                onPickPhoto(e.target.files?.[0] ?? null);
+                e.target.value = "";
+              }}
             />
           </div>
 
