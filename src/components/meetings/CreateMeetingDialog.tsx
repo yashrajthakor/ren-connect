@@ -248,7 +248,7 @@ export default function AddNetworkingLogDialog({ open, onOpenChange, currentUser
 
           <div className="flex items-center justify-between border rounded-lg p-3">
             <div className="space-y-0.5 pr-4">
-              <Label htmlFor="publish-toggle" className="cursor-pointer">Publish to Networking Feed</Label>
+              <Label htmlFor="publish-toggle" className="cursor-pointer">Publish to 1:1 Feed</Label>
               <p className="text-xs text-muted-foreground">
                 Visible to all RBN members. Turn off to keep this a private log.
               </p>

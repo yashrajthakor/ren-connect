@@ -184,7 +184,7 @@ function MeetingsInner() {
   const handleTogglePublish = async (m: Meeting) => {
     try {
       await publishMut.mutateAsync({ id: m.id, is_published: !m.is_published });
-      toast({ title: m.is_published ? "Post unpublished" : "Published to Networking Feed" });
+      toast({ title: m.is_published ? "Post unpublished" : "Published to 1:1 Feed" });
     } catch (e: any) {
       toast({ title: "Could not update", description: e.message, variant: "destructive" });
     }
@@ -199,7 +199,7 @@ function MeetingsInner() {
               <span className="grid place-items-center h-9 w-9 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20">
                 <Rss className="h-4.5 w-4.5 text-primary" />
               </span>
-              Networking Feed
+              1:1 Feed
             </h1>
             <p className="text-muted-foreground text-sm mt-1">
               Log your networking meetings and share the highlights with the RBN community.
@@ -318,7 +318,7 @@ function MeetingsInner() {
 
 export default function MeetingsPage() {
   return (
-    <PendingApprovalGate featureName="Networking Feed">
+    <PendingApprovalGate featureName="1:1 Feed">
       <MeetingsInner />
     </PendingApprovalGate>
   );

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { LogOut, Shield, Handshake, Briefcase, UserCog, Newspaper, Rss } from "lucide-react";
+import { LogOut, Shield, Handshake, Briefcase, Newspaper, Rss, LayoutDashboard, MoreVertical } from "lucide-react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { DashboardSidebar } from "./DashboardSidebar";
@@ -49,14 +49,15 @@ const DashboardLayout = () => {
   const isMobile = useIsMobile();
 
   const mobileTabs: { label: string; url: string; icon: JSX.Element; matchUrls?: string[] }[] = [
-    { label: t("dashboard.meetings"), url: "/dashboard/meetings", icon: <Rss className="h-5 w-5" /> },
-    { label: t("dashboard.leads"), url: "/dashboard/leads", icon: <Handshake className="h-5 w-5" /> },
-    { label: t("dashboard.directory"), url: "/dashboard/directory", icon: <Briefcase className="h-5 w-5" /> },
-    { label: t("dashboard.news"), url: "/dashboard/news", icon: <Newspaper className="h-5 w-5" /> },
+    { label: t("mobileNav.dashboard"), url: "/dashboard", icon: <LayoutDashboard className="h-5 w-5" /> },
+    { label: t("mobileNav.feed"), url: "/dashboard/meetings", icon: <Rss className="h-5 w-5" /> },
+    { label: t("mobileNav.leads"), url: "/dashboard/leads", icon: <Handshake className="h-5 w-5" /> },
+    { label: t("mobileNav.directory"), url: "/dashboard/directory", icon: <Briefcase className="h-5 w-5" /> },
+    { label: t("mobileNav.news"), url: "/dashboard/news", icon: <Newspaper className="h-5 w-5" /> },
     {
-      label: t("dashboard.more"),
+      label: t("mobileNav.more"),
       url: "/dashboard/more",
-      icon: <UserCog className="h-5 w-5" />,
+      icon: <MoreVertical className="h-5 w-5" />,
       // Secondary routes reachable from the Profile & More screen
       matchUrls: [
         "/dashboard/profile",
@@ -124,20 +125,20 @@ const DashboardLayout = () => {
             <Outlet />
           </main>
           {isMobile && (
-            <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-card/95 backdrop-blur-sm px-2 py-2 sm:hidden">
-              <div className="mx-auto flex max-w-3xl items-center justify-between gap-2">
+            <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-card/95 backdrop-blur-sm px-1.5 py-1.5 pb-[max(0.375rem,env(safe-area-inset-bottom))] sm:hidden">
+              <div className="mx-auto flex max-w-3xl items-center justify-between gap-1">
                 {mobileTabs.map((item) => (
                   <Link
                     key={item.url}
                     to={item.url}
-                    className={`flex flex-1 flex-col items-center justify-center rounded-2xl px-2 py-2 text-xs font-semibold transition-all ${
+                    className={`flex min-w-0 flex-1 flex-col items-center justify-center rounded-xl px-0.5 py-1.5 text-[10px] font-semibold leading-tight tracking-tight transition-all ${
                       isTabActive(item)
                         ? "bg-primary text-primary-foreground"
                         : "text-muted-foreground hover:text-foreground hover:bg-muted"
                     }`}
                   >
                     {item.icon}
-                    <span className="mt-1">{item.label}</span>
+                    <span className="mt-0.5 max-w-full truncate text-center">{item.label}</span>
                   </Link>
                 ))}
               </div>

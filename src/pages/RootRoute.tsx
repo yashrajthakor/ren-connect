@@ -6,11 +6,11 @@ import Index from "./Index";
 export function RootRoute() {
   const { user, loading } = useAuthContext();
 
-  // Installed app: land signed-in members directly in the Business Directory.
+  // Installed app: land signed-in members directly on the dashboard.
   // Regular browser visits keep the public homepage.
   if (isPwaStandalone()) {
     if (loading) return null; // splash overlay covers this moment
-    if (user) return <Navigate to="/dashboard/directory" replace />;
+    if (user) return <Navigate to="/dashboard" replace />;
   }
 
   return <Index />;

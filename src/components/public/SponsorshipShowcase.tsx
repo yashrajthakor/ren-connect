@@ -1,25 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { Building2, ChevronLeft, ChevronRight, Globe, Sparkles } from "lucide-react";
-import { useActiveSponsors, type Sponsor } from "@/hooks/useSponsors";
+import { useActiveSponsors, sponsorTypeEmoji, type Sponsor } from "@/hooks/useSponsors";
 import { useT } from "@/i18n/LanguageProvider";
 
 const ROTATE_MS = 5500;
-
-/** Pick a fitting medal/emoji for the sponsorship category badge. */
-const typeEmoji = (type: string): string => {
-  const t = type.toLowerCase();
-  if (t.includes("title")) return "🏆";
-  if (t.includes("gold")) return "🥇";
-  if (t.includes("silver")) return "🥈";
-  if (t.includes("event")) return "🎯";
-  if (t.includes("tech")) return "💻";
-  if (t.includes("partner")) return "🤝";
-  if (t.includes("venue")) return "📍";
-  if (t.includes("lunch") || t.includes("dinner") || t.includes("food")) return "🍽️";
-  if (t.includes("tea") || t.includes("coffee")) return "☕";
-  if (t.includes("pen")) return "🖊️";
-  return "🏅";
-};
 
 const hostname = (url: string): string => {
   try {
@@ -118,7 +102,7 @@ const SponsorshipShowcase = ({ items }: Props) => {
             <div className="min-w-0 flex-1 flex flex-col justify-center">
               {sponsor.sponsorshipType && (
                 <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-primary/40 bg-gradient-to-r from-primary/25 to-primary/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-primary shadow-sm">
-                  <span aria-hidden="true">{typeEmoji(sponsor.sponsorshipType)}</span>
+                  <span aria-hidden="true">{sponsorTypeEmoji(sponsor.sponsorshipType)}</span>
                   {sponsor.sponsorshipType}
                 </span>
               )}

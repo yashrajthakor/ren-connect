@@ -70,6 +70,12 @@ const schema = z.object({
   tagline: z.string().max(240),
   website: optionalUrl.nullable(),
   sponsorship_type: z.string().trim().min(2, "Sponsorship type is required").max(60),
+  contact_number: z
+    .string()
+    .trim()
+    .max(20, "Contact number is too long")
+    .transform((v) => (v === "" ? null : v))
+    .nullable(),
   display_order: z.number().int().min(0).max(9999),
   is_active: z.boolean(),
 });
@@ -81,6 +87,7 @@ const emptyForm = (order = 0): SponsorInput => ({
   tagline: "",
   website: null,
   sponsorship_type: "Event Sponsor",
+  contact_number: null,
   display_order: order,
   is_active: true,
 });
@@ -112,6 +119,7 @@ export default function AdminSponsorsPage() {
       tagline: s.tagline,
       website: s.website,
       sponsorship_type: s.sponsorship_type ?? "Event Sponsor",
+      contact_number: s.contact_number ?? null,
       display_order: s.display_order,
       is_active: s.is_active,
     });
@@ -145,6 +153,7 @@ export default function AdminSponsorsPage() {
     const parsed = schema.safeParse({
       ...form,
       website: form.website ?? "",
+      contact_number: form.contact_number ?? "",
     });
     if (!parsed.success) {
       toast({
@@ -389,6 +398,17 @@ export default function AdminSponsorsPage() {
                 value={form.website ?? ""}
                 onChange={(e) => setForm({ ...form, website: e.target.value || null })}
                 placeholder="https://example.com"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="contact_number">Contact Number (optional)</Label>
+              <Input
+                id="contact_number"
+                type="tel"
+                maxLength={20}
+                value={form.contact_number ?? ""}
+                onChange={(e) => setForm({ ...form, contact_number: e.target.value || null })}
+                placeholder="+91 98765 43210"
               />
             </div>
             <div className="grid grid-cols-2 gap-4">

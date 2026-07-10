@@ -9,6 +9,7 @@ export interface SponsorRow {
   tagline: string;
   website: string | null;
   sponsorship_type: string;
+  contact_number: string | null;
   display_order: number;
   is_active: boolean;
   created_by: string | null;
@@ -24,6 +25,7 @@ export interface Sponsor {
   tagline: string;
   website?: string;
   sponsorshipType: string;
+  contactNumber?: string;
 }
 
 export function mapSponsorRow(row: SponsorRow): Sponsor {
@@ -35,7 +37,24 @@ export function mapSponsorRow(row: SponsorRow): Sponsor {
     tagline: row.tagline,
     website: row.website ?? undefined,
     sponsorshipType: row.sponsorship_type ?? "",
+    contactNumber: row.contact_number ?? undefined,
   };
+}
+
+/** Pick a fitting medal/emoji for a sponsorship category badge. */
+export function sponsorTypeEmoji(type: string): string {
+  const t = type.toLowerCase();
+  if (t.includes("title")) return "🏆";
+  if (t.includes("gold")) return "🥇";
+  if (t.includes("silver")) return "🥈";
+  if (t.includes("event")) return "🎯";
+  if (t.includes("tech")) return "💻";
+  if (t.includes("partner")) return "🤝";
+  if (t.includes("venue")) return "📍";
+  if (t.includes("lunch") || t.includes("dinner") || t.includes("food")) return "🍽️";
+  if (t.includes("tea") || t.includes("coffee")) return "☕";
+  if (t.includes("pen")) return "🖊️";
+  return "🏅";
 }
 
 export function useActiveSponsors() {
@@ -78,6 +97,7 @@ export type SponsorInput = {
   tagline: string;
   website: string | null;
   sponsorship_type: string;
+  contact_number: string | null;
   display_order: number;
   is_active: boolean;
 };

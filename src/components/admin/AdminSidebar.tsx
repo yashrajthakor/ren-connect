@@ -22,7 +22,7 @@ const baseItems: Item[] = [
   { title: "Categories", url: "/admin/categories", icon: Tags },
   { title: "Leads & Business", url: "/admin/leads", icon: Handshake },
   { title: "Asks", url: "/admin/asks", icon: MessageCircleQuestion },
-  { title: "Networking Feed", url: "/admin/meetings", icon: Rss },
+  { title: "1:1 Feed", url: "/admin/meetings", icon: Rss },
   { title: "Announcements", url: "/admin/announcements", icon: Megaphone },
   { title: "Notice Board", url: "/admin/notice-board", icon: Pin },
   { title: "Sponsors", url: "/admin/sponsors", icon: Award },

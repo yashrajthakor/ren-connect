@@ -24,7 +24,7 @@ export const translations = {
     "dashboard.title": "Dashboard",
     "dashboard.leads": "My Leads",
     "dashboard.asks": "Ask Network",
-    "dashboard.meetings": "Networking Feed",
+    "dashboard.meetings": "1:1 Feed",
     "dashboard.news": "News & Stories",
     "dashboard.directory": "Business Directory",
     "dashboard.notifications": "Notifications",
@@ -32,6 +32,14 @@ export const translations = {
     "dashboard.settings": "Settings",
     "dashboard.applications": "Review Applications",
     "dashboard.more": "Profile & More",
+
+    // Mobile bottom navigation (short labels)
+    "mobileNav.dashboard": "Dashboard",
+    "mobileNav.feed": "1:1 Feed",
+    "mobileNav.leads": "Leads",
+    "mobileNav.directory": "Directory",
+    "mobileNav.news": "News",
+    "mobileNav.more": "More",
 
     // Footer
     "footer.about": "Connecting Rajput entrepreneurs across industries — building legacy through trusted business networking and referrals.",
@@ -232,7 +240,7 @@ export const translations = {
     "dashboard.title": "ડેશબોર્ડ",
     "dashboard.leads": "મારા લીડ્સ",
     "dashboard.asks": "નેટવર્ક પૂછો",
-    "dashboard.meetings": "નેટવર્કિંગ ફીડ",
+    "dashboard.meetings": "1:1 ફીડ",
     "dashboard.news": "સમાચાર અને વાર્તાઓ",
     "dashboard.directory": "બિઝનેસ ડિરેક્ટરી",
     "dashboard.notifications": "સૂચનાઓ",
@@ -240,6 +248,14 @@ export const translations = {
     "dashboard.settings": "સેટિંગ્સ",
     "dashboard.applications": "અરજીઓ સમીક્ષા કરો",
     "dashboard.more": "પ્રોફાઇલ અને વધુ",
+
+    // Mobile bottom navigation (short labels)
+    "mobileNav.dashboard": "ડેશબોર્ડ",
+    "mobileNav.feed": "1:1 ફીડ",
+    "mobileNav.leads": "લીડ્સ",
+    "mobileNav.directory": "ડિરેક્ટરી",
+    "mobileNav.news": "સમાચાર",
+    "mobileNav.more": "વધુ",
 
     // Footer
     "footer.about": "ઉદ્યોગો વચ્ચે રાજપૂત આંત્રપ્રિન્યોરોને જોડવું — વિશ્વસનીય બિઝનેસ નેટવર્કિંગ અને રેફરલ દ્વારા વારસો બનાવવો.",

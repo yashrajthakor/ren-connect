@@ -70,7 +70,7 @@ export default function AdminMeetings() {
       <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
         <div>
           <h1 className="text-2xl sm:text-3xl font-display font-bold text-foreground flex items-center gap-2">
-            <Rss className="h-6 w-6 text-primary" /> Networking Feed
+            <Rss className="h-6 w-6 text-primary" /> 1:1 Feed
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
             View every networking log across RBN. Hide or delete inappropriate posts.

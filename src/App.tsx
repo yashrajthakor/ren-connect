@@ -146,7 +146,7 @@ const App = () => {
                 <Route path="more" element={<MorePage />} />
               </Route>
               {/* Legacy redirect */}
-              <Route path="/member" element={<Navigate to="/dashboard/directory" replace />} />
+              <Route path="/member" element={<Navigate to="/dashboard" replace />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
