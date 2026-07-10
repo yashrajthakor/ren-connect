@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { useActiveMembers, useCreateLead } from "@/hooks/useLeads";
 import { friendlyError } from "@/lib/errors";
+import { DRAFT_KEYS, readFormDraft, writeFormDraft, clearFormDraft } from "@/lib/formDraft";
 
 const schema = z.object({
   receiver_id: z.string({ required_error: "Select a member" }).uuid("Select a member"),
@@ -72,6 +73,29 @@ export default function CreateLeadDialog({ open, onOpenChange, giverId }: Props)
     defaultValues: { priority: "medium" },
   });
 
+  // Restore an unfinished draft when the dialog opens (survives the app being
+  // backgrounded/reloaded while the user copies details from another app).
+  useEffect(() => {
+    if (!open) return;
+    const draft = readFormDraft<Partial<FormData>>(DRAFT_KEYS.createLead);
+    if (draft) reset({ priority: "medium", ...draft });
+  }, [open, reset]);
+
+  // Keep the draft in sync while the user types.
+  useEffect(() => {
+    if (!open) return;
+    const sub = watch((values) => {
+      const hasContent =
+        values.receiver_id ||
+        values.lead_name?.trim() ||
+        values.contact_number?.trim() ||
+        values.description?.trim();
+      if (hasContent) writeFormDraft(DRAFT_KEYS.createLead, values);
+      else clearFormDraft(DRAFT_KEYS.createLead);
+    });
+    return () => sub.unsubscribe();
+  }, [open, watch]);
+
   const selectedReceiver = watch("receiver_id");
 
   // A member can't refer a lead to themselves.
@@ -116,6 +140,7 @@ export default function CreateLeadDialog({ open, onOpenChange, giverId }: Props)
         priority: data.priority,
       });
       toast({ title: "Lead shared", description: "The member has been notified." });
+      clearFormDraft(DRAFT_KEYS.createLead);
       reset();
       setSearch("");
       onOpenChange(false);
@@ -135,7 +160,8 @@ export default function CreateLeadDialog({ open, onOpenChange, giverId }: Props)
       onOpenChange={(v) => {
         if (!v && busy) return; // don't allow closing while a submission is in flight
         onOpenChange(v);
-        if (!v) { reset(); setSearch(""); }
+        // Explicit close (X / outside tap / Esc): discard the draft.
+        if (!v) { clearFormDraft(DRAFT_KEYS.createLead); reset({ priority: "medium" }); setSearch(""); }
       }}
     >
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
@@ -261,7 +287,17 @@ export default function CreateLeadDialog({ open, onOpenChange, giverId }: Props)
           </div>
 
           <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="outline" disabled={busy} onClick={() => { onOpenChange(false); reset(); setSearch(""); }}>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={busy}
+              onClick={() => {
+                clearFormDraft(DRAFT_KEYS.createLead);
+                onOpenChange(false);
+                reset({ priority: "medium" });
+                setSearch("");
+              }}
+            >
               Cancel
             </Button>
             <Button type="submit" disabled={busy}>

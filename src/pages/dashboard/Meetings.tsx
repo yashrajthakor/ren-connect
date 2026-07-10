@@ -16,6 +16,7 @@ import {
 } from "@/hooks/useMeetings";
 import FeedCard, { type FeedCardVariant } from "@/components/meetings/MeetingCard";
 import AddNetworkingLogDialog from "@/components/meetings/CreateMeetingDialog";
+import { DRAFT_KEYS, readFormDraft } from "@/lib/formDraft";
 import FeedDetailDialog from "@/components/meetings/MeetingDetailDialog";
 import { useToast } from "@/hooks/use-toast";
 
@@ -162,6 +163,15 @@ function MeetingsInner() {
 
   const openCreate = useCallback(() => { setEditing(null); setCreateOpen(true); }, []);
   const openEdit = useCallback((m: Meeting) => { setEditing(m); setCreateOpen(true); }, []);
+
+  // Reopen an unfinished post after the app was backgrounded/reloaded
+  // mid-entry, so the user continues exactly where they left off.
+  useEffect(() => {
+    if (readFormDraft(DRAFT_KEYS.meetingPost)) {
+      setEditing(null);
+      setCreateOpen(true);
+    }
+  }, []);
   const openView = useCallback((m: Meeting, participants: Record<string, MemberLite>) => {
     setViewing(m);
     setViewingParticipants(participants);

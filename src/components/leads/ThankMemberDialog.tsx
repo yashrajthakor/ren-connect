@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -12,6 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { useActiveMembers, useCreateDirectBusinessThanks, useCurrentUserId } from "@/hooks/useLeads";
 import { friendlyError } from "@/lib/errors";
+import { DRAFT_KEYS, readFormDraft, writeFormDraft, clearFormDraft } from "@/lib/formDraft";
 
 const schema = z.object({
   giver_id: z.string({ required_error: "Select a member to appreciate" }).uuid("Select a member to appreciate"),
@@ -51,6 +52,29 @@ export default function ThankMemberDialog({ open, onOpenChange }: Props) {
     register, handleSubmit, setValue, watch, reset,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({ resolver: zodResolver(schema) });
+
+  // Restore an unfinished draft when the dialog opens (survives the app being
+  // backgrounded/reloaded while the user copies details from another app).
+  useEffect(() => {
+    if (!open) return;
+    const draft = readFormDraft<Partial<FormData>>(DRAFT_KEYS.thankMember);
+    if (draft) reset(draft);
+  }, [open, reset]);
+
+  // Keep the draft in sync while the user types.
+  useEffect(() => {
+    if (!open) return;
+    const sub = watch((values) => {
+      const hasContent =
+        values.giver_id ||
+        values.amount ||
+        values.description?.trim() ||
+        values.thank_you_note?.trim();
+      if (hasContent) writeFormDraft(DRAFT_KEYS.thankMember, values);
+      else clearFormDraft(DRAFT_KEYS.thankMember);
+    });
+    return () => sub.unsubscribe();
+  }, [open, watch]);
 
   const selectedId = watch("giver_id");
 
@@ -96,7 +120,8 @@ export default function ThankMemberDialog({ open, onOpenChange }: Props) {
         title: "Appreciation sent",
         description: `${selectedMember?.name || "The member"} has been notified.`,
       });
-      reset();
+      clearFormDraft(DRAFT_KEYS.thankMember);
+      reset({});
       setSearch("");
       onOpenChange(false);
     } catch (e) {
@@ -115,7 +140,8 @@ export default function ThankMemberDialog({ open, onOpenChange }: Props) {
       onOpenChange={(v) => {
         if (!v && busy) return; // don't allow closing while a submission is in flight
         onOpenChange(v);
-        if (!v) { reset(); setSearch(""); }
+        // Explicit close (X / outside tap / Esc): discard the draft.
+        if (!v) { clearFormDraft(DRAFT_KEYS.thankMember); reset({}); setSearch(""); }
       }}
     >
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
@@ -249,7 +275,17 @@ export default function ThankMemberDialog({ open, onOpenChange }: Props) {
           </div>
 
           <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="outline" disabled={busy} onClick={() => { onOpenChange(false); reset(); setSearch(""); }}>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={busy}
+              onClick={() => {
+                clearFormDraft(DRAFT_KEYS.thankMember);
+                onOpenChange(false);
+                reset({});
+                setSearch("");
+              }}
+            >
               Cancel
             </Button>
             <Button type="submit" disabled={busy}>

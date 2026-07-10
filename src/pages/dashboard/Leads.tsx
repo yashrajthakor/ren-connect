@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Plus, Inbox, Send, TrendingUp, IndianRupee, Heart } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
@@ -14,6 +14,7 @@ import CreateLeadDialog from "@/components/leads/CreateLeadDialog";
 import LeadDetailDialog from "@/components/leads/LeadDetailDialog";
 import ThankMemberDialog from "@/components/leads/ThankMemberDialog";
 import PendingApprovalGate from "@/components/dashboard/PendingApprovalGate";
+import { DRAFT_KEYS, readFormDraft } from "@/lib/formDraft";
 
 const STATUS_FILTERS: Array<{ value: "all" | LeadStatus; label: string }> = [
   { value: "all", label: "All" },
@@ -31,6 +32,13 @@ function LeadsPageInner() {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [tab, setTab] = useState<"received" | "given">("received");
   const [filter, setFilter] = useState<"all" | LeadStatus>("all");
+
+  // Reopen an unfinished form after the app was backgrounded/reloaded
+  // mid-entry, so the user continues exactly where they left off.
+  useEffect(() => {
+    if (readFormDraft(DRAFT_KEYS.createLead)) setCreateOpen(true);
+    else if (readFormDraft(DRAFT_KEYS.thankMember)) setThanksOpen(true);
+  }, []);
 
   const leads = data?.leads ?? [];
   const participants = data?.participants ?? {};

@@ -18,6 +18,9 @@ import {
   useCreateMeeting, useUpdateMeeting, uploadMeetingPhoto, type Meeting,
 } from "@/hooks/useMeetings";
 import { supabase } from "@/integrations/supabase/client";
+import { DRAFT_KEYS, readFormDraft, writeFormDraft, clearFormDraft } from "@/lib/formDraft";
+
+type MeetingDraft = { receiverId: string; summary: string; publish: boolean };
 
 interface Props {
   open: boolean;
@@ -48,14 +51,27 @@ export default function AddNetworkingLogDialog({ open, onOpenChange, currentUser
 
   useEffect(() => {
     if (open) {
-      setReceiverId(existing?.meeting_with_user_id ?? "");
-      setSummary(existing?.discussion_summary ?? "");
+      // For new posts, restore any unfinished draft (survives the app being
+      // backgrounded/reloaded). Edits always start from the existing post.
+      const draft = existing ? null : readFormDraft<MeetingDraft>(DRAFT_KEYS.meetingPost);
+      setReceiverId(existing?.meeting_with_user_id ?? draft?.receiverId ?? "");
+      setSummary(existing?.discussion_summary ?? draft?.summary ?? "");
       setPhotoPreview(existing?.meeting_photo_url ?? null);
       setPhotoFile(null);
-      setPublish(existing ? existing.is_published : true);
+      setPublish(existing ? existing.is_published : draft?.publish ?? true);
       setSearch("");
     }
   }, [open, existing]);
+
+  // Keep the draft in sync while the user fills the form (new posts only).
+  useEffect(() => {
+    if (!open || existing) return;
+    if (receiverId || summary.trim()) {
+      writeFormDraft<MeetingDraft>(DRAFT_KEYS.meetingPost, { receiverId, summary, publish });
+    } else {
+      clearFormDraft(DRAFT_KEYS.meetingPost);
+    }
+  }, [open, existing, receiverId, summary, publish]);
 
   const selected = members.find((m) => m.user_id === receiverId);
 
@@ -122,6 +138,7 @@ export default function AddNetworkingLogDialog({ open, onOpenChange, currentUser
         });
         toast({ title: "Networking log saved" });
       }
+      if (!existing) clearFormDraft(DRAFT_KEYS.meetingPost);
       onOpenChange(false);
     } catch (e: any) {
       toast({ title: "Could not save networking log", description: e.message, variant: "destructive" });
@@ -133,7 +150,15 @@ export default function AddNetworkingLogDialog({ open, onOpenChange, currentUser
   const submitting = uploading || createMut.isPending || updateMut.isPending;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        if (!v && submitting) return; // don't allow closing while saving
+        // Explicit close: discard the draft for new posts.
+        if (!v && !existing) clearFormDraft(DRAFT_KEYS.meetingPost);
+        onOpenChange(v);
+      }}
+    >
       <DialogContent className="max-w-lg max-h-[92vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{existing ? "Edit networking log" : "Log a networking meeting"}</DialogTitle>
@@ -294,7 +319,14 @@ export default function AddNetworkingLogDialog({ open, onOpenChange, currentUser
           </div>
 
           <div className="flex justify-end gap-2 pt-2">
-            <Button variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                if (!existing) clearFormDraft(DRAFT_KEYS.meetingPost);
+                onOpenChange(false);
+              }}
+              disabled={submitting}
+            >
               Cancel
             </Button>
             <Button onClick={handleSubmit} disabled={submitting}>
