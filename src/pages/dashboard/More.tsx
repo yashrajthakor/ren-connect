@@ -12,8 +12,10 @@ import {
   ChevronRight,
   Lock,
   Smartphone,
+  BellRing,
 } from "lucide-react";
 import { openPwaInstall, isPwaStandalone } from "@/components/PwaInstallPrompt";
+import { isPushSupported, requestPushPermission } from "@/hooks/usePushNotifications";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -47,6 +49,11 @@ const More = () => {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [appInstalled, setAppInstalled] = useState<boolean>(() => isPwaStandalone());
+  const [userId, setUserId] = useState<string | null>(null);
+  const notifSupported = isPushSupported();
+  const [notifPermission, setNotifPermission] = useState<string>(() =>
+    notifSupported ? Notification.permission : "denied"
+  );
 
   useEffect(() => {
     const onInstalled = () => setAppInstalled(true);
@@ -54,10 +61,33 @@ const More = () => {
     return () => window.removeEventListener("appinstalled", onInstalled);
   }, []);
 
+  const handleEnableNotifications = async () => {
+    if (notifPermission === "denied") {
+      sonnerToast.info("Notifications are blocked", {
+        description:
+          "Open your browser's site settings for RBN and allow notifications, then try again.",
+      });
+      return;
+    }
+    const result = await requestPushPermission(userId);
+    if (result === "granted") {
+      setNotifPermission("granted");
+      sonnerToast.success("Notifications enabled", {
+        description: "You'll now get lead & community alerts on this device.",
+      });
+    } else if (result === "denied") {
+      setNotifPermission("denied");
+      sonnerToast.info("Notifications are blocked", {
+        description: "You can allow them anytime from your browser's site settings.",
+      });
+    }
+  };
+
   useEffect(() => {
     (async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
+      setUserId(user.id);
       setUserEmail(user.email || "");
       try {
         const [{ data: role }, { data: profile }] = await Promise.all([
@@ -214,28 +244,50 @@ const More = () => {
         </div>
       ))}
 
-      {!appInstalled && (
+      {(!appInstalled || (notifSupported && notifPermission !== "granted")) && (
         <div>
           <p className="mb-2 px-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             App
           </p>
-          <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
-            <button
-              type="button"
-              onClick={openPwaInstall}
-              className="flex w-full items-center gap-3 p-4 text-left transition-colors hover:bg-muted"
-            >
-              <div className="rounded-lg bg-primary/10 p-2 shrink-0">
-                <Smartphone className="h-5 w-5 text-primary" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="font-medium text-foreground">Install RBN App</p>
-                <p className="text-xs text-muted-foreground truncate">
-                  Faster access & instant notifications
-                </p>
-              </div>
-              <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground" />
-            </button>
+          <div className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+            {!appInstalled && (
+              <button
+                type="button"
+                onClick={openPwaInstall}
+                className="flex w-full items-center gap-3 p-4 text-left transition-colors hover:bg-muted"
+              >
+                <div className="rounded-lg bg-primary/10 p-2 shrink-0">
+                  <Smartphone className="h-5 w-5 text-primary" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium text-foreground">Install RBN App</p>
+                  <p className="text-xs text-muted-foreground truncate">
+                    Faster access & instant notifications
+                  </p>
+                </div>
+                <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground" />
+              </button>
+            )}
+            {notifSupported && notifPermission !== "granted" && (
+              <button
+                type="button"
+                onClick={handleEnableNotifications}
+                className="flex w-full items-center gap-3 p-4 text-left transition-colors hover:bg-muted"
+              >
+                <div className="rounded-lg bg-primary/10 p-2 shrink-0">
+                  <BellRing className="h-5 w-5 text-primary" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium text-foreground">Enable Notifications</p>
+                  <p className="text-xs text-muted-foreground truncate">
+                    {notifPermission === "denied"
+                      ? "Blocked — tap to see how to allow"
+                      : "Lead alerts & community updates"}
+                  </p>
+                </div>
+                <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground" />
+              </button>
+            )}
           </div>
         </div>
       )}

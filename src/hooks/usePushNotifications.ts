@@ -27,6 +27,84 @@ function arrayBufferToBase64(buffer: ArrayBuffer | null): string {
   return window.btoa(binary);
 }
 
+/** True when this browser can show push notifications at all. */
+export const isPushSupported = () =>
+  typeof window !== 'undefined' && 'Notification' in window && 'serviceWorker' in navigator;
+
+/**
+ * Subscribe this device to Web Push and persist the subscription to Supabase.
+ * Safe to call multiple times — pushManager.subscribe is idempotent.
+ * Standalone so any screen (install prompt, Profile & More, Settings) can reuse it.
+ */
+export async function subscribeUserToPush(userId: string): Promise<PushSubscription | null> {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+    console.log('Push not supported in this browser');
+    return null;
+  }
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    let sub = await reg.pushManager.getSubscription();
+    if (!sub) {
+      sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY).buffer as ArrayBuffer,
+      });
+    }
+    const json = sub.toJSON();
+    const p256dh = json.keys?.p256dh ?? arrayBufferToBase64(sub.getKey('p256dh'));
+    const auth = json.keys?.auth ?? arrayBufferToBase64(sub.getKey('auth'));
+
+    await supabase.from('push_subscriptions' as any).upsert(
+      {
+        user_id: userId,
+        endpoint: sub.endpoint,
+        p256dh,
+        auth,
+        user_agent: navigator.userAgent,
+        last_used_at: new Date().toISOString(),
+      },
+      { onConflict: 'endpoint' }
+    );
+    return sub;
+  } catch (err) {
+    console.error('Failed to subscribe to push:', err);
+    return null;
+  }
+}
+
+/**
+ * Ask the user for notification permission and, when granted, register this
+ * device for Web Push. Returns the resulting permission state.
+ */
+export async function requestPushPermission(
+  userId?: string | null
+): Promise<NotificationPermission | 'unsupported'> {
+  if (!isPushSupported()) {
+    console.log('This browser does not support notifications');
+    return 'unsupported';
+  }
+
+  if (Notification.permission === 'granted') {
+    if (userId) await subscribeUserToPush(userId);
+    return 'granted';
+  }
+
+  if (Notification.permission === 'denied') {
+    return 'denied';
+  }
+
+  try {
+    const result = (await Notification.requestPermission()) as NotificationPermission;
+    if (result === 'granted' && userId) {
+      await subscribeUserToPush(userId);
+    }
+    return result;
+  } catch (error) {
+    console.error('Error requesting notification permission:', error);
+    return 'default';
+  }
+}
+
 /**
  * Hook to manage push notifications in PWA
  * - Requests notification permission
@@ -41,86 +119,28 @@ export const usePushNotifications = () => {
 
   // Check if notifications are supported
   useEffect(() => {
-    const supported = 'Notification' in window && 'serviceWorker' in navigator;
+    const supported = isPushSupported();
     setIsSupported(supported);
     if (supported) {
       setPermission((Notification.permission as NotificationPermission) || 'default');
     }
   }, []);
 
-  // Subscribe this device to Web Push and persist the subscription to Supabase.
-  // Safe to call multiple times — pushManager.subscribe is idempotent.
   const subscribeToPush = useCallback(async () => {
     if (!user?.id) return null;
-    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-      console.log('Push not supported in this browser');
-      return null;
-    }
-    try {
-      const reg = await navigator.serviceWorker.ready;
-      let sub = await reg.pushManager.getSubscription();
-      if (!sub) {
-        sub = await reg.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY).buffer as ArrayBuffer,
-        });
-      }
-      const json = sub.toJSON();
-      const p256dh = json.keys?.p256dh ?? arrayBufferToBase64(sub.getKey('p256dh'));
-      const auth = json.keys?.auth ?? arrayBufferToBase64(sub.getKey('auth'));
-
-      await supabase.from('push_subscriptions' as any).upsert(
-        {
-          user_id: user.id,
-          endpoint: sub.endpoint,
-          p256dh,
-          auth,
-          user_agent: navigator.userAgent,
-          last_used_at: new Date().toISOString(),
-        },
-        { onConflict: 'endpoint' }
-      );
-      setIsSubscribed(true);
-      return sub;
-    } catch (err) {
-      console.error('Failed to subscribe to push:', err);
-      return null;
-    }
+    const sub = await subscribeUserToPush(user.id);
+    if (sub) setIsSubscribed(true);
+    return sub;
   }, [user?.id]);
 
   // Request notification permission from user (with mobile optimization)
   const requestNotificationPermission = useCallback(async () => {
-    if (!('Notification' in window)) {
-      console.log('This browser does not support notifications');
-      return false;
-    }
-
-    if (Notification.permission === 'granted') {
-      setPermission('granted');
-      await subscribeToPush();
-      return true;
-    }
-
-    if (Notification.permission === 'denied') {
-      setPermission('denied');
-      console.log('Notifications denied by user');
-      return false;
-    }
-
-    try {
-      const result = await Notification.requestPermission();
-      setPermission(result as NotificationPermission);
-
-      if (result === 'granted') {
-        await subscribeToPush();
-      }
-
-      return result === 'granted';
-    } catch (error) {
-      console.error('Error requesting notification permission:', error);
-      return false;
-    }
-  }, [subscribeToPush]);
+    const result = await requestPushPermission(user?.id);
+    if (result === 'unsupported') return false;
+    setPermission(result);
+    if (result === 'granted') setIsSubscribed(true);
+    return result === 'granted';
+  }, [user?.id]);
 
   // Show push notification (works on both mobile and desktop PWAs)
   const showPushNotification = useCallback((notification: AppNotification) => {

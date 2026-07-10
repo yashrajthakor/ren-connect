@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import PwaInstallPrompt from "./components/PwaInstallPrompt";
+import SplashScreen from "./components/SplashScreen";
 import RootRoute from "./pages/RootRoute";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -60,6 +61,7 @@ const App = () => {
       <AuthProvider>
         <LanguageProvider>
           <TooltipProvider>
+            <SplashScreen />
             <Toaster />
             <Sonner />
             {showUpdatePrompt && (
@@ -144,7 +146,7 @@ const App = () => {
                 <Route path="more" element={<MorePage />} />
               </Route>
               {/* Legacy redirect */}
-              <Route path="/member" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/member" element={<Navigate to="/dashboard/directory" replace />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

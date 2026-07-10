@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuthContext } from "@/context/AuthContext";
+import { isPushSupported, requestPushPermission } from "@/hooks/usePushNotifications";
+import renLogo from "@/assets/ren-logo.png";
 
 type BeforeInstallPromptEvent = Event & {
   prompt: () => Promise<void>;
@@ -52,11 +54,15 @@ export const isPwaStandalone = () =>
   (window.matchMedia("(display-mode: standalone)").matches ||
     ("standalone" in window.navigator && (window.navigator as any).standalone));
 
+/** Should we follow up an install with the notification step? */
+const needsNotifSetup = () => isPushSupported() && Notification.permission === "default";
+
 const PwaInstallPrompt = () => {
   const { user } = useAuthContext();
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [installed, setInstalled] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
+  const [step, setStep] = useState<"install" | "notify">("install");
 
   const browser = useMemo(detectBrowser, []);
 
@@ -69,7 +75,13 @@ const PwaInstallPrompt = () => {
     const onInstalled = () => {
       setInstalled(true);
       setDeferredPrompt(null);
-      setModalOpen(false);
+      // Follow up the install with a friendly one-tap notification opt-in.
+      if (needsNotifSetup()) {
+        setStep("notify");
+        setModalOpen(true);
+      } else {
+        setModalOpen(false);
+      }
     };
     window.addEventListener("beforeinstallprompt", onBip);
     window.addEventListener("appinstalled", onInstalled);
@@ -105,7 +117,12 @@ const PwaInstallPrompt = () => {
         const choice = await deferredPrompt.userChoice;
         if (choice.outcome === "accepted") {
           setInstalled(true);
-          setModalOpen(false);
+          if (needsNotifSetup()) {
+            setStep("notify");
+            setModalOpen(true);
+          } else {
+            setModalOpen(false);
+          }
         }
       } catch (e) {
         console.error(e);
@@ -113,6 +130,7 @@ const PwaInstallPrompt = () => {
       setDeferredPrompt(null);
       return;
     }
+    setStep("install");
     setModalOpen(true);
   };
 
@@ -128,33 +146,126 @@ const PwaInstallPrompt = () => {
 
   const dismissModal = () => {
     setModalOpen(false);
-    localStorage.setItem(STORAGE.dismissedAt, String(Date.now()));
+    if (step === "install") {
+      localStorage.setItem(STORAGE.dismissedAt, String(Date.now()));
+    }
   };
 
-  if (installed) return null;
+  // Keep rendering while the post-install notification step is open.
+  if (installed && !modalOpen) return null;
 
   return (
     <>
       {/* Persistent floating CTA */}
-      <button
-        onClick={handleInstall}
-        aria-label="Add RBN App to Home Screen"
-        className="fixed bottom-24 right-4 sm:bottom-6 sm:right-6 z-40 flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-primary/90 px-4 py-3 text-sm font-semibold text-primary-foreground shadow-2xl shadow-primary/30 ring-1 ring-primary/40 transition-all duration-200 hover:-translate-y-0.5 hover:scale-[1.03] hover:shadow-primary/50"
-      >
-        <Smartphone className="h-5 w-5" />
-        <span className="hidden sm:inline">Add RBN App</span>
-        <span className="inline sm:hidden">Install</span>
-      </button>
-
-      {modalOpen && (
-        <InstallModal
-          browser={browser}
-          canNativeInstall={!!deferredPrompt}
-          onNativeInstall={handleInstall}
-          onClose={dismissModal}
-        />
+      {!installed && (
+        <button
+          onClick={handleInstall}
+          aria-label="Add RBN App to Home Screen"
+          className="fixed bottom-24 right-4 sm:bottom-6 sm:right-6 z-40 flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-primary/90 px-4 py-3 text-sm font-semibold text-primary-foreground shadow-2xl shadow-primary/30 ring-1 ring-primary/40 transition-all duration-200 hover:-translate-y-0.5 hover:scale-[1.03] hover:shadow-primary/50"
+        >
+          <Smartphone className="h-5 w-5" />
+          <span className="hidden sm:inline">Add RBN App</span>
+          <span className="inline sm:hidden">Install</span>
+        </button>
       )}
+
+      {modalOpen &&
+        (step === "notify" ? (
+          <NotifyModal userId={user?.id} onClose={dismissModal} />
+        ) : (
+          <InstallModal
+            browser={browser}
+            canNativeInstall={!!deferredPrompt}
+            onNativeInstall={handleInstall}
+            onClose={dismissModal}
+          />
+        ))}
     </>
+  );
+};
+
+const NotifyModal = ({ userId, onClose }: { userId?: string; onClose: () => void }) => {
+  const [state, setState] = useState<"idle" | "working" | "granted" | "denied">("idle");
+
+  const handleEnable = async () => {
+    setState("working");
+    const result = await requestPushPermission(userId);
+    if (result === "granted") {
+      setState("granted");
+      setTimeout(onClose, 1800);
+    } else if (result === "denied") {
+      setState("denied");
+    } else {
+      setState("idle");
+    }
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-[60] flex items-end justify-center bg-black/60 backdrop-blur-sm p-0 sm:items-center sm:p-4 animate-in fade-in duration-200"
+      onClick={onClose}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="pwa-notify-title"
+        className="w-full max-w-sm rounded-t-3xl bg-card shadow-2xl border border-border sm:rounded-3xl animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-300"
+      >
+        <div className="relative px-6 pt-7 pb-6 text-center">
+          <button
+            onClick={onClose}
+            aria-label="Close"
+            className="absolute top-3.5 right-3.5 rounded-full p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition"
+          >
+            <X className="h-4 w-4" />
+          </button>
+
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-lg shadow-primary/25 ring-1 ring-primary/30">
+            {state === "granted" ? <Check className="h-7 w-7" /> : <Bell className="h-7 w-7" />}
+          </div>
+
+          {state === "granted" ? (
+            <>
+              <h2 id="pwa-notify-title" className="mt-4 font-display text-xl font-bold text-foreground">
+                You're all set! 🎉
+              </h2>
+              <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                You'll now get instant alerts for leads, meetings and community updates.
+              </p>
+            </>
+          ) : (
+            <>
+              <h2 id="pwa-notify-title" className="mt-4 font-display text-xl font-bold text-foreground">
+                App Installed! 🎉
+              </h2>
+              <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                One last step — turn on notifications so you never miss a lead, meeting or announcement.
+              </p>
+
+              {state === "denied" ? (
+                <p className="mt-4 rounded-xl border border-border bg-muted/40 p-3 text-xs leading-relaxed text-muted-foreground">
+                  Notifications are blocked for this site. You can enable them anytime from your
+                  browser's site settings.
+                </p>
+              ) : (
+                <Button onClick={handleEnable} disabled={state === "working"} className="mt-5 w-full" size="lg">
+                  <Bell className="mr-2 h-4 w-4" />
+                  {state === "working" ? "Waiting for permission…" : "Enable Notifications"}
+                </Button>
+              )}
+
+              <button
+                onClick={onClose}
+                className="mt-1.5 w-full py-2.5 text-center text-sm font-medium text-muted-foreground transition hover:text-foreground"
+              >
+                {state === "denied" ? "Done" : "Not Now"}
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
   );
 };
 
@@ -209,8 +320,8 @@ const InstallModal = ({
           >
             <X className="h-4 w-4" />
           </button>
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-lg shadow-primary/25 ring-1 ring-primary/30">
-            <Smartphone className="h-7 w-7" />
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-lg shadow-primary/25 ring-1 ring-border">
+            <img src={renLogo} alt="RBN" className="h-12 w-12 rounded-full object-contain" />
           </div>
           <h2 id="pwa-install-title" className="mt-4 font-display text-xl font-bold text-foreground">
             Install RBN App

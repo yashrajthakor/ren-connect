@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthContext } from "@/context/AuthContext";
+import renLogo from "@/assets/ren-logo.png";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -42,7 +43,10 @@ const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-royal">
         <div className="flex flex-col items-center gap-4">
-          <div className="h-8 w-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-lg ring-1 ring-white/20">
+            <img src={renLogo} alt="RBN" className="h-12 w-12 rounded-full object-contain" />
+          </div>
+          <div className="h-6 w-6 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
           <p className="text-card/70">Loading...</p>
         </div>
       </div>
