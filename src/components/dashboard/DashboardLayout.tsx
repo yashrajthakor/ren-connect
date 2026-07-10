@@ -107,13 +107,11 @@ const DashboardLayout = () => {
               )}
               <div className="text-right hidden sm:block">
                 <p className="text-sm font-medium text-foreground">{userEmail}</p>
-                <p className="text-xs text-primary font-medium capitalize">
-                  {roleLoading
-                    ? "Loading..."
-                    : userRole
-                    ? userRole.replace("_", " ")
-                    : "No role assigned"}
-                </p>
+                {!roleLoading && !!userRole?.trim() && (
+                  <p className="text-xs text-primary font-medium capitalize">
+                    {userRole.replace("_", " ")}
+                  </p>
+                )}
               </div>
               <Button variant="outline" size="sm" onClick={handleLogout} className="px-2 sm:px-3">
                 <LogOut className="h-4 w-4 sm:mr-2" />
