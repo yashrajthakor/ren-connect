@@ -49,12 +49,27 @@ const optionalUrl = z
   .refine((v) => v === "" || z.string().url().safeParse(v).success, "Website must be a valid URL")
   .transform((v) => (v === "" ? null : v));
 
+const SPONSORSHIP_TYPES = [
+  "Title Sponsor",
+  "Diary Sponsor",
+  "Pen Sponsor",
+  "Badge Sponsor",
+  "Lunch Sponsor",
+  "Tea Sponsor",
+  "Venue Sponsor",
+  "Gold Sponsor",
+  "Silver Sponsor",
+  "Event Sponsor",
+  "Technology Partner",
+];
+
 const schema = z.object({
   logo_url: z.string().url("Logo must be a valid URL").min(1, "Logo URL is required"),
   firm_name: z.string().min(2, "Firm name is required").max(120),
   owner_name: z.string().min(2, "Owner name is required").max(120),
   tagline: z.string().max(240),
   website: optionalUrl.nullable(),
+  sponsorship_type: z.string().trim().min(2, "Sponsorship type is required").max(60),
   display_order: z.number().int().min(0).max(9999),
   is_active: z.boolean(),
 });
@@ -65,6 +80,7 @@ const emptyForm = (order = 0): SponsorInput => ({
   owner_name: "",
   tagline: "",
   website: null,
+  sponsorship_type: "Event Sponsor",
   display_order: order,
   is_active: true,
 });
@@ -95,6 +111,7 @@ export default function AdminSponsorsPage() {
       owner_name: s.owner_name,
       tagline: s.tagline,
       website: s.website,
+      sponsorship_type: s.sponsorship_type ?? "Event Sponsor",
       display_order: s.display_order,
       is_active: s.is_active,
     });
@@ -137,7 +154,7 @@ export default function AdminSponsorsPage() {
       });
       return;
     }
-    const payload: SponsorInput = parsed.data;
+    const payload = parsed.data as SponsorInput;
     try {
       if (editing) {
         await update.mutateAsync({ id: editing.id, patch: payload });
@@ -217,6 +234,11 @@ export default function AdminSponsorsPage() {
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 mb-1 flex-wrap">
+                        {s.sponsorship_type && (
+                          <Badge className="text-[10px] uppercase tracking-wider bg-primary/15 text-primary border border-primary/30 hover:bg-primary/15">
+                            {s.sponsorship_type}
+                          </Badge>
+                        )}
                         <Badge variant="outline" className="text-[10px] uppercase tracking-wider">
                           Order {s.display_order}
                         </Badge>
@@ -319,6 +341,25 @@ export default function AdminSponsorsPage() {
                 onChange={(e) => setForm({ ...form, firm_name: e.target.value })}
                 placeholder="Global Compunet"
               />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="sponsorship_type">Sponsorship Type</Label>
+              <Input
+                id="sponsorship_type"
+                list="sponsorship-type-options"
+                value={form.sponsorship_type}
+                maxLength={60}
+                onChange={(e) => setForm({ ...form, sponsorship_type: e.target.value })}
+                placeholder="Diary Sponsor"
+              />
+              <datalist id="sponsorship-type-options">
+                {SPONSORSHIP_TYPES.map((t) => (
+                  <option key={t} value={t} />
+                ))}
+              </datalist>
+              <p className="text-xs text-muted-foreground">
+                Shown as a badge on the homepage card, e.g. "Gold Sponsor".
+              </p>
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="owner_name">Owner Name</Label>

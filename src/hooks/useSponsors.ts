@@ -8,6 +8,7 @@ export interface SponsorRow {
   owner_name: string;
   tagline: string;
   website: string | null;
+  sponsorship_type: string;
   display_order: number;
   is_active: boolean;
   created_by: string | null;
@@ -22,6 +23,7 @@ export interface Sponsor {
   ownerName: string;
   tagline: string;
   website?: string;
+  sponsorshipType: string;
 }
 
 export function mapSponsorRow(row: SponsorRow): Sponsor {
@@ -32,6 +34,7 @@ export function mapSponsorRow(row: SponsorRow): Sponsor {
     ownerName: row.owner_name,
     tagline: row.tagline,
     website: row.website ?? undefined,
+    sponsorshipType: row.sponsorship_type ?? "",
   };
 }
 
@@ -74,6 +77,7 @@ export type SponsorInput = {
   owner_name: string;
   tagline: string;
   website: string | null;
+  sponsorship_type: string;
   display_order: number;
   is_active: boolean;
 };
