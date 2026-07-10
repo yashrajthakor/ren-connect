@@ -1,8 +1,13 @@
 import { useState, useMemo } from "react";
 import { Plus, Inbox, Send, TrendingUp, IndianRupee, Heart } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useCurrentUserId, useLeads, type Lead, type LeadStatus } from "@/hooks/useLeads";
 import { LeadCard } from "@/components/leads/LeadCard";
 import CreateLeadDialog from "@/components/leads/CreateLeadDialog";
@@ -43,23 +48,14 @@ function LeadsPageInner() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-28">
-      <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-display font-bold text-foreground">My Leads</h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            Share, track, and close business with your network.
-          </p>
-        </div>
-        <Button
-          onClick={() => setThanksOpen(true)}
-          className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm"
-        >
-          <Heart className="h-4 w-4 fill-primary-foreground" />
-          Thank a Member
-        </Button>
+      <div className="mb-6">
+        <h1 className="text-2xl sm:text-3xl font-display font-bold text-foreground">My Leads</h1>
+        <p className="text-muted-foreground text-sm mt-1">
+          Share, track, and close business with your network.
+        </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+      <div className="mb-6 flex gap-3 overflow-x-auto snap-x pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:grid sm:grid-cols-2 md:grid-cols-4 sm:overflow-visible sm:pb-0">
         <Stat icon={<Inbox className="h-4 w-4" />} label="Received" value={received.length} />
         <Stat icon={<Send className="h-4 w-4" />} label="Given" value={given.length} />
         <Stat
@@ -118,14 +114,47 @@ function LeadsPageInner() {
         </TabsContent>
       </Tabs>
 
-      {/* Floating add button */}
-      <button
-        onClick={() => setCreateOpen(true)}
-        aria-label="Share new lead"
-        className="fixed bottom-24 right-6 sm:bottom-6 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all flex items-center justify-center z-30"
-      >
-        <Plus className="h-6 w-6" />
-      </button>
+      {/* Floating action button with speed-dial menu */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button
+            aria-label="Lead actions"
+            className="fixed bottom-24 right-6 sm:bottom-6 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all flex items-center justify-center z-30 [&>svg]:transition-transform [&>svg]:duration-200 data-[state=open]:[&>svg]:rotate-45"
+          >
+            <Plus className="h-6 w-6" />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent side="top" align="end" sideOffset={12} className="w-72 rounded-xl p-1.5">
+          <DropdownMenuItem
+            onSelect={() => setCreateOpen(true)}
+            className="items-start gap-3 rounded-lg p-3 cursor-pointer"
+          >
+            <div className="mt-0.5 rounded-lg bg-primary/10 p-2 shrink-0">
+              <Send className="h-4 w-4 text-primary" />
+            </div>
+            <div className="min-w-0">
+              <p className="font-medium text-foreground">Create Lead</p>
+              <p className="text-xs text-muted-foreground">
+                Pass a new business lead to another member.
+              </p>
+            </div>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onSelect={() => setThanksOpen(true)}
+            className="items-start gap-3 rounded-lg p-3 cursor-pointer"
+          >
+            <div className="mt-0.5 rounded-lg bg-primary/10 p-2 shrink-0">
+              <Heart className="h-4 w-4 text-primary fill-primary" />
+            </div>
+            <div className="min-w-0">
+              <p className="font-medium text-foreground">Thank a Member</p>
+              <p className="text-xs text-muted-foreground">
+                Appreciate a member after successfully completing business together.
+              </p>
+            </div>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
 
       {userId && (
         <CreateLeadDialog open={createOpen} onOpenChange={setCreateOpen} giverId={userId} />
@@ -152,12 +181,12 @@ export default function LeadsPage() {
 
 function Stat({ icon, label, value }: { icon: React.ReactNode; label: string; value: string | number }) {
   return (
-    <Card className="p-4">
+    <Card className="w-[8.25rem] shrink-0 snap-start p-3.5 sm:w-auto sm:shrink sm:p-4">
       <div className="flex items-center gap-2 text-muted-foreground text-xs">
         {icon}
         <span>{label}</span>
       </div>
-      <p className="text-xl font-display font-bold text-foreground mt-1">{value}</p>
+      <p className="mt-1 truncate font-display text-lg font-bold text-foreground sm:text-xl">{value}</p>
     </Card>
   );
 }
