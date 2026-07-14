@@ -1,5 +1,8 @@
 import { useState, useMemo, useRef, useEffect } from "react";
-import { Search, Loader2, ImagePlus, X, Camera, Image as ImageIcon } from "lucide-react";
+import Cropper from "react-easy-crop";
+import {
+  Search, Loader2, ImagePlus, X, Camera, Image as ImageIcon, AlertCircle, RefreshCw, Check,
+} from "lucide-react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from "@/components/ui/dialog";
@@ -11,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { Slider } from "@/components/ui/slider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { useActiveMembers } from "@/hooks/useLeads";
@@ -19,8 +23,12 @@ import {
 } from "@/hooks/useMeetings";
 import { supabase } from "@/integrations/supabase/client";
 import { DRAFT_KEYS, readFormDraft, writeFormDraft, clearFormDraft } from "@/lib/formDraft";
+import { fileToDataUrl, loadImage, cropAndCompressImage, type CropAreaPixels } from "@/lib/imageProcessing";
+import { friendlyError } from "@/lib/errors";
 
 type MeetingDraft = { receiverId: string; summary: string; publish: boolean };
+
+type PhotoStatus = "idle" | "cropping" | "processing" | "uploading" | "error";
 
 interface Props {
   open: boolean;
@@ -42,12 +50,32 @@ export default function AddNetworkingLogDialog({ open, onOpenChange, currentUser
   const [search, setSearch] = useState("");
   const [receiverId, setReceiverId] = useState<string>("");
   const [summary, setSummary] = useState("");
-  const [photoFile, setPhotoFile] = useState<File | null>(null);
-  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [publish, setPublish] = useState(true);
-  const [uploading, setUploading] = useState(false);
   const cameraRef = useRef<HTMLInputElement>(null);
   const galleryRef = useRef<HTMLInputElement>(null);
+
+  // Photo pipeline: pick → crop → compress ("processing") → upload → ready.
+  const [photoStatus, setPhotoStatus] = useState<PhotoStatus>("idle");
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
+  const [photoError, setPhotoError] = useState<string | null>(null);
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<CropAreaPixels | null>(null);
+  const pendingUploadRef = useRef<File | null>(null); // kept for Retry after a failed upload
+
+  const resetPhotoState = (preview: string | null) => {
+    setPhotoStatus("idle");
+    setPhotoPreview(preview);
+    setUploadedUrl(null);
+    setPhotoError(null);
+    setCropSrc(null);
+    setCrop({ x: 0, y: 0 });
+    setZoom(1);
+    setCroppedAreaPixels(null);
+    pendingUploadRef.current = null;
+  };
 
   useEffect(() => {
     if (open) {
@@ -56,10 +84,9 @@ export default function AddNetworkingLogDialog({ open, onOpenChange, currentUser
       const draft = existing ? null : readFormDraft<MeetingDraft>(DRAFT_KEYS.meetingPost);
       setReceiverId(existing?.meeting_with_user_id ?? draft?.receiverId ?? "");
       setSummary(existing?.discussion_summary ?? draft?.summary ?? "");
-      setPhotoPreview(existing?.meeting_photo_url ?? null);
-      setPhotoFile(null);
       setPublish(existing ? existing.is_published : draft?.publish ?? true);
       setSearch("");
+      resetPhotoState(existing?.meeting_photo_url ?? null);
     }
   }, [open, existing]);
 
@@ -87,22 +114,84 @@ export default function AddNetworkingLogDialog({ open, onOpenChange, currentUser
       .slice(0, 30);
   }, [members, search]);
 
-  const onPickPhoto = (f: File | null) => {
-    setPhotoFile(f);
-    if (f) setPhotoPreview(URL.createObjectURL(f));
-    else setPhotoPreview(existing?.meeting_photo_url ?? null);
+  const onPickPhoto = async (f: File | null) => {
+    if (!f) return;
+    try {
+      setPhotoError(null);
+      setPhotoStatus("processing");
+      const dataUrl = await fileToDataUrl(f);
+      // Verify the browser can actually display this format before cropping,
+      // so the preview never silently comes up blank.
+      await loadImage(dataUrl);
+      setCropSrc(dataUrl);
+      setCrop({ x: 0, y: 0 });
+      setZoom(1);
+      setCroppedAreaPixels(null);
+      setPhotoStatus("cropping");
+    } catch (e) {
+      setPhotoError(e instanceof Error ? e.message : "Could not read this image.");
+      setPhotoStatus("error");
+    }
   };
+
+  const uploadProcessedPhoto = async (file: File, previewUrl: string) => {
+    setPhotoStatus("uploading");
+    try {
+      const url = await uploadMeetingPhoto(currentUserId, file);
+      setUploadedUrl(url);
+      setPhotoPreview(previewUrl);
+      setCropSrc(null);
+      pendingUploadRef.current = null;
+      setPhotoStatus("idle");
+    } catch (e) {
+      // Keep the processed file so Retry only re-runs the upload.
+      pendingUploadRef.current = file;
+      setPhotoError(friendlyError(e, "Upload failed. Please try again."));
+      setPhotoStatus("error");
+    }
+  };
+
+  const confirmCrop = async () => {
+    if (!cropSrc) return;
+    try {
+      setPhotoStatus("processing");
+      const blob = await cropAndCompressImage(cropSrc, croppedAreaPixels);
+      const file = new File([blob], "meeting.jpg", { type: "image/jpeg" });
+      await uploadProcessedPhoto(file, URL.createObjectURL(blob));
+    } catch (e) {
+      setPhotoError(e instanceof Error ? e.message : "Could not process this image.");
+      setPhotoStatus("error");
+    }
+  };
+
+  const retryPhoto = () => {
+    setPhotoError(null);
+    if (pendingUploadRef.current) {
+      // Compression already succeeded — just retry the upload.
+      const f = pendingUploadRef.current;
+      uploadProcessedPhoto(f, URL.createObjectURL(f));
+    } else if (cropSrc) {
+      setPhotoStatus("cropping"); // processing failed — back to the crop step
+    } else {
+      resetPhotoState(existing?.meeting_photo_url ?? null); // decode failed — pick another photo
+    }
+  };
+
+  const photoBusy = photoStatus !== "idle";
 
   const handleSubmit = async () => {
     if (!receiverId) { toast({ title: "Select a member", variant: "destructive" }); return; }
     if (!summary.trim()) { toast({ title: "Add a discussion summary", variant: "destructive" }); return; }
+    if (photoBusy) {
+      toast({ title: "Please wait", description: "Finish or remove the photo before saving." });
+      return;
+    }
 
     try {
-      let photoUrl: string | null = existing?.meeting_photo_url ?? null;
-      if (photoFile) {
-        setUploading(true);
-        photoUrl = await uploadMeetingPhoto(currentUserId, photoFile);
-      }
+      // Photo is already uploaded by the time Save is enabled.
+      // Preview still showing the existing photo → keep it; removed → null.
+      const photoUrl: string | null =
+        uploadedUrl ?? (photoPreview ? existing?.meeting_photo_url ?? null : null);
 
       const withMember = members.find((m) => m.user_id === receiverId);
       const withCats: string[] = withMember?.categories ?? (withMember?.category ? [withMember.category] : []);
@@ -140,14 +229,16 @@ export default function AddNetworkingLogDialog({ open, onOpenChange, currentUser
       }
       if (!existing) clearFormDraft(DRAFT_KEYS.meetingPost);
       onOpenChange(false);
-    } catch (e: any) {
-      toast({ title: "Could not save networking log", description: e.message, variant: "destructive" });
-    } finally {
-      setUploading(false);
+    } catch (e) {
+      toast({
+        title: "Could not save networking log",
+        description: friendlyError(e, "Something went wrong. Your details are kept — please try again."),
+        variant: "destructive",
+      });
     }
   };
 
-  const submitting = uploading || createMut.isPending || updateMut.isPending;
+  const submitting = createMut.isPending || updateMut.isPending;
 
   return (
     <Dialog
@@ -232,12 +323,78 @@ export default function AddNetworkingLogDialog({ open, onOpenChange, currentUser
 
           <div className="space-y-2">
             <Label>Upload Meeting Photo</Label>
-            {photoPreview ? (
+            {photoStatus === "cropping" && cropSrc ? (
+              <div className="space-y-3 rounded-lg border p-3">
+                <div className="relative h-64 w-full overflow-hidden rounded-lg bg-black">
+                  <Cropper
+                    image={cropSrc}
+                    crop={crop}
+                    zoom={zoom}
+                    aspect={4 / 3}
+                    onCropChange={setCrop}
+                    onZoomChange={setZoom}
+                    onCropComplete={(_, areaPixels) => setCroppedAreaPixels(areaPixels)}
+                  />
+                </div>
+                <div className="flex items-center gap-3 px-1">
+                  <span className="text-xs text-muted-foreground">Zoom</span>
+                  <Slider
+                    value={[zoom]}
+                    min={1}
+                    max={3}
+                    step={0.05}
+                    onValueChange={(v) => setZoom(v[0])}
+                    className="flex-1"
+                  />
+                </div>
+                <div className="flex justify-end gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => resetPhotoState(existing?.meeting_photo_url ?? null)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button type="button" size="sm" onClick={confirmCrop}>
+                    <Check className="h-4 w-4 mr-1" /> Use Photo
+                  </Button>
+                </div>
+              </div>
+            ) : photoStatus === "processing" || photoStatus === "uploading" ? (
+              <div className="flex items-center justify-center gap-3 rounded-lg border border-dashed p-6">
+                <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                <span className="text-sm text-muted-foreground">
+                  {photoStatus === "processing" ? "Processing image…" : "Uploading image…"}
+                </span>
+              </div>
+            ) : photoStatus === "error" ? (
+              <div className="space-y-3 rounded-lg border border-destructive/40 bg-destructive/5 p-4">
+                <div className="flex items-start gap-2">
+                  <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
+                  <p className="text-sm text-destructive">{photoError || "Something went wrong with the photo."}</p>
+                </div>
+                <div className="flex gap-2">
+                  <Button type="button" variant="outline" size="sm" onClick={retryPhoto}>
+                    <RefreshCw className="h-4 w-4 mr-1" /> Retry
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => resetPhotoState(existing?.meeting_photo_url ?? null)}
+                  >
+                    Remove photo
+                  </Button>
+                </div>
+              </div>
+            ) : photoPreview ? (
               <div className="relative rounded-lg overflow-hidden border">
                 <img src={photoPreview} alt="Meeting" className="w-full max-h-64 object-cover" />
                 <button
                   type="button"
-                  onClick={() => { setPhotoFile(null); setPhotoPreview(null); }}
+                  aria-label="Remove photo"
+                  onClick={() => resetPhotoState(null)}
                   className="absolute top-2 right-2 h-8 w-8 rounded-full bg-background/90 border grid place-items-center hover:bg-background"
                 >
                   <X className="h-4 w-4" />
@@ -329,9 +486,19 @@ export default function AddNetworkingLogDialog({ open, onOpenChange, currentUser
             >
               Cancel
             </Button>
-            <Button onClick={handleSubmit} disabled={submitting}>
-              {submitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              {existing ? "Update log" : "Save log"}
+            <Button onClick={handleSubmit} disabled={submitting || photoBusy}>
+              {(submitting || photoStatus === "uploading" || photoStatus === "processing") && (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              )}
+              {photoStatus === "processing"
+                ? "Processing image…"
+                : photoStatus === "uploading"
+                ? "Uploading image…"
+                : submitting
+                ? "Saving…"
+                : existing
+                ? "Update log"
+                : "Save log"}
             </Button>
           </div>
         </div>
