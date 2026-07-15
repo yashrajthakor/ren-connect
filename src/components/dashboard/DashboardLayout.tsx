@@ -48,16 +48,17 @@ const DashboardLayout = () => {
   const location = useLocation();
   const isMobile = useIsMobile();
 
+  const tabIcon = "h-5 w-5 md:h-6 md:w-6";
   const mobileTabs: { label: string; url: string; icon: JSX.Element; matchUrls?: string[]; iconOnly?: boolean }[] = [
-    { label: t("mobileNav.dashboard"), url: "/dashboard", icon: <LayoutDashboard className="h-5 w-5" /> },
-    { label: t("mobileNav.feed"), url: "/dashboard/meetings", icon: <Rss className="h-5 w-5" /> },
-    { label: t("mobileNav.leads"), url: "/dashboard/leads", icon: <Handshake className="h-5 w-5" /> },
-    { label: t("mobileNav.directory"), url: "/dashboard/directory", icon: <Briefcase className="h-5 w-5" /> },
-    { label: t("mobileNav.news"), url: "/dashboard/news", icon: <Newspaper className="h-5 w-5" /> },
+    { label: t("mobileNav.dashboard"), url: "/dashboard", icon: <LayoutDashboard className={tabIcon} /> },
+    { label: t("mobileNav.feed"), url: "/dashboard/meetings", icon: <Rss className={tabIcon} /> },
+    { label: t("mobileNav.leads"), url: "/dashboard/leads", icon: <Handshake className={tabIcon} /> },
+    { label: t("mobileNav.directory"), url: "/dashboard/directory", icon: <Briefcase className={tabIcon} /> },
+    { label: t("mobileNav.news"), url: "/dashboard/news", icon: <Newspaper className={tabIcon} /> },
     {
       label: t("mobileNav.more"),
       url: "/dashboard/more",
-      icon: <MoreVertical className="h-5 w-5" />,
+      icon: <MoreVertical className={tabIcon} />,
       iconOnly: true,
       // Secondary routes reachable from the Profile & More screen
       matchUrls: [
@@ -92,7 +93,8 @@ const DashboardLayout = () => {
           <ApprovalToastListener />
           <header className="h-16 flex items-center justify-between border-b border-border bg-card px-3 sm:px-4 gap-2">
             <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-              <SidebarTrigger />
+              {/* Sidebar exists only on desktop; below lg the bottom nav + More cover navigation. */}
+              <SidebarTrigger className="hidden lg:flex" />
               <span className="hidden sm:inline-flex items-center rounded-full bg-secondary text-secondary-foreground px-2.5 py-0.5 text-xs font-semibold">
                 Member Mode
               </span>
@@ -120,19 +122,19 @@ const DashboardLayout = () => {
             </div>
           </header>
           <PendingApprovalBanner />
-          <main className="flex-1 pb-24 overflow-x-hidden">
+          <main className="flex-1 pb-24 lg:pb-8 overflow-x-hidden">
             <Outlet />
           </main>
           {isMobile && (
-            <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-card/95 backdrop-blur-sm px-1.5 py-1.5 pb-[max(0.375rem,env(safe-area-inset-bottom))] sm:hidden">
-              <div className="mx-auto flex max-w-3xl items-center justify-between gap-1">
+            <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-card/95 backdrop-blur-sm px-1.5 py-1.5 pb-[max(0.375rem,env(safe-area-inset-bottom))] md:px-4 md:py-2 lg:hidden">
+              <div className="mx-auto flex max-w-3xl items-center justify-between gap-1 md:gap-2">
                 {mobileTabs.map((item) => (
                   <Link
                     key={item.url}
                     to={item.url}
                     aria-label={item.label}
-                    className={`flex flex-col items-center justify-center rounded-xl py-1.5 text-[10px] font-semibold leading-tight tracking-tight transition-all ${
-                      item.iconOnly ? "w-10 shrink-0 self-stretch" : "min-w-0 flex-1 px-0.5"
+                    className={`flex flex-col items-center justify-center rounded-xl py-1.5 text-[10px] font-semibold leading-tight tracking-tight transition-all md:py-2 md:text-xs ${
+                      item.iconOnly ? "w-10 shrink-0 self-stretch md:w-12" : "min-w-0 flex-1 px-0.5"
                     } ${
                       isTabActive(item)
                         ? "bg-primary text-primary-foreground"

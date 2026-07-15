@@ -1,6 +1,9 @@
 import * as React from "react";
 
-const MOBILE_BREAKPOINT = 768;
+// Below this width the app uses the mobile/tablet layout: bottom navigation
+// and no desktop sidebar. Matches Tailwind's `lg` breakpoint — keep in sync
+// with the `lg:` classes in DashboardLayout.
+const MOBILE_BREAKPOINT = 1024;
 
 export function useIsMobile() {
   const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined);
