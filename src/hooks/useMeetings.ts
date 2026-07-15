@@ -211,16 +211,25 @@ export function buildWhatsappShareText(m: Meeting, participants: Record<string, 
   const wth = participants[m.meeting_with_user_id];
   const byCats = (m.meeting_by_categories || []).join(", ") || "—";
   const withCats = (m.meeting_with_categories || []).join(", ") || "—";
-  return (
-    `🤝 RBN Networking Meeting\n\n` +
-    `Meeting By: ${by?.name || "Member"}\n` +
-    `Meeting With: ${wth?.name || "Member"}\n` +
-    `Business Categories: ${byCats} ↔ ${withCats}\n` +
-    `Discussion Summary: ${m.discussion_summary || "—"}\n\n` +
-    `📅 Logged through RBN – Rajput Business Network`
-  );
+//   return (
+//     `🤝 RBN Networking Meeting\n\n` +
+//     `Meeting By: ${by?.name || "Member"}\n` +
+//     `Meeting With: ${wth?.name || "Member"}\n` +
+//     `Business Categories: ${byCats} ↔ ${withCats}\n` +
+//     `Discussion Summary: ${m.discussion_summary || "—"}\n\n` +
+//     `📅 Logged through RBN – Rajput Business Network`
+//   );
+// }
+return (
+  `🤝 *RBN Networking Meeting*\n\n` +
+  `*Meeting By:* ${by?.name || "Member"}\n` +
+  `*Category:* ${byCats || "—"}\n\n` +
+  `*Meeting With:* ${wth?.name || "Member"}\n` +
+  `*Category:* ${withCats || "—"}\n\n` +
+  `*Discussion Summary:*\n${m.discussion_summary || "—"}\n\n` +
+  `📱 *Logged through the RBN – Rajput Business Network App*`
+);
 }
-
 function openWhatsappTextOnly(text: string) {
   const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
   window.open(url, "_blank");
