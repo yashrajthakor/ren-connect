@@ -28,6 +28,7 @@ import LatestStoriesSection from "@/components/public/LatestStoriesSection";
 import NoticeTicker from "@/components/notices/NoticeTicker";
 import NoticeBoardSection from "@/components/notices/NoticeBoardSection";
 import SponsorshipShowcase from "@/components/public/SponsorshipShowcase";
+import SponsorsSection from "@/components/public/SponsorsSection";
 import InstagramShowcase from "@/components/public/InstagramShowcase";
 import heroHeritage from "@/assets/hero-heritage.jpg";
 import heroBusiness from "@/assets/hero-business.jpg";
@@ -458,6 +459,9 @@ const Index = () => {
         subtitle="Upcoming meetings, events, and important updates"
         limit={6}
       />
+
+      {/* OUR PROUD SPONSORS */}
+      <SponsorsSection />
 
       {/* SEARCH DIRECTORY */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
