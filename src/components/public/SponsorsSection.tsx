@@ -16,7 +16,7 @@ function badgeClassesFor(type: string): string {
 
 function SponsorCard({ s }: { s: Sponsor }) {
   const inner = (
-    <div className="group flex flex-col items-center justify-center gap-2 rounded-xl border border-border bg-card p-4 w-36 sm:w-40 shrink-0 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-primary hover:shadow-primary/10">
+    <div className="group flex flex-col items-center justify-center gap-2 rounded-xl border border-border bg-card p-4 w-[150px] sm:w-[170px] shrink-0 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-primary hover:shadow-primary/10">
       <div className="h-16 w-16 rounded-lg bg-white flex items-center justify-center overflow-hidden ring-1 ring-border">
         {s.logo ? (
           <img src={s.logo} alt={s.firmName} className="max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-105" loading="lazy" />
@@ -77,25 +77,27 @@ export default function SponsorsSection() {
             ))}
           </div>
         ) : (
-          <div className="flex flex-wrap justify-center gap-6 lg:gap-8 overflow-x-auto sm:overflow-visible snap-x snap-mandatory sm:snap-none -mx-2 px-2 pb-2">
-            {groups.map((g) => (
-              <div key={g.key} className="snap-start shrink-0 sm:shrink flex flex-col items-center gap-3 min-w-fit">
-                <span className={`inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border ${g.badge}`}>
-                  <Award className="h-3 w-3" />
-                  {g.label}
-                </span>
-                <div className="flex flex-wrap justify-center gap-3">
-                  {g.items.map((s) => (
-                    <SponsorCard key={s.id} s={s} />
-                  ))}
+          <div className="overflow-x-auto whitespace-nowrap scroll-smooth pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <div className="flex items-start gap-8 flex-nowrap min-w-max">
+              {groups.map((g) => (
+                <div key={g.key} className="flex flex-col items-start gap-3 shrink-0">
+                  <span className={`inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border ${g.badge}`}>
+                    <Award className="h-3 w-3" />
+                    {g.label}
+                  </span>
+                  <div className="flex gap-4 flex-nowrap">
+                    {g.items.map((s) => (
+                      <SponsorCard key={s.id} s={s} />
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         )}
 
         {/* View All */}
-        <div className="flex justify-end mt-6">
+        {/* <div className="flex justify-end mt-6">
           <Link
             to="/#our-sponsors"
             className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline group"
@@ -103,7 +105,7 @@ export default function SponsorsSection() {
             View All Sponsors
             <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
           </Link>
-        </div>
+        </div> */}
       </div>
     </section>
   );
