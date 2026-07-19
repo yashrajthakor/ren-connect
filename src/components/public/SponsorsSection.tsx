@@ -2,12 +2,17 @@ import { Link } from "react-router-dom";
 import { ChevronRight, Award } from "lucide-react";
 import { useActiveSponsors, type Sponsor } from "@/hooks/useSponsors";
 
-const TIERS: { key: string; label: string; ring: string; badge: string; match: (t: string) => boolean }[] = [
-  { key: "platinum", label: "Platinum", ring: "ring-slate-300", badge: "bg-slate-100 text-slate-700 border-slate-300", match: (t) => t.includes("platinum") },
-  { key: "gold", label: "Gold", ring: "ring-amber-300", badge: "bg-amber-50 text-amber-700 border-amber-300", match: (t) => t.includes("gold") },
-  { key: "silver", label: "Silver", ring: "ring-zinc-300", badge: "bg-zinc-100 text-zinc-700 border-zinc-300", match: (t) => t.includes("silver") },
-  { key: "bronze", label: "Bronze", ring: "ring-orange-300", badge: "bg-orange-50 text-orange-800 border-orange-300", match: (t) => t.includes("bronze") },
-];
+function badgeClassesFor(type: string): string {
+  const t = type.toLowerCase();
+  if (t.includes("platinum")) return "bg-slate-100 text-slate-700 border-slate-300";
+  if (t.includes("gold")) return "bg-amber-50 text-amber-700 border-amber-300";
+  if (t.includes("silver")) return "bg-zinc-100 text-zinc-700 border-zinc-300";
+  if (t.includes("bronze")) return "bg-orange-50 text-orange-800 border-orange-300";
+  if (t.includes("title")) return "bg-primary/10 text-primary border-primary/30";
+  if (t.includes("event")) return "bg-blue-50 text-blue-700 border-blue-200";
+  if (t.includes("tech")) return "bg-indigo-50 text-indigo-700 border-indigo-200";
+  return "bg-secondary/10 text-secondary border-secondary/20";
+}
 
 function SponsorCard({ s }: { s: Sponsor }) {
   const inner = (
@@ -36,10 +41,20 @@ function SponsorCard({ s }: { s: Sponsor }) {
 export default function SponsorsSection() {
   const { data: sponsors = [], isLoading } = useActiveSponsors();
 
-  const groups = TIERS.map((tier) => ({
-    ...tier,
-    items: sponsors.filter((s) => tier.match((s.sponsorshipType || "").toLowerCase())),
-  })).filter((g) => g.items.length > 0);
+  // Dynamically group sponsors by their `sponsorship_type` value, preserving
+  // first-seen order (which reflects display_order/created_at from the query).
+  const groups = (() => {
+    const map = new Map<string, { key: string; label: string; badge: string; items: Sponsor[] }>();
+    for (const s of sponsors) {
+      const label = (s.sponsorshipType || "Other").trim();
+      const key = label.toLowerCase();
+      if (!map.has(key)) {
+        map.set(key, { key, label, badge: badgeClassesFor(label), items: [] });
+      }
+      map.get(key)!.items.push(s);
+    }
+    return Array.from(map.values());
+  })();
 
   if (!isLoading && groups.length === 0) return null;
 
