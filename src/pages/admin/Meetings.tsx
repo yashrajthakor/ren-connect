@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Search, Rss } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
@@ -11,6 +12,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import AdminFilterBanner from "@/components/admin/AdminFilterBanner";
 
 export default function AdminMeetings() {
   const { data, isLoading } = useAdminMeetings(true);
@@ -25,10 +27,20 @@ export default function AdminMeetings() {
   const meetings = data?.meetings ?? [];
   const participants = data?.participants ?? {};
 
+  // Arriving from the admin dashboard's 1:1 Meetings KPI card pre-applies
+  // the same date range that produced that count.
+  const [searchParams] = useSearchParams();
+  const fromParam = searchParams.get("from");
+  const toParam = searchParams.get("to");
+
   const filtered = useMemo(() => {
     const query = q.trim().toLowerCase();
-    if (!query) return meetings;
+    const fromTime = fromParam ? new Date(fromParam).getTime() : -Infinity;
+    const toTime = toParam ? new Date(toParam).getTime() : Infinity;
     return meetings.filter((m) => {
+      const t = new Date(m.created_at).getTime();
+      if (t < fromTime || t >= toTime) return false;
+      if (!query) return true;
       const by = participants[m.meeting_by_user_id];
       const wth = participants[m.meeting_with_user_id];
       return (
@@ -39,7 +51,7 @@ export default function AdminMeetings() {
         m.discussion_summary.toLowerCase().includes(query)
       );
     });
-  }, [meetings, participants, q]);
+  }, [meetings, participants, q, fromParam, toParam]);
 
   const share = (m: Meeting) => {
     void shareMeetingViaWhatsapp(m, participants);
@@ -77,6 +89,14 @@ export default function AdminMeetings() {
           </p>
         </div>
       </div>
+
+      {(fromParam || toParam) && (
+        <AdminFilterBanner
+          label={`Showing meetings from ${fromParam ? new Date(fromParam).toLocaleDateString() : "the beginning"} to ${
+            toParam ? new Date(toParam).toLocaleDateString() : "now"
+          }`}
+        />
+      )}
 
       <div className="relative mb-5">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />

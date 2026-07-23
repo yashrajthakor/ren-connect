@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import renLogo from "@/assets/ren-logo.png";
+import AdminStatsOverview from "@/components/admin/AdminStatsOverview";
 
 const Admin = () => {
   const navigate = useNavigate();
@@ -77,10 +78,6 @@ const Admin = () => {
     },
   ];
 
-  const stats = [
-    { label: "Total Members", value: "--", icon: Users },
-  ];
-
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -122,22 +119,7 @@ const Admin = () => {
           </p>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          {stats.map((stat) => (
-            <div key={stat.label} className="bg-card rounded-lg border border-border p-4 shadow-sm">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-primary/10 rounded-md">
-                  <stat.icon className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">{stat.label}</p>
-                  <p className="text-xl font-bold text-foreground">{stat.value}</p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+        <AdminStatsOverview />
 
         {/* Action Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

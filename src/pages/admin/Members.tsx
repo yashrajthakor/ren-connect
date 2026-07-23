@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Loader2, Search, Award, X, Users, Download, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
@@ -56,7 +57,11 @@ const Members = () => {
   const [allCats, setAllCats] = useState<CategoryOption[]>([]);
   const [savingCats, setSavingCats] = useState(false);
   const [exporting, setExporting] = useState(false);
-  const [membershipFilter, setMembershipFilter] = useState<"all" | "paid_member" | "visitor">("all");
+  const [searchParams] = useSearchParams();
+  // Arriving from the admin dashboard's Paid Members KPI card pre-applies this filter.
+  const [membershipFilter, setMembershipFilter] = useState<"all" | "paid_member" | "visitor">(
+    () => (searchParams.get("membership") as "paid_member" | "visitor" | null) ?? "all"
+  );
   const [updatingMembershipId, setUpdatingMembershipId] = useState<string | null>(null);
 
   const load = async () => {

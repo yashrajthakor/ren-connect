@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,14 +17,30 @@ import { LeadStatusBadge, PriorityBadge } from "@/components/leads/LeadStatusBad
 import { useAdminLeads, useDeleteLead, type Lead } from "@/hooks/useLeads";
 import { TrendingUp, Inbox, CheckCircle2, XCircle, IndianRupee, Percent, Trash2 } from "lucide-react";
 import { friendlyError } from "@/lib/errors";
+import AdminFilterBanner from "@/components/admin/AdminFilterBanner";
 
 export default function AdminLeadsPage() {
   const { data, isLoading } = useAdminLeads(true);
-  const leads = data?.leads ?? [];
+  const allLeads = data?.leads ?? [];
   const participants = data?.participants ?? {};
   const deleteLead = useDeleteLead();
   const { toast } = useToast();
   const [confirmDelete, setConfirmDelete] = useState<Lead | null>(null);
+
+  // Arriving from the admin dashboard's Referrals/Business Generated KPI
+  // cards pre-applies the same date range that produced those numbers.
+  const [searchParams] = useSearchParams();
+  const fromParam = searchParams.get("from");
+  const toParam = searchParams.get("to");
+  const leads = useMemo(() => {
+    if (!fromParam && !toParam) return allLeads;
+    const fromTime = fromParam ? new Date(fromParam).getTime() : -Infinity;
+    const toTime = toParam ? new Date(toParam).getTime() : Infinity;
+    return allLeads.filter((l) => {
+      const t = new Date(l.created_at).getTime();
+      return t >= fromTime && t < toTime;
+    });
+  }, [allLeads, fromParam, toParam]);
 
   const doDelete = async () => {
     if (!confirmDelete) return;
@@ -62,6 +79,14 @@ export default function AdminLeadsPage() {
           Monitor referral activity and business volume across RBN.
         </p>
       </div>
+
+      {(fromParam || toParam) && (
+        <AdminFilterBanner
+          label={`Showing leads from ${fromParam ? new Date(fromParam).toLocaleDateString() : "the beginning"} to ${
+            toParam ? new Date(toParam).toLocaleDateString() : "now"
+          }`}
+        />
+      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 mb-6">
         <Stat icon={<Inbox className="h-4 w-4" />} label="Total Leads" value={stats.total} />

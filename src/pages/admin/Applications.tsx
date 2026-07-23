@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   ArrowLeft,
   FileText,
@@ -39,6 +39,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import renLogo from "@/assets/ren-logo.png";
+import AdminFilterBanner from "@/components/admin/AdminFilterBanner";
 
 type AppStatus = "pending" | "under_review" | "active" | "rejected" | "suspended";
 
@@ -229,6 +230,12 @@ const Applications = () => {
   const [memberOptions, setMemberOptions] = useState<MemberOption[]>([]);
   const [savingReferralId, setSavingReferralId] = useState<string | null>(null);
 
+  // Arriving from the admin dashboard's New Registrations KPI card
+  // pre-applies the same date range that produced that count.
+  const [searchParams] = useSearchParams();
+  const fromParam = searchParams.get("from");
+  const toParam = searchParams.get("to");
+
   const fetchApps = async () => {
     setLoading(true);
     const { data, error } = await (supabase as any)
@@ -331,8 +338,13 @@ const Applications = () => {
     if (selected?.id === id) setSelected({ ...selected, status });
   };
 
+  const fromTime = fromParam ? new Date(fromParam).getTime() : -Infinity;
+  const toTime = toParam ? new Date(toParam).getTime() : Infinity;
+
   const filtered = apps.filter((a) => {
     if (filter !== "all" && a.status !== filter) return false;
+    const t = new Date(a.created_at).getTime();
+    if (t < fromTime || t >= toTime) return false;
     if (!search) return true;
     const s = search.toLowerCase();
     return (
@@ -392,6 +404,14 @@ const Applications = () => {
             </Button>
           </div>
         </div>
+
+        {(fromParam || toParam) && (
+          <AdminFilterBanner
+            label={`Showing registrations from ${
+              fromParam ? new Date(fromParam).toLocaleDateString() : "the beginning"
+            } to ${toParam ? new Date(toParam).toLocaleDateString() : "now"}`}
+          />
+        )}
 
         <Tabs value={filter} onValueChange={(v) => setFilter(v as any)} className="mb-6">
           <TabsList className="flex flex-wrap h-auto">
