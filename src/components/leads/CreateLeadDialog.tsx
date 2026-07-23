@@ -14,7 +14,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { useToast } from "@/hooks/use-toast";
-import { useActiveMembers, useCreateLead, useMyLeadProfile } from "@/hooks/useLeads";
+import { useActiveMembers, useCreateLead, useUpdateLead, useMyLeadProfile, type Lead } from "@/hooks/useLeads";
 import { friendlyError } from "@/lib/errors";
 import { DRAFT_KEYS, readFormDraft, writeFormDraft, clearFormDraft } from "@/lib/formDraft";
 
@@ -43,6 +43,7 @@ interface Props {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   giverId: string;
+  existing?: Lead | null;
 }
 
 function initials(name: string) {
@@ -55,7 +56,7 @@ function initials(name: string) {
     .toUpperCase();
 }
 
-export default function CreateLeadDialog({ open, onOpenChange, giverId }: Props) {
+export default function CreateLeadDialog({ open, onOpenChange, giverId, existing }: Props) {
   const [search, setSearch] = useState("");
   const [comboOpen, setComboOpen] = useState(false);
   const {
@@ -65,6 +66,7 @@ export default function CreateLeadDialog({ open, onOpenChange, giverId }: Props)
     refetch: refetchMembers,
   } = useActiveMembers();
   const createLead = useCreateLead();
+  const updateLead = useUpdateLead();
   const { data: myProfile, isLoading: myProfileLoading } = useMyLeadProfile(giverId);
   const { toast } = useToast();
 
@@ -80,17 +82,40 @@ export default function CreateLeadDialog({ open, onOpenChange, giverId }: Props)
     defaultValues: defaultFormValues,
   });
 
-  // Restore an unfinished draft when the dialog opens (survives the app being
-  // backgrounded/reloaded while the user copies details from another app).
+  // Editing an existing lead starts from its saved values. New leads restore
+  // any unfinished draft (survives the app being backgrounded/reloaded while
+  // the user copies details from another app).
   useEffect(() => {
     if (!open) return;
+    if (existing) {
+      const t = existing.lead_type ?? "internal";
+      reset({
+        receiver_id: existing.receiver_id,
+        lead_type: t,
+        lead_name: existing.lead_name,
+        contact_number: existing.contact_number ?? "",
+        description: existing.description ?? "",
+        priority: existing.priority,
+      });
+      // Sync so the external/internal transition-detector below doesn't
+      // mistake this initial load for a live user toggle and wipe the
+      // values we just restored.
+      prevLeadType.current = t;
+      return;
+    }
     const draft = readFormDraft<Partial<FormData>>(DRAFT_KEYS.createLead);
-    if (draft) reset({ ...defaultFormValues, ...draft });
-  }, [open, reset]);
+    if (draft) {
+      reset({ ...defaultFormValues, ...draft });
+      prevLeadType.current = draft.lead_type ?? "internal";
+    } else {
+      reset(defaultFormValues);
+      prevLeadType.current = "internal";
+    }
+  }, [open, existing, reset]);
 
-  // Keep the draft in sync while the user types.
+  // Keep the draft in sync while the user types (new leads only).
   useEffect(() => {
-    if (!open) return;
+    if (!open || existing) return;
     const sub = watch((values) => {
       const hasContent =
         values.receiver_id ||
@@ -101,7 +126,7 @@ export default function CreateLeadDialog({ open, onOpenChange, giverId }: Props)
       else clearFormDraft(DRAFT_KEYS.createLead);
     });
     return () => sub.unsubscribe();
-  }, [open, watch]);
+  }, [open, existing, watch]);
 
   const selectedReceiver = watch("receiver_id");
   const leadType = watch("lead_type");
@@ -154,10 +179,11 @@ export default function CreateLeadDialog({ open, onOpenChange, giverId }: Props)
   const profileIncomplete =
     isInternal && !myProfileLoading && (!myProfile?.full_name || myProfile.full_name.trim().length < 2);
 
-  const busy = isSubmitting || createLead.isPending;
+  const busy = isSubmitting || createLead.isPending || updateLead.isPending;
 
   const resetForm = () => {
     reset(defaultFormValues);
+    prevLeadType.current = "internal";
     setSearch("");
     setComboOpen(false);
   };
@@ -173,23 +199,38 @@ export default function CreateLeadDialog({ open, onOpenChange, giverId }: Props)
       return;
     }
     try {
-      await createLead.mutateAsync({
-        giver_id: giverId,
-        receiver_id: data.receiver_id,
-        lead_name: data.lead_name,
-        contact_number: data.contact_number || "",
-        description: data.description || undefined,
-        priority: data.priority,
-        lead_type: data.lead_type,
-      });
-      toast({ title: "Lead shared", description: "The member has been notified." });
+      if (existing) {
+        await updateLead.mutateAsync({
+          id: existing.id,
+          patch: {
+            receiver_id: data.receiver_id,
+            lead_name: data.lead_name,
+            contact_number: data.contact_number || "",
+            description: data.description || null,
+            priority: data.priority,
+            lead_type: data.lead_type,
+          },
+        });
+        toast({ title: "Lead updated" });
+      } else {
+        await createLead.mutateAsync({
+          giver_id: giverId,
+          receiver_id: data.receiver_id,
+          lead_name: data.lead_name,
+          contact_number: data.contact_number || "",
+          description: data.description || undefined,
+          priority: data.priority,
+          lead_type: data.lead_type,
+        });
+        toast({ title: "Lead shared", description: "The member has been notified." });
+      }
       clearFormDraft(DRAFT_KEYS.createLead);
       resetForm();
       onOpenChange(false);
     } catch (e) {
       // Keep the dialog open with all input intact so the user can retry.
       toast({
-        title: "Could not create lead",
+        title: existing ? "Could not update lead" : "Could not create lead",
         description: friendlyError(e, "Something went wrong. Your details are kept — please try again."),
         variant: "destructive",
       });
@@ -208,9 +249,11 @@ export default function CreateLeadDialog({ open, onOpenChange, giverId }: Props)
     >
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Share a new lead</DialogTitle>
+          <DialogTitle>{existing ? "Edit lead" : "Share a new lead"}</DialogTitle>
           <DialogDescription>
-            Refer business to a fellow RBN member.
+            {existing
+              ? "Update the details of this lead."
+              : "Refer business to a fellow RBN member."}
           </DialogDescription>
         </DialogHeader>
 
@@ -414,7 +457,13 @@ export default function CreateLeadDialog({ open, onOpenChange, giverId }: Props)
             </Button>
             <Button type="submit" disabled={busy || profileIncomplete}>
               {busy && <Loader2 className="h-4 w-4 animate-spin" />}
-              {busy ? "Sharing…" : "Share Lead"}
+              {busy
+                ? existing
+                  ? "Saving…"
+                  : "Sharing…"
+                : existing
+                ? "Save Changes"
+                : "Share Lead"}
             </Button>
           </div>
         </form>

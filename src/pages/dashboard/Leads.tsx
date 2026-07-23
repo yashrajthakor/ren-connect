@@ -1,6 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { Plus, Inbox, Send, TrendingUp, IndianRupee, Heart } from "lucide-react";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Plus, Inbox, Send, TrendingUp, IndianRupee, Heart, LayoutList } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import {
   DropdownMenu,
@@ -16,6 +15,14 @@ import ThankMemberDialog from "@/components/leads/ThankMemberDialog";
 import PendingApprovalGate from "@/components/dashboard/PendingApprovalGate";
 import { DRAFT_KEYS, readFormDraft } from "@/lib/formDraft";
 
+type LeadFilter = "all" | "given" | "received";
+
+const LEAD_FILTERS: Array<{ value: LeadFilter; label: string; icon: React.ReactNode }> = [
+  { value: "all", label: "All", icon: <LayoutList className="h-3.5 w-3.5" /> },
+  { value: "given", label: "Leads Given", icon: <Send className="h-3.5 w-3.5" /> },
+  { value: "received", label: "Leads Received", icon: <Inbox className="h-3.5 w-3.5" /> },
+];
+
 const STATUS_FILTERS: Array<{ value: "all" | LeadStatus; label: string }> = [
   { value: "all", label: "All" },
   { value: "pending", label: "Pending" },
@@ -30,8 +37,9 @@ function LeadsPageInner() {
   const [createOpen, setCreateOpen] = useState(false);
   const [thanksOpen, setThanksOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
-  const [tab, setTab] = useState<"received" | "given">("received");
-  const [filter, setFilter] = useState<"all" | LeadStatus>("all");
+  const [editingLead, setEditingLead] = useState<Lead | null>(null);
+  const [leadFilter, setLeadFilter] = useState<LeadFilter>("all");
+  const [statusFilter, setStatusFilter] = useState<"all" | LeadStatus>("all");
 
   // Reopen an unfinished form after the app was backgrounded/reloaded
   // mid-entry, so the user continues exactly where they left off.
@@ -46,8 +54,18 @@ function LeadsPageInner() {
   const received = useMemo(() => leads.filter((l) => l.receiver_id === userId), [leads, userId]);
   const given = useMemo(() => leads.filter((l) => l.giver_id === userId), [leads, userId]);
 
-  const list = tab === "received" ? received : given;
-  const filtered = filter === "all" ? list : list.filter((l) => l.status === filter);
+  const byLeadFilter = leadFilter === "given" ? given : leadFilter === "received" ? received : leads;
+  const filtered =
+    statusFilter === "all" ? byLeadFilter : byLeadFilter.filter((l) => l.status === statusFilter);
+
+  const emptyMessage =
+    filtered.length === 0 && statusFilter !== "all" && byLeadFilter.length > 0
+      ? "No leads match the selected filters."
+      : leadFilter === "given"
+      ? "You haven't shared any leads yet."
+      : leadFilter === "received"
+      ? "No leads received yet."
+      : "No leads yet. Share a lead or wait for one to arrive.";
 
   const totalClosed = useMemo(
     () => leads.filter((l) => l.status === "business_closed").reduce((s, l) => s + Number(l.closure_amount || 0), 0),
@@ -78,19 +96,35 @@ function LeadsPageInner() {
         />
       </div>
 
-      <Tabs value={tab} onValueChange={(v) => setTab(v as any)}>
-        <TabsList>
-          <TabsTrigger value="received">Leads Received ({received.length})</TabsTrigger>
-          <TabsTrigger value="given">Leads Given ({given.length})</TabsTrigger>
-        </TabsList>
+      <div className="mb-4">
+        <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Show</p>
+        <div className="flex flex-wrap gap-2">
+          {LEAD_FILTERS.map((f) => (
+            <button
+              key={f.value}
+              onClick={() => setLeadFilter(f.value)}
+              className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors ${
+                leadFilter === f.value
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-card hover:bg-muted border-border text-muted-foreground"
+              }`}
+            >
+              {f.icon}
+              {f.label}
+            </button>
+          ))}
+        </div>
+      </div>
 
-        <div className="flex flex-wrap gap-2 my-4">
+      <div className="mb-4">
+        <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Status</p>
+        <div className="flex flex-wrap gap-2">
           {STATUS_FILTERS.map((f) => (
             <button
               key={f.value}
-              onClick={() => setFilter(f.value)}
+              onClick={() => setStatusFilter(f.value)}
               className={`text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors ${
-                filter === f.value
+                statusFilter === f.value
                   ? "bg-primary text-primary-foreground border-primary"
                   : "bg-card hover:bg-muted border-border text-muted-foreground"
               }`}
@@ -99,28 +133,17 @@ function LeadsPageInner() {
             </button>
           ))}
         </div>
+      </div>
 
-        <TabsContent value="received" className="m-0">
-          <LeadList
-            leads={filtered}
-            isLoading={isLoading}
-            participants={participants}
-            currentUserId={userId || ""}
-            onSelect={setSelectedLead}
-            empty="No leads received yet."
-          />
-        </TabsContent>
-        <TabsContent value="given" className="m-0">
-          <LeadList
-            leads={filtered}
-            isLoading={isLoading}
-            participants={participants}
-            currentUserId={userId || ""}
-            onSelect={setSelectedLead}
-            empty="You haven't shared any leads yet."
-          />
-        </TabsContent>
-      </Tabs>
+      <LeadList
+        leads={filtered}
+        isLoading={isLoading}
+        participants={participants}
+        currentUserId={userId || ""}
+        onSelect={setSelectedLead}
+        onEdit={(l) => { setEditingLead(l); setCreateOpen(true); }}
+        empty={emptyMessage}
+      />
 
       {/* Floating action button with speed-dial menu */}
       <DropdownMenu>
@@ -134,7 +157,7 @@ function LeadsPageInner() {
         </DropdownMenuTrigger>
         <DropdownMenuContent side="top" align="end" sideOffset={12} className="w-72 rounded-xl p-1.5">
           <DropdownMenuItem
-            onSelect={() => setCreateOpen(true)}
+            onSelect={() => { setEditingLead(null); setCreateOpen(true); }}
             className="items-start gap-3 rounded-lg p-3 cursor-pointer"
           >
             <div className="mt-0.5 rounded-lg bg-primary/10 p-2 shrink-0">
@@ -165,7 +188,12 @@ function LeadsPageInner() {
       </DropdownMenu>
 
       {userId && (
-        <CreateLeadDialog open={createOpen} onOpenChange={setCreateOpen} giverId={userId} />
+        <CreateLeadDialog
+          open={createOpen}
+          onOpenChange={(v) => { setCreateOpen(v); if (!v) setEditingLead(null); }}
+          giverId={userId}
+          existing={editingLead}
+        />
       )}
       <ThankMemberDialog open={thanksOpen} onOpenChange={setThanksOpen} />
       <LeadDetailDialog
@@ -200,13 +228,14 @@ function Stat({ icon, label, value }: { icon: React.ReactNode; label: string; va
 }
 
 function LeadList({
-  leads, isLoading, participants, currentUserId, onSelect, empty,
+  leads, isLoading, participants, currentUserId, onSelect, onEdit, empty,
 }: {
   leads: Lead[];
   isLoading: boolean;
   participants: Record<string, any>;
   currentUserId: string;
   onSelect: (l: Lead) => void;
+  onEdit: (l: Lead) => void;
   empty: string;
 }) {
   if (isLoading) {
@@ -228,6 +257,7 @@ function LeadList({
           participants={participants}
           currentUserId={currentUserId}
           onClick={() => onSelect(l)}
+          onEdit={() => onEdit(l)}
         />
       ))}
     </div>
