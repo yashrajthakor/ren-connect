@@ -20,11 +20,11 @@ const ShareableProfileCard = forwardRef<HTMLDivElement, { member: Member }>(({ m
           className="absolute inset-0 bg-primary"
           style={{ clipPath: "polygon(0 0, 38% 0, 24% 100%, 0 100%)" }}
         />
-        <div className="relative h-full flex items-center justify-end px-16">
+        {/* <div className="relative h-full flex items-center justify-end px-16">
           <span className="text-white/90 text-lg font-bold uppercase tracking-[0.3em]">
             Member of RBN
           </span>
-        </div>
+        </div> */}
       </div>
 
       {/* RBN logo, top-right just below the header strip */}
@@ -36,37 +36,31 @@ const ShareableProfileCard = forwardRef<HTMLDivElement, { member: Member }>(({ m
       </div>
 
       {/* Body: two columns, vertically centered so short content doesn't leave a dead gap at the bottom */}
-      <div className="flex-1 flex items-center px-16 gap-20" style={{ paddingTop: 140, paddingBottom: 48 }}>
+      <div className="flex-1 flex items-center px-16 gap-20" style={{ paddingTop: 40, paddingBottom: 48 }}>
         {/* Left column: photo with overlapping firm logo + contact details */}
-        <div className="flex flex-col items-center shrink-0" style={{ width: 380 }}>
-          <div className="relative" style={{ width: 280 }}>
+        <div className="flex flex-col items-center shrink-0" style={{ width: 494 }}>
+          <div className="relative" style={{ width: 364 }}>
             <div
               className="bg-white border-[6px] border-white shadow-2xl overflow-hidden flex items-center justify-center ring-1 ring-slate-200"
-              style={{ height: 380, width: 280, borderRadius: 28 }}
+              style={{ height: 494, width: 364, borderRadius: 28 }}
             >
               {member.avatarUrl ? (
                 <img src={member.avatarUrl} alt={member.name} className="h-full w-full object-cover" crossOrigin="anonymous" />
               ) : (
-                <span className="font-bold text-secondary" style={{ fontSize: 88 }}>{member.initials}</span>
+                <span className="font-bold text-secondary" style={{ fontSize: 115 }}>{member.initials}</span>
               )}
             </div>
             {member.logoUrl && (
               <div
                 className="absolute bg-white border border-slate-200 rounded-2xl shadow-lg flex items-center justify-center overflow-hidden"
-                style={{ height: 110, width: 200, bottom: -36, left: "50%", transform: "translateX(-50%)" }}
+                style={{ height: 143, width: 260, bottom: -47, left: "50%", transform: "translateX(-50%)" }}
               >
                 <img src={member.logoUrl} alt="logo" className="h-full w-full object-contain p-2" crossOrigin="anonymous" />
               </div>
             )}
           </div>
 
-          <div className="flex flex-col items-start" style={{ width: 280, marginTop: 64, gap: 22 }}>
-            <div className="flex items-center gap-3 w-full">
-              <div className="flex items-center justify-center rounded-full bg-orange-50 shrink-0" style={{ height: 40, width: 40 }}>
-                <Phone style={{ height: 20, width: 20 }} className="text-primary" />
-              </div>
-              <span className="text-secondary font-medium break-words" style={{ fontSize: 23, lineHeight: 1.3 }}>{member.phone}</span>
-            </div>
+          {/* <div className="flex flex-col items-start" style={{ width: 280, marginTop: 64, gap: 22 }}>
             {member.website && (
               <div className="flex items-start gap-3 w-full">
                 <div className="flex items-center justify-center rounded-full bg-orange-50 shrink-0" style={{ height: 40, width: 40, marginTop: 1 }}>
@@ -75,7 +69,7 @@ const ShareableProfileCard = forwardRef<HTMLDivElement, { member: Member }>(({ m
                 <span className="text-secondary font-medium break-words" style={{ fontSize: 23, lineHeight: 1.3 }}>{member.website}</span>
               </div>
             )}
-          </div>
+          </div> */}
         </div>
 
         {/* Right column: name, business, badges, services */}
@@ -92,27 +86,20 @@ const ShareableProfileCard = forwardRef<HTMLDivElement, { member: Member }>(({ m
             </p>
           </div>
 
-          {member.committeeBadge && (
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-50 text-primary font-bold uppercase tracking-wider border border-primary/30 w-fit" style={{ fontSize: 20 }}>
-              <Award style={{ height: 18, width: 18 }} />
-              {member.committeeBadge}
-            </span>
-          )}
-
           <div className="flex flex-wrap gap-3">
             {categories.map((c) => (
               <span key={c} className="px-4 py-2 rounded-full bg-orange-50 text-primary font-bold uppercase tracking-wider border border-primary/20" style={{ fontSize: 20 }}>
                 {c}
               </span>
             ))}
-            <span className="px-4 py-2 rounded-full bg-slate-100 text-secondary font-semibold inline-flex items-center gap-2" style={{ fontSize: 20 }}>
+            {/* <span className="px-4 py-2 rounded-full bg-slate-100 text-secondary font-semibold inline-flex items-center gap-2" style={{ fontSize: 20 }}>
               <MapPin style={{ height: 18, width: 18 }} /> {member.city}
-            </span>
-            {member.chapter && (
+            </span> */}
+            {/* {member.chapter && (
               <span className="px-4 py-2 rounded-full bg-slate-100 text-secondary font-semibold" style={{ fontSize: 20 }}>
                 {member.chapter}
               </span>
-            )}
+            )} */}
           </div>
 
           {services.length > 0 && (
