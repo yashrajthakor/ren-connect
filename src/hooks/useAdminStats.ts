@@ -17,6 +17,7 @@ export interface AdminDashboardStats {
   meetings_total: number;
   meetings_leaderboard: LeaderboardEntry[];
   referrals_total: number;
+  top_referral_givers: LeaderboardEntry[];
   business_generated: number;
   top_givers: BusinessGiverEntry[];
   new_paid_members: number;

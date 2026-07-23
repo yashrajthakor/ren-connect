@@ -58,6 +58,8 @@ export default function AdminStatsOverview() {
       title: "Referrals",
       value: stats?.referrals_total ?? 0,
       href: `/admin/leads?${rangeParams}`,
+      leaderboard: stats?.top_referral_givers,
+      leaderboardKind: "count",
     },
     {
       key: "business",
