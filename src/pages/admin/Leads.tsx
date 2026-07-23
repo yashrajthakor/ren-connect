@@ -1,13 +1,44 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
 import { LeadStatusBadge, PriorityBadge } from "@/components/leads/LeadStatusBadge";
-import { useAdminLeads } from "@/hooks/useLeads";
-import { TrendingUp, Inbox, CheckCircle2, XCircle, IndianRupee, Percent } from "lucide-react";
+import { useAdminLeads, useDeleteLead, type Lead } from "@/hooks/useLeads";
+import { TrendingUp, Inbox, CheckCircle2, XCircle, IndianRupee, Percent, Trash2 } from "lucide-react";
+import { friendlyError } from "@/lib/errors";
 
 export default function AdminLeadsPage() {
   const { data, isLoading } = useAdminLeads(true);
   const leads = data?.leads ?? [];
   const participants = data?.participants ?? {};
+  const deleteLead = useDeleteLead();
+  const { toast } = useToast();
+  const [confirmDelete, setConfirmDelete] = useState<Lead | null>(null);
+
+  const doDelete = async () => {
+    if (!confirmDelete) return;
+    try {
+      await deleteLead.mutateAsync(confirmDelete.id);
+      toast({ title: "Lead deleted" });
+      setConfirmDelete(null);
+    } catch (e) {
+      toast({
+        title: "Could not delete lead",
+        description: friendlyError(e, "Something went wrong. Please try again."),
+        variant: "destructive",
+      });
+    }
+  };
 
   const stats = useMemo(() => {
     const closed = leads.filter((l) => l.status === "business_closed");
@@ -53,14 +84,15 @@ export default function AdminLeadsPage() {
                 <th className="px-4 py-3 font-semibold hidden lg:table-cell">Priority</th>
                 <th className="px-4 py-3 font-semibold text-right">Closure</th>
                 <th className="px-4 py-3 font-semibold hidden xl:table-cell">Created</th>
+                <th className="px-4 py-3 font-semibold text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {isLoading && (
-                <tr><td colSpan={7} className="text-center text-muted-foreground py-8">Loading…</td></tr>
+                <tr><td colSpan={8} className="text-center text-muted-foreground py-8">Loading…</td></tr>
               )}
               {!isLoading && leads.length === 0 && (
-                <tr><td colSpan={7} className="text-center text-muted-foreground py-8">No leads yet.</td></tr>
+                <tr><td colSpan={8} className="text-center text-muted-foreground py-8">No leads yet.</td></tr>
               )}
               {leads.map((l) => (
                 <tr key={l.id} className="hover:bg-muted/30">
@@ -84,12 +116,46 @@ export default function AdminLeadsPage() {
                   <td className="px-4 py-3 text-muted-foreground text-xs hidden xl:table-cell">
                     {new Date(l.created_at).toLocaleDateString()}
                   </td>
+                  <td className="px-4 py-3 text-right">
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => setConfirmDelete(l)}
+                      title="Delete lead"
+                      className="text-destructive hover:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       </Card>
+
+      <AlertDialog open={!!confirmDelete} onOpenChange={(v) => !v && setConfirmDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete lead?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete the lead
+              {confirmDelete ? ` "${confirmDelete.lead_name}"` : ""} for both the giver and receiver. This cannot be
+              undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteLead.isPending}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={doDelete}
+              disabled={deleteLead.isPending}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleteLead.isPending ? "Deleting…" : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

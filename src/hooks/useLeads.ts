@@ -224,6 +224,21 @@ export function useUpdateLead() {
   });
 }
 
+export function useDeleteLead() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await (supabase as any).from("leads").delete().eq("id", id);
+      if (error) throw error;
+      return id;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["leads"] });
+      qc.invalidateQueries({ queryKey: ["admin-leads"] });
+    },
+  });
+}
+
 export function useAdminLeads(enabled: boolean) {
   return useQuery({
     queryKey: ["admin-leads"],
