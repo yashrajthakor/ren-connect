@@ -1,6 +1,7 @@
 import { Phone, Clock, IndianRupee, Share2, Heart } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { LeadStatusBadge, PriorityBadge } from "./LeadStatusBadge";
 import type { Lead, MemberLite } from "@/hooks/useLeads";
@@ -89,6 +90,8 @@ export function LeadCard({ lead, participants, currentUserId, onClick }: Props) 
   const counterpart = isReceiver ? giver : receiver;
   const counterName = counterpart?.name || (isReceiver ? "Unknown giver" : "Unknown receiver");
   const isDirect = !!lead.is_direct_business;
+  // Lead Name/Contact represent an external customer rather than the giver.
+  const isExternal = !isDirect && lead.lead_type === "external";
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(
     buildWhatsAppMessage(lead, giver, receiver)
   )}`;
@@ -102,9 +105,16 @@ export function LeadCard({ lead, participants, currentUserId, onClick }: Props) 
     >
       <div className="flex items-start justify-between gap-3 mb-3">
         <div className="min-w-0 flex-1">
-          <h3 className="font-display font-semibold text-base text-foreground truncate">
-            {isDirect ? (lead.description || "Direct Business") : lead.lead_name}
-          </h3>
+          <div className="flex items-center gap-1.5 min-w-0">
+            <h3 className="font-display font-semibold text-base text-foreground truncate">
+              {isDirect ? (lead.description || "Direct Business") : lead.lead_name}
+            </h3>
+            {isExternal && (
+              <Badge variant="outline" className="shrink-0 text-[9px] uppercase tracking-wider px-1.5 py-0">
+                External
+              </Badge>
+            )}
+          </div>
           {isDirect ? (
             <div className="flex items-center gap-1.5 text-xs font-semibold text-primary mt-1">
               <Heart className="h-3.5 w-3.5 fill-primary" />

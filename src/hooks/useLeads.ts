@@ -4,6 +4,7 @@ import { useEffect } from "react";
 
 export type LeadStatus = "pending" | "in_process" | "business_closed" | "rejected";
 export type LeadPriority = "low" | "medium" | "high";
+export type LeadType = "internal" | "external";
 
 export interface Lead {
   id: string;
@@ -21,6 +22,7 @@ export interface Lead {
   updated_at: string;
   is_direct_business?: boolean | null;
   thank_you_note?: string | null;
+  lead_type?: LeadType;
 }
 
 export interface MemberLite {
@@ -50,6 +52,21 @@ export function useCurrentUserId() {
     queryFn: async () => {
       const { data } = await supabase.auth.getUser();
       return data.user?.id ?? null;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+/** The logged-in member's own name/phone — used to auto-fill Internal Lead forms. */
+export function useMyLeadProfile(userId: string | null | undefined) {
+  return useQuery({
+    queryKey: ["my-lead-profile", userId],
+    enabled: !!userId,
+    queryFn: async () => {
+      const { data, error } = await (supabase as any).rpc("get_my_profile");
+      if (error) throw error;
+      const row = (data || null) as { full_name?: string | null; phone?: string | null } | null;
+      return { full_name: row?.full_name ?? "", phone: row?.phone ?? "" };
     },
     staleTime: 5 * 60 * 1000,
   });
@@ -148,6 +165,7 @@ export function useCreateLead() {
       contact_number: string;
       description?: string;
       priority: LeadPriority;
+      lead_type?: LeadType;
     }) => {
       const { error, data } = await (supabase as any)
         .from("leads")
