@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Loader2, Search, Award, X, Users, Download, Sparkles } from "lucide-react";
+import { Loader2, Search, Award, X, Users, Download, Sparkles, Check, ChevronsUpDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,8 @@ import {
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
 } from "@/components/ui/dialog";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import MultiCategorySelect, { CategoryOption } from "@/components/categories/MultiCategorySelect";
@@ -31,6 +33,9 @@ type Member = {
   categories?: string[] | null;
   referral_count?: number | null;
   membership_type?: "visitor" | "paid_member" | null;
+  invited_by_member_id?: string | null;
+  invited_by_name?: string | null;
+  business_name?: string | null;
 };
 
 const PRESET_BADGES = [
@@ -63,6 +68,14 @@ const Members = () => {
     () => (searchParams.get("membership") as "paid_member" | "visitor" | null) ?? "all"
   );
   const [updatingMembershipId, setUpdatingMembershipId] = useState<string | null>(null);
+
+  // Visitor → Paid Member requires picking an existing active Paid Member
+  // as "Invited By" before the conversion is allowed to save.
+  const [convertingMember, setConvertingMember] = useState<Member | null>(null);
+  const [inviterSearch, setInviterSearch] = useState("");
+  const [inviterComboOpen, setInviterComboOpen] = useState(false);
+  const [selectedInviterId, setSelectedInviterId] = useState<string>("");
+  const [converting, setConverting] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -120,6 +133,90 @@ const Members = () => {
       title: "Membership updated",
       description: `${m.full_name} → ${value === "paid_member" ? "Paid Member" : "Visitor"}`,
     });
+  };
+
+  // Selecting "Paid Member" for a Visitor opens the Invited By dialog instead
+  // of saving immediately; downgrading to Visitor needs no extra step.
+  const handleMembershipSelect = (m: Member, value: "visitor" | "paid_member") => {
+    if (value === "paid_member" && (m.membership_type || "visitor") !== "paid_member") {
+      setConvertingMember(m);
+      setSelectedInviterId("");
+      setInviterSearch("");
+    } else {
+      changeMembership(m, value);
+    }
+  };
+
+  // Existing Paid Members can also set/change who invited them, without
+  // re-running the conversion (e.g. to backfill history or fix a mistake).
+  const openEditInviter = (m: Member) => {
+    setConvertingMember(m);
+    setSelectedInviterId(m.invited_by_member_id || "");
+    setInviterSearch("");
+  };
+
+  const activePaidMembers = useMemo(
+    () =>
+      members.filter(
+        (x) =>
+          (x.membership_type || "visitor") === "paid_member" &&
+          x.status === "active" &&
+          x.member_id !== convertingMember?.member_id
+      ),
+    [members, convertingMember]
+  );
+
+  const filteredInviters = useMemo(() => {
+    const q = inviterSearch.trim().toLowerCase();
+    if (!q) return activePaidMembers.slice(0, 30);
+    return activePaidMembers
+      .filter(
+        (x) =>
+          x.full_name?.toLowerCase().includes(q) ||
+          (x.business_name || "").toLowerCase().includes(q)
+      )
+      .slice(0, 30);
+  }, [activePaidMembers, inviterSearch]);
+
+  const selectedInviter = activePaidMembers.find((x) => x.member_id === selectedInviterId);
+  // Already a Paid Member → we're only editing the inviter, not converting.
+  const isEditingInviterOnly = (convertingMember?.membership_type || "visitor") === "paid_member";
+
+  const confirmConvert = async () => {
+    if (!convertingMember || !selectedInviterId) return;
+    setConverting(true);
+    const { error } = isEditingInviterOnly
+      ? await (supabase as any).rpc("set_member_invited_by", {
+          _member_id: convertingMember.member_id,
+          _invited_by_member_id: selectedInviterId,
+        })
+      : await (supabase as any).rpc("set_membership_type", {
+          _member_id: convertingMember.member_id,
+          _type: "paid_member",
+          _invited_by_member_id: selectedInviterId,
+        });
+    setConverting(false);
+    if (error) {
+      toast({ title: "Update failed", description: error.message, variant: "destructive" });
+      return;
+    }
+    const inviterName = selectedInviter?.full_name || "";
+    setMembers((prev) =>
+      prev.map((x) =>
+        x.member_id === convertingMember.member_id
+          ? { ...x, membership_type: "paid_member", invited_by_member_id: selectedInviterId, invited_by_name: inviterName }
+          : x
+      )
+    );
+    toast(
+      isEditingInviterOnly
+        ? { title: "Invited By updated", description: `${convertingMember.full_name} was invited by ${inviterName}` }
+        : {
+            title: "Membership updated",
+            description: `${convertingMember.full_name} → Paid Member (invited by ${inviterName || "—"})`,
+          }
+    );
+    setConvertingMember(null);
   };
 
   const handleExport = async () => {
@@ -359,10 +456,10 @@ const Members = () => {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <Select
                             value={m.membership_type || "visitor"}
-                            onValueChange={(v) => changeMembership(m, v as "visitor" | "paid_member")}
+                            onValueChange={(v) => handleMembershipSelect(m, v as "visitor" | "paid_member")}
                             disabled={updatingMembershipId === m.member_id}
                           >
                             <SelectTrigger className="h-8 w-[140px] text-xs">
@@ -382,6 +479,32 @@ const Members = () => {
                             <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
                           )}
                         </div>
+                        {(m.membership_type || "visitor") === "paid_member" && (
+                          <div className="mt-1 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                            {m.invited_by_name ? (
+                              <>
+                                <span>
+                                  Invited by <span className="font-medium text-foreground">{m.invited_by_name}</span>
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => openEditInviter(m)}
+                                  className="font-medium text-primary hover:underline"
+                                >
+                                  Edit
+                                </button>
+                              </>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => openEditInviter(m)}
+                                className="font-medium text-primary hover:underline"
+                              >
+                                + Add inviter
+                              </button>
+                            )}
+                          </div>
+                        )}
                       </TableCell>
                       <TableCell className="text-center">
                         <span className={`inline-flex items-center justify-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold border ${(m.referral_count ?? 0) > 0 ? 'bg-primary/10 text-primary border-primary/20' : 'bg-muted text-muted-foreground border-border'}`}>
@@ -470,6 +593,99 @@ const Members = () => {
             <Button variant="royal" onClick={saveCats} disabled={savingCats}>
               {savingCats && <Loader2 className="h-4 w-4 animate-spin mr-1" />}
               Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!convertingMember} onOpenChange={(o) => !o && !converting && setConvertingMember(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{isEditingInviterOnly ? "Set Invited By" : "Convert to Paid Member"}</DialogTitle>
+            <DialogDescription>
+              {convertingMember && (
+                <>
+                  Record which existing Paid Member invited <strong>{convertingMember.full_name}</strong>
+                  {isEditingInviterOnly ? "." : " to upgrade."}
+                </>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-2">
+            <Label>Invited By</Label>
+            <Popover open={inviterComboOpen} onOpenChange={setInviterComboOpen}>
+              <PopoverTrigger asChild>
+                <button
+                  type="button"
+                  role="combobox"
+                  aria-expanded={inviterComboOpen}
+                  className="w-full flex items-center justify-between gap-2 border rounded-lg p-3 text-left hover:bg-muted/40 transition-colors"
+                >
+                  {selectedInviter ? (
+                    <div className="min-w-0">
+                      <p className="font-medium text-sm truncate">{selectedInviter.full_name}</p>
+                      {selectedInviter.business_name && (
+                        <p className="text-xs text-muted-foreground truncate">{selectedInviter.business_name}</p>
+                      )}
+                    </div>
+                  ) : (
+                    <span className="text-sm text-muted-foreground">Search by member or business name…</span>
+                  )}
+                  <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent align="start" className="w-[--radix-popover-trigger-width] p-0">
+                <Command shouldFilter={false}>
+                  <CommandInput
+                    placeholder="Search by name or business..."
+                    value={inviterSearch}
+                    onValueChange={setInviterSearch}
+                  />
+                  <CommandList className="max-h-56">
+                    <CommandEmpty>No active Paid Members found</CommandEmpty>
+                    <CommandGroup>
+                      {filteredInviters.map((x) => (
+                        <CommandItem
+                          key={x.member_id}
+                          value={x.member_id}
+                          onSelect={() => {
+                            setSelectedInviterId(x.member_id);
+                            setInviterComboOpen(false);
+                            setInviterSearch("");
+                          }}
+                          className="flex items-center gap-2 py-2"
+                        >
+                          <div className="min-w-0 flex-1">
+                            <p className="font-medium text-sm truncate">{x.full_name}</p>
+                            {x.business_name && (
+                              <p className="text-xs text-muted-foreground truncate">{x.business_name}</p>
+                            )}
+                          </div>
+                          {selectedInviterId === x.member_id && (
+                            <Check className="h-4 w-4 shrink-0 text-primary" />
+                          )}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+            <p className="text-xs text-muted-foreground">
+              {isEditingInviterOnly
+                ? "Required to save."
+                : `Required — this converts ${convertingMember?.full_name || "the member"} from Visitor to Paid Member.`}
+            </p>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setConvertingMember(null)} disabled={converting}>
+              Cancel
+            </Button>
+            <Button variant="royal" onClick={confirmConvert} disabled={converting || !selectedInviterId}>
+              {converting && <Loader2 className="h-4 w-4 animate-spin mr-1" />}
+              Confirm
             </Button>
           </DialogFooter>
         </DialogContent>
