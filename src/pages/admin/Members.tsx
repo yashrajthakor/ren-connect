@@ -36,7 +36,25 @@ type Member = {
   invited_by_member_id?: string | null;
   invited_by_name?: string | null;
   business_name?: string | null;
+  paid_joining_date?: string | null;
+  paid_valid_through?: string | null;
 };
+
+/** "YYYY-MM-DD" for <input type="date">, built from local Y/M/D to avoid UTC off-by-one shifts. */
+function toDateInputValue(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+/** Joining Date + 1 year - 1 day, e.g. 15 Aug 2026 → 14 Aug 2027. */
+function computeValidThrough(joiningDateStr: string): string {
+  const [y, m, d] = joiningDateStr.split("-").map(Number);
+  const joined = new Date(y, m - 1, d);
+  const validThrough = new Date(joined.getFullYear() + 1, joined.getMonth(), joined.getDate() - 1);
+  return toDateInputValue(validThrough);
+}
 
 const PRESET_BADGES = [
   "President",
@@ -70,11 +88,14 @@ const Members = () => {
   const [updatingMembershipId, setUpdatingMembershipId] = useState<string | null>(null);
 
   // Visitor → Paid Member requires picking an existing active Paid Member
-  // as "Invited By" before the conversion is allowed to save.
+  // as "Invited By", plus Joining Date and Valid Through, before the
+  // conversion is allowed to save.
   const [convertingMember, setConvertingMember] = useState<Member | null>(null);
   const [inviterSearch, setInviterSearch] = useState("");
   const [inviterComboOpen, setInviterComboOpen] = useState(false);
   const [selectedInviterId, setSelectedInviterId] = useState<string>("");
+  const [joiningDate, setJoiningDate] = useState<string>("");
+  const [validThrough, setValidThrough] = useState<string>("");
   const [converting, setConverting] = useState(false);
 
   const load = async () => {
@@ -135,24 +156,29 @@ const Members = () => {
     });
   };
 
-  // Selecting "Paid Member" for a Visitor opens the Invited By dialog instead
-  // of saving immediately; downgrading to Visitor needs no extra step.
+  // Selecting "Paid Member" for a Visitor opens the Paid Member Details
+  // dialog instead of saving immediately; downgrading to Visitor needs no
+  // extra step.
   const handleMembershipSelect = (m: Member, value: "visitor" | "paid_member") => {
     if (value === "paid_member" && (m.membership_type || "visitor") !== "paid_member") {
       setConvertingMember(m);
       setSelectedInviterId("");
       setInviterSearch("");
+      setJoiningDate("");
+      setValidThrough("");
     } else {
       changeMembership(m, value);
     }
   };
 
-  // Existing Paid Members can also set/change who invited them, without
-  // re-running the conversion (e.g. to backfill history or fix a mistake).
-  const openEditInviter = (m: Member) => {
+  // Existing Paid Members can also edit their Invited By / Joining Date /
+  // Valid Through later (e.g. to backfill history or renew membership).
+  const openPaidMemberDetails = (m: Member) => {
     setConvertingMember(m);
     setSelectedInviterId(m.invited_by_member_id || "");
     setInviterSearch("");
+    setJoiningDate(m.paid_joining_date || "");
+    setValidThrough(m.paid_valid_through || "");
   };
 
   const activePaidMembers = useMemo(
@@ -182,18 +208,24 @@ const Members = () => {
   // Already a Paid Member → we're only editing the inviter, not converting.
   const isEditingInviterOnly = (convertingMember?.membership_type || "visitor") === "paid_member";
 
+  const detailsIncomplete = !selectedInviterId || !joiningDate || !validThrough;
+
   const confirmConvert = async () => {
-    if (!convertingMember || !selectedInviterId) return;
+    if (!convertingMember || detailsIncomplete) return;
     setConverting(true);
     const { error } = isEditingInviterOnly
-      ? await (supabase as any).rpc("set_member_invited_by", {
+      ? await (supabase as any).rpc("set_paid_member_details", {
           _member_id: convertingMember.member_id,
           _invited_by_member_id: selectedInviterId,
+          _joining_date: joiningDate,
+          _valid_through: validThrough,
         })
       : await (supabase as any).rpc("set_membership_type", {
           _member_id: convertingMember.member_id,
           _type: "paid_member",
           _invited_by_member_id: selectedInviterId,
+          _joining_date: joiningDate,
+          _valid_through: validThrough,
         });
     setConverting(false);
     if (error) {
@@ -204,13 +236,20 @@ const Members = () => {
     setMembers((prev) =>
       prev.map((x) =>
         x.member_id === convertingMember.member_id
-          ? { ...x, membership_type: "paid_member", invited_by_member_id: selectedInviterId, invited_by_name: inviterName }
+          ? {
+              ...x,
+              membership_type: "paid_member",
+              invited_by_member_id: selectedInviterId,
+              invited_by_name: inviterName,
+              paid_joining_date: joiningDate,
+              paid_valid_through: validThrough,
+            }
           : x
       )
     );
     toast(
       isEditingInviterOnly
-        ? { title: "Invited By updated", description: `${convertingMember.full_name} was invited by ${inviterName}` }
+        ? { title: "Paid Member details updated", description: convertingMember.full_name }
         : {
             title: "Membership updated",
             description: `${convertingMember.full_name} → Paid Member (invited by ${inviterName || "—"})`,
@@ -480,27 +519,41 @@ const Members = () => {
                           )}
                         </div>
                         {(m.membership_type || "visitor") === "paid_member" && (
-                          <div className="mt-1 flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                            {m.invited_by_name ? (
-                              <>
-                                <span>
-                                  Invited by <span className="font-medium text-foreground">{m.invited_by_name}</span>
-                                </span>
+                          <div className="mt-1 text-[11px] text-muted-foreground">
+                            {m.invited_by_name || m.paid_valid_through ? (
+                              <div className="flex flex-wrap items-center gap-x-1.5">
+                                {m.invited_by_name && (
+                                  <span>
+                                    Invited by <span className="font-medium text-foreground">{m.invited_by_name}</span>
+                                  </span>
+                                )}
+                                {m.paid_valid_through && (
+                                  <span>
+                                    · Valid through{" "}
+                                    <span className="font-medium text-foreground">
+                                      {new Date(m.paid_valid_through + "T00:00:00").toLocaleDateString("en-IN", {
+                                        day: "2-digit",
+                                        month: "short",
+                                        year: "numeric",
+                                      })}
+                                    </span>
+                                  </span>
+                                )}
                                 <button
                                   type="button"
-                                  onClick={() => openEditInviter(m)}
+                                  onClick={() => openPaidMemberDetails(m)}
                                   className="font-medium text-primary hover:underline"
                                 >
                                   Edit
                                 </button>
-                              </>
+                              </div>
                             ) : (
                               <button
                                 type="button"
-                                onClick={() => openEditInviter(m)}
+                                onClick={() => openPaidMemberDetails(m)}
                                 className="font-medium text-primary hover:underline"
                               >
-                                + Add inviter
+                                + Add Paid Member details
                               </button>
                             )}
                           </div>
@@ -601,12 +654,13 @@ const Members = () => {
       <Dialog open={!!convertingMember} onOpenChange={(o) => !o && !converting && setConvertingMember(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{isEditingInviterOnly ? "Set Invited By" : "Convert to Paid Member"}</DialogTitle>
+            <DialogTitle>{isEditingInviterOnly ? "Paid Member Details" : "Convert to Paid Member"}</DialogTitle>
             <DialogDescription>
               {convertingMember && (
                 <>
-                  Record which existing Paid Member invited <strong>{convertingMember.full_name}</strong>
-                  {isEditingInviterOnly ? "." : " to upgrade."}
+                  {isEditingInviterOnly ? "Update" : "Record"} the Invited By, Joining Date and Valid Through for{" "}
+                  <strong>{convertingMember.full_name}</strong>
+                  {isEditingInviterOnly ? "." : " to complete the upgrade."}
                 </>
               )}
             </DialogDescription>
@@ -672,18 +726,46 @@ const Members = () => {
                 </Command>
               </PopoverContent>
             </Popover>
-            <p className="text-xs text-muted-foreground">
-              {isEditingInviterOnly
-                ? "Required to save."
-                : `Required — this converts ${convertingMember?.full_name || "the member"} from Visitor to Paid Member.`}
-            </p>
+            <p className="text-xs text-muted-foreground">Required.</p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <Label htmlFor="joining-date">Joining Date</Label>
+              <Input
+                id="joining-date"
+                type="date"
+                value={joiningDate}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setJoiningDate(v);
+                  // Auto-calc Valid Through = Joining Date + 1 year - 1 day.
+                  // Admin can still edit Valid Through afterwards.
+                  setValidThrough(v ? computeValidThrough(v) : "");
+                }}
+              />
+              <p className="text-xs text-muted-foreground">Required.</p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="valid-through">Valid Through</Label>
+              <Input
+                id="valid-through"
+                type="date"
+                value={validThrough}
+                min={joiningDate || undefined}
+                onChange={(e) => setValidThrough(e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">
+                Auto-set to 1 year from Joining Date — editable.
+              </p>
+            </div>
           </div>
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setConvertingMember(null)} disabled={converting}>
               Cancel
             </Button>
-            <Button variant="royal" onClick={confirmConvert} disabled={converting || !selectedInviterId}>
+            <Button variant="royal" onClick={confirmConvert} disabled={converting || detailsIncomplete}>
               {converting && <Loader2 className="h-4 w-4 animate-spin mr-1" />}
               Confirm
             </Button>
