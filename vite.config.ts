@@ -32,7 +32,18 @@ export default defineConfig(({ mode }) => ({
           if (id.includes("@tiptap") || id.includes("prosemirror")) return "tiptap-vendor";
           if (id.includes("xlsx")) return "xlsx-vendor";
           if (id.includes("recharts")) return "charts-vendor";
-          if (id.includes("html5-qrcode") || id.includes("/qrcode/")) return "qr-vendor";
+          // html5-qrcode (camera scanning) is the one genuinely large lib
+          // here — safe to isolate on its own.
+          if (id.includes("html5-qrcode")) return "qr-vendor";
+          // The `qrcode` (encoding) package is small and pulls in `dijkstrajs`
+          // — a separate top-level CJS dependency that ISN'T matched by any
+          // rule above, so it always lands in this default "vendor" chunk.
+          // Routing `qrcode` into its own chunk previously split it away
+          // from dijkstrajs, breaking their CJS interop across the chunk
+          // boundary in production (dijkstrajs resolved to undefined at
+          // runtime — "Cannot read properties of undefined (reading
+          // 'find_path')"). Leave `qrcode` unmatched so it stays co-located
+          // with dijkstrajs here instead.
           return "vendor";
         },
       },
