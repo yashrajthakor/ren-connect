@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Loader2, Search, Award, X, Users, Download, Sparkles, Check, ChevronsUpDown } from "lucide-react";
+import { Loader2, Search, Award, X, Users, Download, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -15,17 +15,17 @@ import {
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
 } from "@/components/ui/dialog";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import MultiCategorySelect, { CategoryOption } from "@/components/categories/MultiCategorySelect";
+import ConvertToPaidMemberDialog from "@/components/admin/ConvertToPaidMemberDialog";
 
 type Member = {
   member_id: string;
   user_id: string | null;
   full_name: string;
   email: string | null;
+  phone?: string | null;
   chapter_name: string | null;
   status: string | null;
   committee_badge: string | null;
@@ -39,22 +39,6 @@ type Member = {
   paid_joining_date?: string | null;
   paid_valid_through?: string | null;
 };
-
-/** "YYYY-MM-DD" for <input type="date">, built from local Y/M/D to avoid UTC off-by-one shifts. */
-function toDateInputValue(d: Date): string {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
-}
-
-/** Joining Date + 1 year - 1 day, e.g. 15 Aug 2026 → 14 Aug 2027. */
-function computeValidThrough(joiningDateStr: string): string {
-  const [y, m, d] = joiningDateStr.split("-").map(Number);
-  const joined = new Date(y, m - 1, d);
-  const validThrough = new Date(joined.getFullYear() + 1, joined.getMonth(), joined.getDate() - 1);
-  return toDateInputValue(validThrough);
-}
 
 const PRESET_BADGES = [
   "President",
@@ -87,16 +71,10 @@ const Members = () => {
   );
   const [updatingMembershipId, setUpdatingMembershipId] = useState<string | null>(null);
 
-  // Visitor → Paid Member requires picking an existing active Paid Member
-  // as "Invited By", plus Joining Date and Valid Through, before the
-  // conversion is allowed to save.
+  // Visitor → Paid Member conversion (and later Paid Member detail edits)
+  // are handled by the shared ConvertToPaidMemberDialog — this just tracks
+  // which member it's open for.
   const [convertingMember, setConvertingMember] = useState<Member | null>(null);
-  const [inviterSearch, setInviterSearch] = useState("");
-  const [inviterComboOpen, setInviterComboOpen] = useState(false);
-  const [selectedInviterId, setSelectedInviterId] = useState<string>("");
-  const [joiningDate, setJoiningDate] = useState<string>("");
-  const [validThrough, setValidThrough] = useState<string>("");
-  const [converting, setConverting] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -156,16 +134,12 @@ const Members = () => {
     });
   };
 
-  // Selecting "Paid Member" for a Visitor opens the Paid Member Details
+  // Selecting "Paid Member" for a Visitor opens the shared conversion
   // dialog instead of saving immediately; downgrading to Visitor needs no
   // extra step.
   const handleMembershipSelect = (m: Member, value: "visitor" | "paid_member") => {
     if (value === "paid_member" && (m.membership_type || "visitor") !== "paid_member") {
       setConvertingMember(m);
-      setSelectedInviterId("");
-      setInviterSearch("");
-      setJoiningDate("");
-      setValidThrough("");
     } else {
       changeMembership(m, value);
     }
@@ -175,87 +149,6 @@ const Members = () => {
   // Valid Through later (e.g. to backfill history or renew membership).
   const openPaidMemberDetails = (m: Member) => {
     setConvertingMember(m);
-    setSelectedInviterId(m.invited_by_member_id || "");
-    setInviterSearch("");
-    setJoiningDate(m.paid_joining_date || "");
-    setValidThrough(m.paid_valid_through || "");
-  };
-
-  const activePaidMembers = useMemo(
-    () =>
-      members.filter(
-        (x) =>
-          (x.membership_type || "visitor") === "paid_member" &&
-          x.status === "active" &&
-          x.member_id !== convertingMember?.member_id
-      ),
-    [members, convertingMember]
-  );
-
-  const filteredInviters = useMemo(() => {
-    const q = inviterSearch.trim().toLowerCase();
-    if (!q) return activePaidMembers.slice(0, 30);
-    return activePaidMembers
-      .filter(
-        (x) =>
-          x.full_name?.toLowerCase().includes(q) ||
-          (x.business_name || "").toLowerCase().includes(q)
-      )
-      .slice(0, 30);
-  }, [activePaidMembers, inviterSearch]);
-
-  const selectedInviter = activePaidMembers.find((x) => x.member_id === selectedInviterId);
-  // Already a Paid Member → we're only editing the inviter, not converting.
-  const isEditingInviterOnly = (convertingMember?.membership_type || "visitor") === "paid_member";
-
-  const detailsIncomplete = !selectedInviterId || !joiningDate || !validThrough;
-
-  const confirmConvert = async () => {
-    if (!convertingMember || detailsIncomplete) return;
-    setConverting(true);
-    const { error } = isEditingInviterOnly
-      ? await (supabase as any).rpc("set_paid_member_details", {
-          _member_id: convertingMember.member_id,
-          _invited_by_member_id: selectedInviterId,
-          _joining_date: joiningDate,
-          _valid_through: validThrough,
-        })
-      : await (supabase as any).rpc("set_membership_type", {
-          _member_id: convertingMember.member_id,
-          _type: "paid_member",
-          _invited_by_member_id: selectedInviterId,
-          _joining_date: joiningDate,
-          _valid_through: validThrough,
-        });
-    setConverting(false);
-    if (error) {
-      toast({ title: "Update failed", description: error.message, variant: "destructive" });
-      return;
-    }
-    const inviterName = selectedInviter?.full_name || "";
-    setMembers((prev) =>
-      prev.map((x) =>
-        x.member_id === convertingMember.member_id
-          ? {
-              ...x,
-              membership_type: "paid_member",
-              invited_by_member_id: selectedInviterId,
-              invited_by_name: inviterName,
-              paid_joining_date: joiningDate,
-              paid_valid_through: validThrough,
-            }
-          : x
-      )
-    );
-    toast(
-      isEditingInviterOnly
-        ? { title: "Paid Member details updated", description: convertingMember.full_name }
-        : {
-            title: "Membership updated",
-            description: `${convertingMember.full_name} → Paid Member (invited by ${inviterName || "—"})`,
-          }
-    );
-    setConvertingMember(null);
   };
 
   const handleExport = async () => {
@@ -651,127 +544,28 @@ const Members = () => {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={!!convertingMember} onOpenChange={(o) => !o && !converting && setConvertingMember(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{isEditingInviterOnly ? "Paid Member Details" : "Convert to Paid Member"}</DialogTitle>
-            <DialogDescription>
-              {convertingMember && (
-                <>
-                  {isEditingInviterOnly ? "Update" : "Record"} the Invited By, Joining Date and Valid Through for{" "}
-                  <strong>{convertingMember.full_name}</strong>
-                  {isEditingInviterOnly ? "." : " to complete the upgrade."}
-                </>
-              )}
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-2">
-            <Label>Invited By</Label>
-            <Popover open={inviterComboOpen} onOpenChange={setInviterComboOpen}>
-              <PopoverTrigger asChild>
-                <button
-                  type="button"
-                  role="combobox"
-                  aria-expanded={inviterComboOpen}
-                  className="w-full flex items-center justify-between gap-2 border rounded-lg p-3 text-left hover:bg-muted/40 transition-colors"
-                >
-                  {selectedInviter ? (
-                    <div className="min-w-0">
-                      <p className="font-medium text-sm truncate">{selectedInviter.full_name}</p>
-                      {selectedInviter.business_name && (
-                        <p className="text-xs text-muted-foreground truncate">{selectedInviter.business_name}</p>
-                      )}
-                    </div>
-                  ) : (
-                    <span className="text-sm text-muted-foreground">Search by member or business name…</span>
-                  )}
-                  <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
-                </button>
-              </PopoverTrigger>
-              <PopoverContent align="start" className="w-[--radix-popover-trigger-width] p-0">
-                <Command shouldFilter={false}>
-                  <CommandInput
-                    placeholder="Search by name or business..."
-                    value={inviterSearch}
-                    onValueChange={setInviterSearch}
-                  />
-                  <CommandList className="max-h-56">
-                    <CommandEmpty>No active Paid Members found</CommandEmpty>
-                    <CommandGroup>
-                      {filteredInviters.map((x) => (
-                        <CommandItem
-                          key={x.member_id}
-                          value={x.member_id}
-                          onSelect={() => {
-                            setSelectedInviterId(x.member_id);
-                            setInviterComboOpen(false);
-                            setInviterSearch("");
-                          }}
-                          className="flex items-center gap-2 py-2"
-                        >
-                          <div className="min-w-0 flex-1">
-                            <p className="font-medium text-sm truncate">{x.full_name}</p>
-                            {x.business_name && (
-                              <p className="text-xs text-muted-foreground truncate">{x.business_name}</p>
-                            )}
-                          </div>
-                          {selectedInviterId === x.member_id && (
-                            <Check className="h-4 w-4 shrink-0 text-primary" />
-                          )}
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
-            <p className="text-xs text-muted-foreground">Required.</p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-2">
-              <Label htmlFor="joining-date">Joining Date</Label>
-              <Input
-                id="joining-date"
-                type="date"
-                value={joiningDate}
-                onChange={(e) => {
-                  const v = e.target.value;
-                  setJoiningDate(v);
-                  // Auto-calc Valid Through = Joining Date + 1 year - 1 day.
-                  // Admin can still edit Valid Through afterwards.
-                  setValidThrough(v ? computeValidThrough(v) : "");
-                }}
-              />
-              <p className="text-xs text-muted-foreground">Required.</p>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="valid-through">Valid Through</Label>
-              <Input
-                id="valid-through"
-                type="date"
-                value={validThrough}
-                min={joiningDate || undefined}
-                onChange={(e) => setValidThrough(e.target.value)}
-              />
-              <p className="text-xs text-muted-foreground">
-                Auto-set to 1 year from Joining Date — editable.
-              </p>
-            </div>
-          </div>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setConvertingMember(null)} disabled={converting}>
-              Cancel
-            </Button>
-            <Button variant="royal" onClick={confirmConvert} disabled={converting || detailsIncomplete}>
-              {converting && <Loader2 className="h-4 w-4 animate-spin mr-1" />}
-              Confirm
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ConvertToPaidMemberDialog
+        open={!!convertingMember}
+        onOpenChange={(o) => !o && setConvertingMember(null)}
+        member={convertingMember}
+        roster={members}
+        onSuccess={(result) => {
+          setMembers((prev) =>
+            prev.map((x) =>
+              x.member_id === result.member_id
+                ? {
+                    ...x,
+                    membership_type: "paid_member",
+                    invited_by_member_id: result.invited_by_member_id,
+                    invited_by_name: result.invited_by_name,
+                    paid_joining_date: result.paid_joining_date,
+                    paid_valid_through: result.paid_valid_through,
+                  }
+                : x
+            )
+          );
+        }}
+      />
     </div>
   );
 };

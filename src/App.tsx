@@ -22,6 +22,13 @@ import DashboardNews from "./pages/DashboardNews";
 import DashboardNewsArticle from "./pages/DashboardNewsArticle";
 import DashboardLayout from "./components/dashboard/DashboardLayout";
 import Members from "./pages/admin/Members";
+import ValuableMembers from "./pages/admin/ValuableMembers";
+import ValuableMemberDetails from "./pages/admin/ValuableMemberDetails";
+import ValuableMemberActivity from "./pages/admin/ValuableMemberActivity";
+import ValuableMemberProfile from "./pages/admin/ValuableMemberProfile";
+import ValuableMemberRenew from "./pages/admin/ValuableMemberRenew";
+import ValuableMemberAttendance from "./pages/admin/ValuableMemberAttendance";
+import ValuableMemberQrCode from "./pages/admin/ValuableMemberQrCode";
 import Applications from "./pages/admin/Applications";
 import ManageRoles from "./pages/admin/ManageRoles";
 import AdminLeads from "./pages/admin/Leads";
@@ -107,6 +114,13 @@ const App = () => {
                 <Route index element={<Admin />} />
                 <Route path="applications" element={<Applications />} />
                 <Route path="members" element={<Members />} />
+                <Route path="valuable-members" element={<ValuableMembers />} />
+                <Route path="valuable-members/:memberId/details" element={<ValuableMemberDetails />} />
+                <Route path="valuable-members/:memberId/activity" element={<ValuableMemberActivity />} />
+                <Route path="valuable-members/:memberId/profile" element={<ValuableMemberProfile />} />
+                <Route path="valuable-members/:memberId/renew" element={<ValuableMemberRenew />} />
+                <Route path="valuable-members/:memberId/attendance" element={<ValuableMemberAttendance />} />
+                <Route path="valuable-members/:memberId/qr-code" element={<ValuableMemberQrCode />} />
                 <Route path="categories" element={<AdminCategories />} />
                 <Route path="leads" element={<AdminLeads />} />
                 <Route path="asks" element={<AdminAsks />} />
