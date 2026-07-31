@@ -212,3 +212,50 @@ export function useMarkAttendance() {
     },
   });
 }
+
+/**
+ * Admin correction path: add a missed check-in regardless of meeting status
+ * (upcoming/live/completed) — also how Backdated Attendance is recorded.
+ * `checkInTime` (ISO string) lets the admin override the default of "now".
+ */
+export function useAdminAddAttendance() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      meetingId,
+      memberId,
+      checkInTime,
+    }: {
+      meetingId: string;
+      memberId: string;
+      checkInTime?: string | null;
+    }) => {
+      const { data, error } = await (supabase as any).rpc("admin_add_attendance", {
+        _meeting_id: meetingId,
+        _member_id: memberId,
+        _check_in_time: checkInTime ?? null,
+      });
+      if (error) throw error;
+      return data as MarkAttendanceResult;
+    },
+    onSuccess: (_data, variables) => {
+      qc.invalidateQueries({ queryKey: MEETINGS_KEY });
+      qc.invalidateQueries({ queryKey: ["attendance-meeting-rows", variables.meetingId] });
+    },
+  });
+}
+
+/** Admin correction path: remove a mistaken attendance record regardless of meeting status. */
+export function useDeleteAttendance() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ attendanceId }: { attendanceId: string; meetingId: string }) => {
+      const { error } = await (supabase as any).rpc("remove_attendance", { _attendance_id: attendanceId });
+      if (error) throw error;
+    },
+    onSuccess: (_data, variables) => {
+      qc.invalidateQueries({ queryKey: MEETINGS_KEY });
+      qc.invalidateQueries({ queryKey: ["attendance-meeting-rows", variables.meetingId] });
+    },
+  });
+}

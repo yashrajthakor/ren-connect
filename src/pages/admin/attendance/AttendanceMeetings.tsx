@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { CalendarDays, Loader2, MoreVertical, Plus, Pencil, Trash2, ScanLine, Eye } from "lucide-react";
+import { CalendarDays, Loader2, MoreVertical, Plus, Pencil, Trash2, ScanLine, Eye, UserPlus } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,7 +30,7 @@ import {
 import { MeetingStatusBadge } from "@/components/admin/MeetingStatusBadge";
 import MeetingFormDialog from "@/components/admin/MeetingFormDialog";
 import { formatDateOrNA } from "@/lib/membershipStatus";
-import { formatTimeOfDay } from "@/lib/attendanceFormat";
+import { formatTimeOfDay, isBackdated } from "@/lib/attendanceFormat";
 
 export default function AttendanceMeetings() {
   const navigate = useNavigate();
@@ -136,9 +136,14 @@ export default function AttendanceMeetings() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-52">
-                          {m.status === "upcoming" && (
+                          {m.status === "upcoming" && !isBackdated(m.meeting_date) && (
                             <DropdownMenuItem onClick={() => handleStart(m)}>
                               <ScanLine className="h-4 w-4 mr-2" /> Start Attendance
+                            </DropdownMenuItem>
+                          )}
+                          {m.status === "upcoming" && isBackdated(m.meeting_date) && (
+                            <DropdownMenuItem onClick={() => navigate(`/admin/attendance/history/${m.id}`)}>
+                              <UserPlus className="h-4 w-4 mr-2" /> Add Attendance
                             </DropdownMenuItem>
                           )}
                           {m.status === "live" && (
@@ -152,7 +157,6 @@ export default function AttendanceMeetings() {
                             </DropdownMenuItem>
                           )}
                           <DropdownMenuItem
-                            disabled={m.status !== "upcoming"}
                             onClick={() => {
                               setEditingMeeting(m);
                               setFormOpen(true);

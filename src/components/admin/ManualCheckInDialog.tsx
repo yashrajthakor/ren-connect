@@ -1,12 +1,14 @@
-import { useMemo, useState } from "react";
-import { Loader2, Search, CheckCircle2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Loader2, Search, CheckCircle2, Clock } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useValuableMembers } from "@/hooks/useValuableMembers";
-import { useMarkAttendance } from "@/hooks/useAttendanceMeetings";
+import { useMarkAttendance, useAdminAddAttendance } from "@/hooks/useAttendanceMeetings";
 import { useToast } from "@/hooks/use-toast";
+import { nowForDatetimeLocalInput } from "@/lib/attendanceFormat";
 
 function initials(name: string) {
   return (name || "?").split(" ").map((p) => p[0]).filter(Boolean).slice(0, 2).join("").toUpperCase();
@@ -18,14 +20,30 @@ interface Props {
   meetingId: string;
   presentMemberIds: Set<string>;
   onCheckedIn?: (memberName: string) => void;
+  /** "live" (default) uses the live-scan check-in path, gated to a Live meeting.
+   * "edit" uses the admin correction path, which works regardless of meeting status. */
+  mode?: "live" | "edit";
 }
 
-export default function ManualCheckInDialog({ open, onOpenChange, meetingId, presentMemberIds, onCheckedIn }: Props) {
+export default function ManualCheckInDialog({
+  open,
+  onOpenChange,
+  meetingId,
+  presentMemberIds,
+  onCheckedIn,
+  mode = "live",
+}: Props) {
   const { toast } = useToast();
   const { data: members = [], isLoading } = useValuableMembers(open);
   const markAttendance = useMarkAttendance();
+  const adminAddAttendance = useAdminAddAttendance();
   const [search, setSearch] = useState("");
   const [markingId, setMarkingId] = useState<string | null>(null);
+  const [checkInTime, setCheckInTime] = useState("");
+
+  useEffect(() => {
+    if (open && mode === "edit") setCheckInTime(nowForDatetimeLocalInput());
+  }, [open, mode]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -41,7 +59,14 @@ export default function ManualCheckInDialog({ open, onOpenChange, meetingId, pre
   const markPresent = async (memberId: string, memberName: string) => {
     setMarkingId(memberId);
     try {
-      const result = await markAttendance.mutateAsync({ meetingId, memberId, method: "manual" });
+      const result =
+        mode === "edit"
+          ? await adminAddAttendance.mutateAsync({
+              meetingId,
+              memberId,
+              checkInTime: checkInTime ? new Date(checkInTime).toISOString() : null,
+            })
+          : await markAttendance.mutateAsync({ meetingId, memberId, method: "manual" });
       if (result.duplicate) {
         toast({ title: `${memberName} is already checked in.` });
       } else {
@@ -62,6 +87,19 @@ export default function ManualCheckInDialog({ open, onOpenChange, meetingId, pre
           <DialogTitle>Manual Check-in</DialogTitle>
           <DialogDescription>Search a Valuable Member by name, business, or mobile number.</DialogDescription>
         </DialogHeader>
+
+        {mode === "edit" && (
+          <div>
+            <Label className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1">
+              <Clock className="h-3.5 w-3.5" /> Check-in Time
+            </Label>
+            <Input
+              type="datetime-local"
+              value={checkInTime}
+              onChange={(e) => setCheckInTime(e.target.value)}
+            />
+          </div>
+        )}
 
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
