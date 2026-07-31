@@ -1,5 +1,5 @@
-import { NavLink, useLocation } from "react-router-dom";
-import { LayoutDashboard, FileText, UserCog, Briefcase, Handshake, Bell, Settings, MessageCircleQuestion, Newspaper, Lock, Rss } from "lucide-react";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { LayoutDashboard, FileText, UserCog, Briefcase, Handshake, Bell, Settings, MessageCircleQuestion, Newspaper, Lock, Rss, LogOut } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -14,6 +14,7 @@ import {
 import { useT } from "@/i18n/LanguageProvider";
 import { useMemberStatus } from "@/hooks/useMemberStatus";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import renLogo from "@/assets/ren-logo.png";
 
 import type { TranslationKey } from "@/i18n/translations";
@@ -50,8 +51,15 @@ export function DashboardSidebar({ role }: DashboardSidebarProps) {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const { pathname } = useLocation();
+  const navigate = useNavigate();
   const t = useT();
   const { isPending } = useMemberStatus();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    toast.success("Signed out", { description: "You have been successfully signed out." });
+    navigate("/login");
+  };
 
   const normalizedRole = (role || "").toLowerCase();
   const isAdmin = normalizedRole === "admin" || normalizedRole === "super_admin";
@@ -108,6 +116,18 @@ export function DashboardSidebar({ role }: DashboardSidebarProps) {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup className="mt-auto">
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton onClick={handleLogout} className="flex items-center gap-2 text-destructive hover:text-destructive">
+                  <LogOut className="h-4 w-4" />
+                  {!collapsed && <span>Logout</span>}
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

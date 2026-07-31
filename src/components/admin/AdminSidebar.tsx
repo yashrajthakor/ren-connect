@@ -1,5 +1,5 @@
 import { NavLink, Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, FileText, Users, ShieldCheck, Handshake, Megaphone, MessageCircleQuestion, Newspaper, Tags, Pin, Award, Rss, Star } from "lucide-react";
+import { LayoutDashboard, FileText, Users, ShieldCheck, Handshake, Megaphone, MessageCircleQuestion, Newspaper, Tags, Pin, Award, Rss, Star, CalendarDays, ScanLine, History } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -28,6 +28,12 @@ const baseItems: Item[] = [
   { title: "Notice Board", url: "/admin/notice-board", icon: Pin },
   { title: "Sponsors", url: "/admin/sponsors", icon: Award },
   { title: "News & Stories", url: "/admin/newsletter", icon: Newspaper },
+];
+
+const attendanceItems: Item[] = [
+  { title: "Meetings", url: "/admin/attendance/meetings", icon: CalendarDays },
+  { title: "Live Attendance", url: "/admin/attendance/live", icon: ScanLine },
+  { title: "Attendance History", url: "/admin/attendance/history", icon: History },
 ];
 
 const superAdminItems: Item[] = [
@@ -73,6 +79,23 @@ export function AdminSidebar({ role }: AdminSidebarProps) {
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild isActive={isActive(item.url, item.end)}>
+                    <NavLink to={item.url} end={item.end} className="flex items-center gap-2">
+                      <item.icon className="h-4 w-4" />
+                      {!collapsed && <span>{item.title}</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel>Attendance</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {attendanceItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={isActive(item.url, item.end)}>
                     <NavLink to={item.url} end={item.end} className="flex items-center gap-2">

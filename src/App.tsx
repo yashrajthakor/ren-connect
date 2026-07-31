@@ -29,6 +29,10 @@ import ValuableMemberProfile from "./pages/admin/ValuableMemberProfile";
 import ValuableMemberRenew from "./pages/admin/ValuableMemberRenew";
 import ValuableMemberAttendance from "./pages/admin/ValuableMemberAttendance";
 import ValuableMemberQrCode from "./pages/admin/ValuableMemberQrCode";
+import AttendanceMeetings from "./pages/admin/attendance/AttendanceMeetings";
+import LiveAttendance from "./pages/admin/attendance/LiveAttendance";
+import AttendanceHistoryList from "./pages/admin/attendance/AttendanceHistoryList";
+import AttendanceHistoryDetail from "./pages/admin/attendance/AttendanceHistoryDetail";
 import Applications from "./pages/admin/Applications";
 import ManageRoles from "./pages/admin/ManageRoles";
 import AdminLeads from "./pages/admin/Leads";
@@ -125,6 +129,10 @@ const App = () => {
                 <Route path="leads" element={<AdminLeads />} />
                 <Route path="asks" element={<AdminAsks />} />
                 <Route path="meetings" element={<AdminMeetings />} />
+                <Route path="attendance/meetings" element={<AttendanceMeetings />} />
+                <Route path="attendance/live" element={<LiveAttendance />} />
+                <Route path="attendance/history" element={<AttendanceHistoryList />} />
+                <Route path="attendance/history/:meetingId" element={<AttendanceHistoryDetail />} />
                 <Route path="announcements" element={<AdminAnnouncements />} />
                 <Route path="notice-board" element={<AdminNoticeBoard />} />
                 <Route path="sponsors" element={<AdminSponsors />} />

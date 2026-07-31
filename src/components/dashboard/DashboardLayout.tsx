@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { LogOut, Shield, Handshake, Briefcase, Newspaper, Rss, LayoutDashboard, MoreVertical } from "lucide-react";
+import { QrCode, Shield, Handshake, Briefcase, Newspaper, Rss, LayoutDashboard, MoreVertical } from "lucide-react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { DashboardSidebar } from "./DashboardSidebar";
 import NotificationBell from "@/components/notifications/NotificationBell";
 import PendingApprovalBanner from "./PendingApprovalBanner";
 import ApprovalToastListener from "./ApprovalToastListener";
+import MyQrCodeDialog from "./MyQrCodeDialog";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useT } from "@/i18n/LanguageProvider";
@@ -16,12 +16,12 @@ import { MemberStatusProvider } from "@/context/MemberStatusContext";
 
 const DashboardLayout = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
   const t = useT();
   const [userEmail, setUserEmail] = useState("");
   const [userRole, setUserRole] = useState<string | null>(null);
   const [roleLoading, setRoleLoading] = useState(true);
-  
+  const [qrOpen, setQrOpen] = useState(false);
+
   // Enable push notifications for dashboard
   usePushNotifications();
 
@@ -78,12 +78,6 @@ const DashboardLayout = () => {
     isActive(tab.url, tab.url === "/dashboard") ||
     (tab.matchUrls?.some((url) => isActive(url)) ?? false);
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    toast({ title: "Signed out", description: "You have been successfully signed out." });
-    navigate("/login");
-  };
-
   return (
     <MemberStatusProvider>
     <SidebarProvider>
@@ -101,6 +95,15 @@ const DashboardLayout = () => {
             </div>
             <div className="flex items-center gap-2 sm:gap-4 min-w-0">
               <NotificationBell />
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setQrOpen(true)}
+                className="lg:hidden"
+                aria-label="My QR Code"
+              >
+                <QrCode className="h-5 w-5" />
+              </Button>
               {(userRole?.toLowerCase() === "admin" || userRole?.toLowerCase() === "super_admin") && (
                 <Button variant="default" size="sm" onClick={() => navigate("/admin")} className="px-2 sm:px-3">
                   <Shield className="h-4 w-4 sm:mr-2" />
@@ -115,9 +118,14 @@ const DashboardLayout = () => {
                   </p>
                 )}
               </div>
-              <Button variant="outline" size="sm" onClick={handleLogout} className="px-2 sm:px-3">
-                <LogOut className="h-4 w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Sign Out</span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setQrOpen(true)}
+                className="hidden lg:inline-flex px-2 sm:px-3"
+              >
+                <QrCode className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">My QR Code</span>
               </Button>
             </div>
           </header>
@@ -152,6 +160,7 @@ const DashboardLayout = () => {
           )}
         </div>
       </div>
+      <MyQrCodeDialog open={qrOpen} onOpenChange={setQrOpen} />
     </SidebarProvider>
     </MemberStatusProvider>
   );

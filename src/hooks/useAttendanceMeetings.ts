@@ -1,0 +1,214 @@
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+
+/**
+ * Meeting Attendance module. Distinct from `useMeetings.ts` (the unrelated
+ * 1:1 Feed / `one_to_one_meetings` table) — no shared tables, routes, or
+ * query keys between the two.
+ */
+
+export type MeetingStatus = "upcoming" | "live" | "completed";
+
+export interface AttendanceMeeting {
+  id: string;
+  title: string;
+  meeting_date: string;
+  meeting_time: string;
+  venue: string | null;
+  description: string | null;
+  status: MeetingStatus;
+  created_at: string;
+  total_present: number;
+}
+
+export interface MeetingAttendanceRow {
+  attendance_id: string;
+  member_id: string;
+  member_name: string;
+  business_name: string | null;
+  phone: string | null;
+  check_in_time: string;
+  method: "qr" | "manual";
+}
+
+export interface MemberAttendanceHistoryRow {
+  meeting_id: string;
+  title: string;
+  meeting_date: string;
+  present: boolean;
+  check_in_time: string | null;
+}
+
+export interface MarkAttendanceResult {
+  duplicate: boolean;
+  member_id: string;
+  member_name: string;
+  check_in_time: string;
+}
+
+const MEETINGS_KEY = ["attendance-meetings"];
+const LIVE_MEETING_KEY = ["attendance-live-meeting"];
+
+export function useAttendanceMeetings(enabled = true) {
+  return useQuery({
+    queryKey: MEETINGS_KEY,
+    enabled,
+    queryFn: async () => {
+      const { data, error } = await (supabase as any).rpc("list_meetings_for_admin");
+      if (error) throw error;
+      return (data || []) as AttendanceMeeting[];
+    },
+    staleTime: 15_000,
+  });
+}
+
+export function useLiveMeeting(enabled = true) {
+  return useQuery({
+    queryKey: LIVE_MEETING_KEY,
+    enabled,
+    queryFn: async () => {
+      const { data, error } = await (supabase as any).rpc("get_live_meeting");
+      if (error) throw error;
+      const row = Array.isArray(data) ? data[0] : data;
+      return (row || null) as AttendanceMeeting | null;
+    },
+    staleTime: 5_000,
+  });
+}
+
+export function useMeetingAttendance(meetingId: string | undefined, enabled = true) {
+  return useQuery({
+    queryKey: ["attendance-meeting-rows", meetingId],
+    enabled: enabled && !!meetingId,
+    queryFn: async () => {
+      const { data, error } = await (supabase as any).rpc("get_meeting_attendance", { _meeting_id: meetingId });
+      if (error) throw error;
+      return (data || []) as MeetingAttendanceRow[];
+    },
+    staleTime: 5_000,
+  });
+}
+
+export function useMemberAttendanceHistory(memberId: string | undefined, enabled = true) {
+  return useQuery({
+    queryKey: ["member-attendance-history", memberId],
+    enabled: enabled && !!memberId,
+    queryFn: async () => {
+      const { data, error } = await (supabase as any).rpc("get_member_attendance_history", { _member_id: memberId });
+      if (error) throw error;
+      return (data || []) as MemberAttendanceHistoryRow[];
+    },
+    staleTime: 15_000,
+  });
+}
+
+export interface MeetingFormInput {
+  title: string;
+  meeting_date: string;
+  meeting_time: string;
+  venue?: string | null;
+  description?: string | null;
+}
+
+export function useCreateAttendanceMeeting() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: MeetingFormInput) => {
+      const { data, error } = await (supabase as any).rpc("create_meeting", {
+        _title: input.title,
+        _meeting_date: input.meeting_date,
+        _meeting_time: input.meeting_time,
+        _venue: input.venue ?? null,
+        _description: input.description ?? null,
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: MEETINGS_KEY }),
+  });
+}
+
+export function useUpdateAttendanceMeeting() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...input }: MeetingFormInput & { id: string }) => {
+      const { data, error } = await (supabase as any).rpc("update_meeting", {
+        _meeting_id: id,
+        _title: input.title,
+        _meeting_date: input.meeting_date,
+        _meeting_time: input.meeting_time,
+        _venue: input.venue ?? null,
+        _description: input.description ?? null,
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: MEETINGS_KEY }),
+  });
+}
+
+export function useDeleteAttendanceMeeting() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await (supabase as any).rpc("delete_meeting", { _meeting_id: id });
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: MEETINGS_KEY }),
+  });
+}
+
+export function useStartMeetingAttendance() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await (supabase as any).rpc("start_meeting_attendance", { _meeting_id: id });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: MEETINGS_KEY });
+      qc.invalidateQueries({ queryKey: LIVE_MEETING_KEY });
+    },
+  });
+}
+
+export function useCloseMeetingAttendance() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await (supabase as any).rpc("close_meeting_attendance", { _meeting_id: id });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: MEETINGS_KEY });
+      qc.invalidateQueries({ queryKey: LIVE_MEETING_KEY });
+    },
+  });
+}
+
+export function useMarkAttendance() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      meetingId,
+      memberId,
+      method,
+    }: {
+      meetingId: string;
+      memberId: string;
+      method: "qr" | "manual";
+    }) => {
+      const { data, error } = await (supabase as any).rpc("mark_attendance", {
+        _meeting_id: meetingId,
+        _member_id: memberId,
+        _method: method,
+      });
+      if (error) throw error;
+      return data as MarkAttendanceResult;
+    },
+    onSuccess: (_data, variables) => {
+      qc.invalidateQueries({ queryKey: MEETINGS_KEY });
+      qc.invalidateQueries({ queryKey: ["attendance-meeting-rows", variables.meetingId] });
+    },
+  });
+}
