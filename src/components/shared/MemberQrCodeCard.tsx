@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import QRCode from "qrcode";
-import { Download, Loader2, QrCode as QrCodeIcon } from "lucide-react";
+import { AlertTriangle, Download, Loader2, QrCode as QrCodeIcon } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -19,17 +19,30 @@ interface Props {
  */
 export default function MemberQrCodeCard({ memberId, memberName, className }: Props) {
   const [dataUrl, setDataUrl] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
+    if (!memberId) {
+      setError("No member selected.");
+      return;
+    }
     setDataUrl(null);
+    setError(null);
     let cancelled = false;
-    QRCode.toDataURL(memberId, { width: 320, margin: 2 }).then((url) => {
-      if (!cancelled) setDataUrl(url);
-    });
+    QRCode.toDataURL(memberId, { width: 320, margin: 2 })
+      .then((url) => {
+        if (!cancelled) setDataUrl(url);
+      })
+      .catch((err: any) => {
+        if (cancelled) return;
+        console.error("QR code generation failed:", err);
+        setError(err?.message || "Couldn't generate the QR code.");
+      });
     return () => {
       cancelled = true;
     };
-  }, [memberId]);
+  }, [memberId, attempt]);
 
   return (
     <Card className={cn("p-8 text-center", className)}>
@@ -40,7 +53,15 @@ export default function MemberQrCodeCard({ memberId, memberName, className }: Pr
       <p className="text-sm text-muted-foreground mt-1">Permanent QR code for meeting attendance check-in.</p>
 
       <div className="mt-6 flex justify-center">
-        {dataUrl ? (
+        {error ? (
+          <div className="h-[320px] w-[320px] flex flex-col items-center justify-center gap-2 text-center px-6">
+            <AlertTriangle className="h-6 w-6 text-destructive" />
+            <p className="text-sm text-muted-foreground">{error}</p>
+            <Button variant="outline" size="sm" onClick={() => setAttempt((a) => a + 1)}>
+              Try again
+            </Button>
+          </div>
+        ) : dataUrl ? (
           <img src={dataUrl} alt="Member QR code" className="rounded-xl border border-border" />
         ) : (
           <div className="h-[320px] w-[320px] flex items-center justify-center">

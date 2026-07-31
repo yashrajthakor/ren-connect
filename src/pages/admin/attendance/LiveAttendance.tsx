@@ -1,9 +1,24 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Html5Qrcode } from "html5-qrcode";
-import { CalendarDays, Clock, MapPin, Loader2, ScanLine, UserPlus, Users, UserCheck, UserX, XCircle, CameraOff } from "lucide-react";
+import {
+  CalendarDays,
+  Clock,
+  MapPin,
+  Loader2,
+  ScanLine,
+  UserPlus,
+  Users,
+  UserCheck,
+  UserX,
+  XCircle,
+  CameraOff,
+  CheckCircle2,
+  AlertTriangle,
+} from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,6 +43,10 @@ import ManualCheckInDialog from "@/components/admin/ManualCheckInDialog";
 
 const SCANNER_ELEMENT_ID = "attendance-qr-reader";
 const RESCAN_COOLDOWN_MS = 4000;
+const FEEDBACK_DISMISS_MS = 2500;
+const FLASH_DURATION_MS = 500;
+
+type ScanFeedback = { type: "success" | "duplicate"; message: string };
 
 export default function LiveAttendance() {
   const navigate = useNavigate();
@@ -43,12 +62,28 @@ export default function LiveAttendance() {
   const [closing, setClosing] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [scannerReady, setScannerReady] = useState(false);
+  const [scanFeedback, setScanFeedback] = useState<ScanFeedback | null>(null);
+  const [scanFlash, setScanFlash] = useState<"success" | "duplicate" | null>(null);
 
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const processingRef = useRef(false);
   const lastScanRef = useRef<{ code: string; at: number } | null>(null);
   const meetingIdRef = useRef<string | undefined>(undefined);
   meetingIdRef.current = liveMeeting?.id;
+
+  // Scan feedback (success/duplicate banner) auto-dismisses without any
+  // manual action — the admin should be able to keep scanning hands-free.
+  useEffect(() => {
+    if (!scanFeedback) return;
+    const timer = setTimeout(() => setScanFeedback(null), FEEDBACK_DISMISS_MS);
+    return () => clearTimeout(timer);
+  }, [scanFeedback]);
+
+  useEffect(() => {
+    if (!scanFlash) return;
+    const timer = setTimeout(() => setScanFlash(null), FLASH_DURATION_MS);
+    return () => clearTimeout(timer);
+  }, [scanFlash]);
 
   useEffect(() => {
     if (!liveMeeting) return;
@@ -59,7 +94,17 @@ export default function LiveAttendance() {
     instance
       .start(
         { facingMode: "environment" },
-        { fps: 10, qrbox: 250 },
+        {
+          fps: 10,
+          aspectRatio: 1,
+          // Scale the square scan frame to the viewfinder itself so it stays
+          // square and fills the frame on any screen size, instead of a
+          // fixed pixel box that leaves empty space on larger viewports.
+          qrbox: (viewfinderWidth, viewfinderHeight) => {
+            const edge = Math.floor(Math.min(viewfinderWidth, viewfinderHeight) * 0.75);
+            return { width: edge, height: edge };
+          },
+        },
         async (decodedText) => {
           if (cancelled) return;
           const now = Date.now();
@@ -87,11 +132,14 @@ export default function LiveAttendance() {
               method: "qr",
             });
             if (result.duplicate) {
-              toast({
-                title: `⚠️ Member already checked in at ${formatCheckInTime(result.check_in_time)}.`,
+              setScanFlash("duplicate");
+              setScanFeedback({
+                type: "duplicate",
+                message: `${result.member_name} has already checked in at ${formatCheckInTime(result.check_in_time)}.`,
               });
             } else {
-              toast({ title: `✅ ${result.member_name} checked in successfully.` });
+              setScanFlash("success");
+              setScanFeedback({ type: "success", message: `${result.member_name} checked in successfully.` });
             }
           } catch (e: any) {
             toast({ title: "Check-in failed", description: e.message, variant: "destructive" });
@@ -210,7 +258,37 @@ export default function LiveAttendance() {
       <div className="grid lg:grid-cols-5 gap-4">
         <Card className="lg:col-span-3 p-4 flex flex-col items-center">
           <h2 className="text-sm font-semibold text-foreground self-start mb-3">QR Scanner</h2>
-          <div className="w-full max-w-md aspect-square rounded-xl overflow-hidden bg-black/90 relative">
+
+          <div className="w-full max-w-md min-h-[2.25rem] mb-2">
+            {scanFeedback && (
+              <div
+                className={cn(
+                  "w-full rounded-lg px-3.5 py-2 text-sm font-medium flex items-center gap-2 animate-in fade-in slide-in-from-top-1 duration-200",
+                  scanFeedback.type === "success"
+                    ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
+                    : "bg-amber-500/15 text-amber-700 dark:text-amber-300"
+                )}
+              >
+                {scanFeedback.type === "success" ? (
+                  <CheckCircle2 className="h-4 w-4 shrink-0" />
+                ) : (
+                  <AlertTriangle className="h-4 w-4 shrink-0" />
+                )}
+                <span className="truncate">{scanFeedback.message}</span>
+              </div>
+            )}
+          </div>
+
+          <div
+            className={cn(
+              "w-full max-w-md aspect-square rounded-xl overflow-hidden bg-black/90 relative ring-4 transition-colors duration-200",
+              scanFlash === "success"
+                ? "ring-emerald-500"
+                : scanFlash === "duplicate"
+                  ? "ring-amber-500"
+                  : "ring-transparent"
+            )}
+          >
             <div id={SCANNER_ELEMENT_ID} className="w-full h-full" />
             {cameraError && (
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-center p-6 bg-background/95 text-muted-foreground">

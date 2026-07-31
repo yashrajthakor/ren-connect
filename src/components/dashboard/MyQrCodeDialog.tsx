@@ -23,13 +23,23 @@ export default function MyQrCodeDialog({ open, onOpenChange }: Props) {
     if (!open) return;
     let cancelled = false;
     setLoading(true);
-    (supabase as any).rpc("get_my_profile").then(({ data, error }: any) => {
-      if (cancelled) return;
-      if (!error && data) {
-        setProfile({ member_id: data.member_id, full_name: data.full_name });
-      }
-      setLoading(false);
-    });
+    setProfile(null);
+    (supabase as any)
+      .rpc("get_my_profile")
+      .then(({ data, error }: any) => {
+        if (cancelled) return;
+        if (error) {
+          console.error("get_my_profile error:", error);
+        } else if (data) {
+          setProfile({ member_id: data.member_id, full_name: data.full_name });
+        }
+        setLoading(false);
+      })
+      .catch((err: any) => {
+        if (cancelled) return;
+        console.error("get_my_profile unexpected error:", err);
+        setLoading(false);
+      });
     return () => {
       cancelled = true;
     };
