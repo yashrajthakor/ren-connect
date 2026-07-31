@@ -64,6 +64,13 @@ import { RefreshCw } from "lucide-react";
 
 const queryClient = new QueryClient();
 
+// Routes under /admin that the narrow "attendance_head" role must NOT reach —
+// wraps each in its own guard so a direct URL visit still bounces them out,
+// even though the outer /admin route now also allows attendance_head in.
+const fullAdminOnly = (el: JSX.Element) => (
+  <ProtectedRoute allowedRoles={["admin", "super_admin"]}>{el}</ProtectedRoute>
+);
+
 const App = () => {
   const { showUpdatePrompt, updateApp, dismissPrompt } = useServiceWorkerUpdate();
 
@@ -110,33 +117,33 @@ const App = () => {
               <Route
                 path="/admin"
                 element={
-                  <ProtectedRoute allowedRoles={["admin", "super_admin"]}>
+                  <ProtectedRoute allowedRoles={["admin", "super_admin", "attendance_head"]}>
                     <AdminLayout />
                   </ProtectedRoute>
                 }
               >
-                <Route index element={<Admin />} />
-                <Route path="applications" element={<Applications />} />
-                <Route path="members" element={<Members />} />
-                <Route path="valuable-members" element={<ValuableMembers />} />
-                <Route path="valuable-members/:memberId/details" element={<ValuableMemberDetails />} />
-                <Route path="valuable-members/:memberId/activity" element={<ValuableMemberActivity />} />
-                <Route path="valuable-members/:memberId/profile" element={<ValuableMemberProfile />} />
-                <Route path="valuable-members/:memberId/renew" element={<ValuableMemberRenew />} />
-                <Route path="valuable-members/:memberId/attendance" element={<ValuableMemberAttendance />} />
-                <Route path="valuable-members/:memberId/qr-code" element={<ValuableMemberQrCode />} />
-                <Route path="categories" element={<AdminCategories />} />
-                <Route path="leads" element={<AdminLeads />} />
-                <Route path="asks" element={<AdminAsks />} />
-                <Route path="meetings" element={<AdminMeetings />} />
+                <Route index element={fullAdminOnly(<Admin />)} />
+                <Route path="applications" element={fullAdminOnly(<Applications />)} />
+                <Route path="members" element={fullAdminOnly(<Members />)} />
+                <Route path="valuable-members" element={fullAdminOnly(<ValuableMembers />)} />
+                <Route path="valuable-members/:memberId/details" element={fullAdminOnly(<ValuableMemberDetails />)} />
+                <Route path="valuable-members/:memberId/activity" element={fullAdminOnly(<ValuableMemberActivity />)} />
+                <Route path="valuable-members/:memberId/profile" element={fullAdminOnly(<ValuableMemberProfile />)} />
+                <Route path="valuable-members/:memberId/renew" element={fullAdminOnly(<ValuableMemberRenew />)} />
+                <Route path="valuable-members/:memberId/attendance" element={fullAdminOnly(<ValuableMemberAttendance />)} />
+                <Route path="valuable-members/:memberId/qr-code" element={fullAdminOnly(<ValuableMemberQrCode />)} />
+                <Route path="categories" element={fullAdminOnly(<AdminCategories />)} />
+                <Route path="leads" element={fullAdminOnly(<AdminLeads />)} />
+                <Route path="asks" element={fullAdminOnly(<AdminAsks />)} />
+                <Route path="meetings" element={fullAdminOnly(<AdminMeetings />)} />
                 <Route path="attendance/meetings" element={<AttendanceMeetings />} />
                 <Route path="attendance/live" element={<LiveAttendance />} />
                 <Route path="attendance/history" element={<AttendanceHistoryList />} />
                 <Route path="attendance/history/:meetingId" element={<AttendanceHistoryDetail />} />
-                <Route path="announcements" element={<AdminAnnouncements />} />
-                <Route path="notice-board" element={<AdminNoticeBoard />} />
-                <Route path="sponsors" element={<AdminSponsors />} />
-                <Route path="newsletter" element={<AdminNewsletter />} />
+                <Route path="announcements" element={fullAdminOnly(<AdminAnnouncements />)} />
+                <Route path="notice-board" element={fullAdminOnly(<AdminNoticeBoard />)} />
+                <Route path="sponsors" element={fullAdminOnly(<AdminSponsors />)} />
+                <Route path="newsletter" element={fullAdminOnly(<AdminNewsletter />)} />
                 <Route
                   path="manage-roles"
                   element={

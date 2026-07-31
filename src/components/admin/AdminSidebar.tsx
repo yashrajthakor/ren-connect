@@ -49,8 +49,10 @@ export function AdminSidebar({ role }: AdminSidebarProps) {
   const collapsed = state === "collapsed";
   const { pathname } = useLocation();
 
-  const isSuperAdmin = (role || "").toLowerCase() === "super_admin";
-  const items = isSuperAdmin ? [...baseItems, ...superAdminItems] : baseItems;
+  const normalizedRole = (role || "").toLowerCase();
+  const isSuperAdmin = normalizedRole === "super_admin";
+  const isAttendanceHead = normalizedRole === "attendance_head";
+  const items = isAttendanceHead ? [] : isSuperAdmin ? [...baseItems, ...superAdminItems] : baseItems;
 
   const isActive = (path: string, end?: boolean) =>
     end ? pathname === path : pathname === path || pathname.startsWith(path + "/");
@@ -74,23 +76,25 @@ export function AdminSidebar({ role }: AdminSidebarProps) {
             )}
           </Link>
         </div>
-        <SidebarGroup>
-          <SidebarGroupLabel>Management</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={isActive(item.url, item.end)}>
-                    <NavLink to={item.url} end={item.end} className="flex items-center gap-2">
-                      <item.icon className="h-4 w-4" />
-                      {!collapsed && <span>{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {items.length > 0 && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Management</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {items.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild isActive={isActive(item.url, item.end)}>
+                      <NavLink to={item.url} end={item.end} className="flex items-center gap-2">
+                        <item.icon className="h-4 w-4" />
+                        {!collapsed && <span>{item.title}</span>}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
         <SidebarGroup>
           <SidebarGroupLabel>Attendance</SidebarGroupLabel>
           <SidebarGroupContent>

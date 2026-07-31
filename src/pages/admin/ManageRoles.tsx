@@ -42,7 +42,7 @@ type Member = {
   role_name: string | null;
 };
 
-const ROLES = ["member", "admin", "super_admin"] as const;
+const ROLES = ["member", "admin", "super_admin", "attendance_head"] as const;
 
 const roleBadgeClass = (role: string | null) => {
   switch ((role || "").toLowerCase()) {
@@ -50,6 +50,8 @@ const roleBadgeClass = (role: string | null) => {
       return "bg-primary text-primary-foreground";
     case "admin":
       return "bg-secondary text-secondary-foreground";
+    case "attendance_head":
+      return "bg-amber-500/15 text-amber-700 dark:text-amber-300";
     case "member":
       return "bg-muted text-foreground";
     default:
