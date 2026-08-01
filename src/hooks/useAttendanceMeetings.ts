@@ -9,6 +9,10 @@ import { supabase } from "@/integrations/supabase/client";
 
 export type MeetingStatus = "upcoming" | "live" | "completed";
 
+/** How the person attended THIS meeting — a historical snapshot, never
+ * re-derived from their current membership_type. */
+export type AttendanceType = "valuable_member" | "visitor";
+
 export interface AttendanceMeeting {
   id: string;
   title: string;
@@ -29,6 +33,20 @@ export interface MeetingAttendanceRow {
   phone: string | null;
   check_in_time: string;
   method: "qr" | "manual";
+  attendance_type: AttendanceType;
+}
+
+/** A person as shown in the "Attendance As: Visitor" search — the superset
+ * of all registered people (current Visitors AND current Valuable Members),
+ * since someone who is a Valuable Member today may have attended an older
+ * meeting as a Visitor. Also used as the "Referred By" dropdown source. */
+export interface AttendanceSearchMember {
+  member_id: string;
+  full_name: string;
+  business_name: string | null;
+  phone: string | null;
+  profile_picture: string | null;
+  membership_type: string | null;
 }
 
 export interface MemberAttendanceHistoryRow {
@@ -97,6 +115,20 @@ export function useMemberAttendanceHistory(memberId: string | undefined, enabled
       const { data, error } = await (supabase as any).rpc("get_member_attendance_history", { _member_id: memberId });
       if (error) throw error;
       return (data || []) as MemberAttendanceHistoryRow[];
+    },
+    staleTime: 15_000,
+  });
+}
+
+/** All registered people (Visitors + Valuable Members) — used when "Attendance As: Visitor". */
+export function useAllMembersForAttendanceSearch(enabled = true) {
+  return useQuery({
+    queryKey: ["attendance-all-members-search"],
+    enabled,
+    queryFn: async () => {
+      const { data, error } = await (supabase as any).rpc("list_all_members_for_attendance_search");
+      if (error) throw error;
+      return (data || []) as AttendanceSearchMember[];
     },
     staleTime: 15_000,
   });
@@ -193,15 +225,18 @@ export function useMarkAttendance() {
       meetingId,
       memberId,
       method,
+      attendanceType = "valuable_member",
     }: {
       meetingId: string;
       memberId: string;
       method: "qr" | "manual";
+      attendanceType?: AttendanceType;
     }) => {
       const { data, error } = await (supabase as any).rpc("mark_attendance", {
         _meeting_id: meetingId,
         _member_id: memberId,
         _method: method,
+        _attendance_type: attendanceType,
       });
       if (error) throw error;
       return data as MarkAttendanceResult;
@@ -225,14 +260,61 @@ export function useAdminAddAttendance() {
       meetingId,
       memberId,
       checkInTime,
+      attendanceType = "valuable_member",
     }: {
       meetingId: string;
       memberId: string;
       checkInTime?: string | null;
+      attendanceType?: AttendanceType;
     }) => {
       const { data, error } = await (supabase as any).rpc("admin_add_attendance", {
         _meeting_id: meetingId,
         _member_id: memberId,
+        _check_in_time: checkInTime ?? null,
+        _attendance_type: attendanceType,
+      });
+      if (error) throw error;
+      return data as MarkAttendanceResult;
+    },
+    onSuccess: (_data, variables) => {
+      qc.invalidateQueries({ queryKey: MEETINGS_KEY });
+      qc.invalidateQueries({ queryKey: ["attendance-meeting-rows", variables.meetingId] });
+    },
+  });
+}
+
+/**
+ * Add New Visitor, directly from the attendance screen: creates the member
+ * (+ optional business profile) and marks them present for `meetingId` in
+ * one atomic RPC call — the admin never has to leave the attendance page.
+ */
+export function useCreateVisitorAndCheckIn() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      meetingId,
+      fullName,
+      phone,
+      businessName,
+      city,
+      referredByMemberId,
+      checkInTime,
+    }: {
+      meetingId: string;
+      fullName: string;
+      phone?: string | null;
+      businessName?: string | null;
+      city?: string | null;
+      referredByMemberId: string;
+      checkInTime?: string | null;
+    }) => {
+      const { data, error } = await (supabase as any).rpc("create_visitor_and_check_in", {
+        _meeting_id: meetingId,
+        _full_name: fullName,
+        _phone: phone ?? null,
+        _business_name: businessName ?? null,
+        _city: city ?? null,
+        _referred_by_member_id: referredByMemberId,
         _check_in_time: checkInTime ?? null,
       });
       if (error) throw error;
@@ -241,6 +323,7 @@ export function useAdminAddAttendance() {
     onSuccess: (_data, variables) => {
       qc.invalidateQueries({ queryKey: MEETINGS_KEY });
       qc.invalidateQueries({ queryKey: ["attendance-meeting-rows", variables.meetingId] });
+      qc.invalidateQueries({ queryKey: ["attendance-all-members-search"] });
     },
   });
 }

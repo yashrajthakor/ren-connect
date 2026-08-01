@@ -130,6 +130,8 @@ export default function LiveAttendance() {
               meetingId,
               memberId: decodedText.trim(),
               method: "qr",
+              // QR check-in is Valuable-Member-only; Visitors always go through Manual Check-in.
+              attendanceType: "valuable_member",
             });
             if (result.duplicate) {
               setScanFlash("duplicate");

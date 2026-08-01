@@ -117,7 +117,7 @@ export default function ValuableMemberDetails() {
               value={remaining === null ? "Not Available" : remaining < 0 ? `Expired ${Math.abs(remaining)} days ago` : `${remaining} days`}
               raw
             />
-            <Row label="Invited By" value={member.invited_by_name} />
+            <Row label="Invited By" value={member.invited_by_name || "None / Self"} raw />
           </dl>
         </Card>
       </div>

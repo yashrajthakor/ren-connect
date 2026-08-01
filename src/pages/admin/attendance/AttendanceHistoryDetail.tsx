@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, CalendarDays, Clock, Loader2, Search, UserPlus, Trash2 } from "lucide-react";
+import { ArrowLeft, CalendarDays, Clock, Loader2, Search, UserPlus, Trash2, Star } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -124,6 +124,7 @@ export default function AttendanceHistoryDetail() {
                 <TableRow>
                   <TableHead>Member Name</TableHead>
                   <TableHead>Business Name</TableHead>
+                  <TableHead>Attendance As</TableHead>
                   <TableHead>Check-in Time</TableHead>
                   <TableHead>Method</TableHead>
                   <TableHead className="w-12 text-right">Actions</TableHead>
@@ -134,6 +135,15 @@ export default function AttendanceHistoryDetail() {
                   <TableRow key={r.attendance_id}>
                     <TableCell className="font-medium">{r.member_name}</TableCell>
                     <TableCell className="text-muted-foreground">{r.business_name || "Not Available"}</TableCell>
+                    <TableCell>
+                      {r.attendance_type === "valuable_member" ? (
+                        <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary">
+                          <Star className="h-3 w-3 fill-primary" /> Valuable Member
+                        </span>
+                      ) : (
+                        <span className="text-xs font-semibold text-muted-foreground">Visitor</span>
+                      )}
+                    </TableCell>
                     <TableCell className="text-muted-foreground">{formatCheckInTime(r.check_in_time)}</TableCell>
                     <TableCell className="text-muted-foreground uppercase text-xs font-semibold">
                       {r.method}

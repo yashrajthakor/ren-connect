@@ -66,6 +66,9 @@ function computeValidThrough(joiningDateStr: string): string {
   return toDateInputValue(validThrough);
 }
 
+/** Sentinel for "no inviter" — founding members / direct joins. Saved as NULL. */
+const NONE_SELF = "none";
+
 function matches(m: RosterMember, q: string): boolean {
   if (!q) return true;
   return (
@@ -96,7 +99,7 @@ export default function ConvertToPaidMemberDialog({
   const [visitorSearch, setVisitorSearch] = useState("");
   const [visitorComboOpen, setVisitorComboOpen] = useState(false);
 
-  const [selectedInviterId, setSelectedInviterId] = useState<string>("");
+  const [selectedInviterId, setSelectedInviterId] = useState<string>(NONE_SELF);
   const [inviterSearch, setInviterSearch] = useState("");
   const [inviterComboOpen, setInviterComboOpen] = useState(false);
 
@@ -117,12 +120,12 @@ export default function ConvertToPaidMemberDialog({
     setInviterSearch("");
     const todayStr = toDateInputValue(new Date());
     if (member) {
-      setSelectedInviterId(member.invited_by_member_id || "");
+      setSelectedInviterId(member.invited_by_member_id || NONE_SELF);
       const seededJoin = member.paid_joining_date || (defaultJoiningDateToday ? todayStr : "");
       setJoiningDate(seededJoin);
       setValidThrough(member.paid_valid_through || (seededJoin ? computeValidThrough(seededJoin) : ""));
     } else {
-      setSelectedInviterId("");
+      setSelectedInviterId(NONE_SELF);
       const seededJoin = defaultJoiningDateToday ? todayStr : "";
       setJoiningDate(seededJoin);
       setValidThrough(seededJoin ? computeValidThrough(seededJoin) : "");
@@ -154,7 +157,9 @@ export default function ConvertToPaidMemberDialog({
   }, [activePaidMembers, inviterSearch]);
 
   const selectedInviter = activePaidMembers.find((x) => x.member_id === selectedInviterId);
-  const detailsIncomplete = !targetMember || !selectedInviterId || !joiningDate || !validThrough;
+  // Invited By is optional — selectedInviterId is always either a real
+  // member id or the NONE_SELF sentinel, never empty, so it never blocks save.
+  const detailsIncomplete = !targetMember || !joiningDate || !validThrough;
 
   const close = () => {
     if (converting) return;
@@ -164,17 +169,18 @@ export default function ConvertToPaidMemberDialog({
   const confirmConvert = async () => {
     if (!targetMember || detailsIncomplete) return;
     setConverting(true);
+    const invitedByToSave = selectedInviterId === NONE_SELF ? null : selectedInviterId;
     const { error } = isEditingInviterOnly
       ? await (supabase as any).rpc("set_paid_member_details", {
           _member_id: targetMember.member_id,
-          _invited_by_member_id: selectedInviterId,
+          _invited_by_member_id: invitedByToSave,
           _joining_date: joiningDate,
           _valid_through: validThrough,
         })
       : await (supabase as any).rpc("set_membership_type", {
           _member_id: targetMember.member_id,
           _type: "paid_member",
-          _invited_by_member_id: selectedInviterId,
+          _invited_by_member_id: invitedByToSave,
           _joining_date: joiningDate,
           _valid_through: validThrough,
         });
@@ -183,7 +189,7 @@ export default function ConvertToPaidMemberDialog({
       toast({ title: "Update failed", description: error.message, variant: "destructive" });
       return;
     }
-    const inviterName = selectedInviter?.full_name || "";
+    const inviterName = selectedInviter?.full_name || "None / Self";
     if (isNewConversionFlow) {
       toast({ title: "✅ Valuable Member added successfully.", description: targetMember.full_name });
     } else if (isEditingInviterOnly) {
@@ -191,13 +197,13 @@ export default function ConvertToPaidMemberDialog({
     } else {
       toast({
         title: "Membership updated",
-        description: `${targetMember.full_name} → Paid Member (invited by ${inviterName || "—"})`,
+        description: `${targetMember.full_name} → Paid Member (invited by ${inviterName})`,
       });
     }
     onSuccess({
       member_id: targetMember.member_id,
-      invited_by_member_id: selectedInviterId,
-      invited_by_name: inviterName,
+      invited_by_member_id: invitedByToSave || "",
+      invited_by_name: invitedByToSave ? inviterName : "",
       paid_joining_date: joiningDate,
       paid_valid_through: validThrough,
     });
@@ -318,7 +324,7 @@ export default function ConvertToPaidMemberDialog({
                     )}
                   </div>
                 ) : (
-                  <span className="text-sm text-muted-foreground">Search by member or business name…</span>
+                  <span className="text-sm text-foreground">None / Self</span>
                 )}
                 <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
               </button>
@@ -331,6 +337,23 @@ export default function ConvertToPaidMemberDialog({
                   onValueChange={setInviterSearch}
                 />
                 <CommandList className="max-h-56">
+                  <CommandGroup>
+                    <CommandItem
+                      value={NONE_SELF}
+                      onSelect={() => {
+                        setSelectedInviterId(NONE_SELF);
+                        setInviterComboOpen(false);
+                        setInviterSearch("");
+                      }}
+                      className="flex items-center gap-2 py-2"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium text-sm truncate">None / Self</p>
+                        <p className="text-xs text-muted-foreground truncate">Founding member or joined directly</p>
+                      </div>
+                      {selectedInviterId === NONE_SELF && <Check className="h-4 w-4 shrink-0 text-primary" />}
+                    </CommandItem>
+                  </CommandGroup>
                   <CommandEmpty>No active Paid Members found</CommandEmpty>
                   <CommandGroup>
                     {filteredInviters.map((x) => (
@@ -358,7 +381,7 @@ export default function ConvertToPaidMemberDialog({
               </Command>
             </PopoverContent>
           </Popover>
-          <p className="text-xs text-muted-foreground">Required.</p>
+          <p className="text-xs text-muted-foreground">Optional — defaults to None / Self.</p>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
