@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, CalendarDays, Clock, Loader2, Search, UserPlus, Trash2, Star } from "lucide-react";
+import { ArrowLeft, CalendarDays, Clock, Loader2, Search, UserPlus, Trash2, Star, CheckCircle2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,7 @@ import {
   useAttendanceMeetings,
   useMeetingAttendance,
   useDeleteAttendance,
+  useCloseMeetingAttendance,
   type MeetingAttendanceRow,
 } from "@/hooks/useAttendanceMeetings";
 import { formatDateOrNA } from "@/lib/membershipStatus";
@@ -33,9 +34,12 @@ export default function AttendanceHistoryDetail() {
   const { data: meetings = [] } = useAttendanceMeetings();
   const { data: rows = [], isLoading, isError, refetch } = useMeetingAttendance(meetingId);
   const deleteAttendance = useDeleteAttendance();
+  const closeAttendance = useCloseMeetingAttendance();
   const [search, setSearch] = useState("");
   const [addOpen, setAddOpen] = useState(false);
   const [removingRow, setRemovingRow] = useState<MeetingAttendanceRow | null>(null);
+  const [closeConfirmOpen, setCloseConfirmOpen] = useState(false);
+  const [closing, setClosing] = useState(false);
 
   const meeting = meetings.find((m) => m.id === meetingId);
   const presentIds = new Set(rows.map((r) => r.member_id));
@@ -56,6 +60,20 @@ export default function AttendanceHistoryDetail() {
       toast({ title: "Couldn't remove attendance", description: e.message, variant: "destructive" });
     } finally {
       setRemovingRow(null);
+    }
+  };
+
+  const handleClose = async () => {
+    if (!meetingId) return;
+    setClosing(true);
+    try {
+      await closeAttendance.mutateAsync(meetingId);
+      toast({ title: "Meeting marked Completed", description: "Attendance for this meeting is now finalized." });
+    } catch (e: any) {
+      toast({ title: "Couldn't complete meeting", description: e.message, variant: "destructive" });
+    } finally {
+      setClosing(false);
+      setCloseConfirmOpen(false);
     }
   };
 
@@ -87,9 +105,16 @@ export default function AttendanceHistoryDetail() {
           )}
         </div>
         {meetingId && (
-          <Button variant="outline" onClick={() => setAddOpen(true)}>
-            <UserPlus className="h-4 w-4 mr-1.5" /> Add Member
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={() => setAddOpen(true)}>
+              <UserPlus className="h-4 w-4 mr-1.5" /> Add Member
+            </Button>
+            {backdated && (
+              <Button variant="royal" onClick={() => setCloseConfirmOpen(true)}>
+                <CheckCircle2 className="h-4 w-4 mr-1.5" /> Mark as Completed
+              </Button>
+            )}
+          </div>
         )}
       </div>
 
@@ -183,6 +208,25 @@ export default function AttendanceHistoryDetail() {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleRemove}>Remove</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={closeConfirmOpen} onOpenChange={setCloseConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Mark this meeting as Completed?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This finalizes attendance for "{meeting?.title}". The meeting's status will change from Upcoming to
+              Completed.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={closing}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleClose} disabled={closing}>
+              {closing && <Loader2 className="h-4 w-4 animate-spin mr-1" />}
+              Mark as Completed
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
