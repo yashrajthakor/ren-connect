@@ -26,6 +26,7 @@ import {
 import { formatDateOrNA } from "@/lib/membershipStatus";
 import { formatTimeOfDay, formatCheckInTime, isBackdated } from "@/lib/attendanceFormat";
 import ManualCheckInDialog from "@/components/admin/ManualCheckInDialog";
+import { MeetingTypeBadge } from "@/components/admin/MeetingTypeBadge";
 
 export default function AttendanceHistoryDetail() {
   const { meetingId } = useParams();
@@ -94,14 +95,17 @@ export default function AttendanceHistoryDetail() {
             )}
           </div>
           {meeting && (
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground mt-1">
-              <span className="inline-flex items-center gap-1.5">
-                <CalendarDays className="h-3.5 w-3.5" /> {formatDateOrNA(meeting.meeting_date)}
-              </span>
-              <span className="inline-flex items-center gap-1.5">
-                <Clock className="h-3.5 w-3.5" /> {formatTimeOfDay(meeting.meeting_time)}
-              </span>
-            </div>
+            <>
+              <MeetingTypeBadge type={meeting.meeting_type} className="mt-1.5" />
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground mt-1.5">
+                <span className="inline-flex items-center gap-1.5">
+                  <CalendarDays className="h-3.5 w-3.5" /> {formatDateOrNA(meeting.meeting_date)}
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <Clock className="h-3.5 w-3.5" /> {formatTimeOfDay(meeting.meeting_time)}
+                </span>
+              </div>
+            </>
           )}
         </div>
         {meetingId && (

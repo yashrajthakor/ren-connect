@@ -16,6 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import renLogo from "@/assets/ren-logo.png";
 import LanguageSwitcher from "@/components/public/LanguageSwitcher";
 import MultiCategorySelect from "@/components/categories/MultiCategorySelect";
+import ImageUploadCropper from "@/components/shared/ImageUploadCropper";
 
 // ============= Schemas per step =============
 const step1Schema = z.object({
@@ -414,7 +415,13 @@ const Signup = () => {
           {/* Step 3: Uploads & Socials */}
           {step === 3 && (
             <form onSubmit={f3.handleSubmit(onFinalSubmit)} className="space-y-4">
-              <FileUpload label="Profile Picture" file={profilePic} onChange={setProfilePic} accept="image/*" />
+              <ImageUploadCropper
+                label="Profile Picture"
+                aspect={3 / 4}
+                shape="circle"
+                onFileReady={(file) => setProfilePic(file)}
+                onRemoved={() => setProfilePic(null)}
+              />
               <FileUpload label="Company Logo" file={companyLogo} onChange={setCompanyLogo} accept="image/*" />
               <FileUpload label="Visiting Card" file={visitingCard} onChange={setVisitingCard} accept="image/*,application/pdf" />
 

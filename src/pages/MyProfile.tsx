@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Loader2, Save, Upload, User as UserIcon, Award } from "lucide-react";
+import { Loader2, Save, Upload, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,6 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import MultiCategorySelect from "@/components/categories/MultiCategorySelect";
+import ImageUploadCropper from "@/components/shared/ImageUploadCropper";
+import { uploadProfilePicture } from "@/lib/profilePictureUpload";
 
 type Profile = {
   member_id: string;
@@ -252,19 +254,14 @@ const MyProfile = () => {
       <Card>
         <CardHeader><CardTitle>Personal Info</CardTitle></CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center gap-4">
-            <div className="h-20 w-20 rounded-full bg-muted overflow-hidden flex items-center justify-center border">
-              {profilePicUrl ? (
-                <img src={profilePicUrl} alt="Profile" className="h-full w-full object-cover" />
-              ) : (
-                <UserIcon className="h-8 w-8 text-muted-foreground" />
-              )}
-            </div>
-            <Label className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 border rounded-md hover:bg-accent">
-              <Upload className="h-4 w-4" /> Change picture
-              <input type="file" accept="image/*" className="hidden" onChange={onPick("profile-pictures", setProfilePicUrl)} />
-            </Label>
-          </div>
+          <ImageUploadCropper
+            label="Profile Picture"
+            aspect={3 / 4}
+            shape="circle"
+            value={profilePicUrl}
+            upload={(file) => uploadProfilePicture(userId as string, file)}
+            onUploaded={setProfilePicUrl}
+          />
 
           <div className="grid sm:grid-cols-2 gap-4">
             <div>

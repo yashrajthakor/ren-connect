@@ -40,6 +40,7 @@ import { useValuableMembers } from "@/hooks/useValuableMembers";
 import { formatDateOrNA } from "@/lib/membershipStatus";
 import { formatTimeOfDay, formatCheckInTime } from "@/lib/attendanceFormat";
 import ManualCheckInDialog from "@/components/admin/ManualCheckInDialog";
+import { MeetingTypeBadge } from "@/components/admin/MeetingTypeBadge";
 
 const SCANNER_ELEMENT_ID = "attendance-qr-reader";
 const RESCAN_COOLDOWN_MS = 4000;
@@ -227,7 +228,8 @@ export default function LiveAttendance() {
           <h1 className="text-2xl sm:text-3xl font-display font-bold text-foreground flex items-center gap-2">
             <ScanLine className="h-6 w-6 text-primary" /> {liveMeeting.title}
           </h1>
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground mt-1">
+          <MeetingTypeBadge type={liveMeeting.meeting_type} className="mt-1.5" />
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground mt-1.5">
             <span className="inline-flex items-center gap-1.5">
               <CalendarDays className="h-3.5 w-3.5" /> {formatDateOrNA(liveMeeting.meeting_date)}
             </span>

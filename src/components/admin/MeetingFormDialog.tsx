@@ -11,6 +11,7 @@ import {
   useUpdateAttendanceMeeting,
   type AttendanceMeeting,
 } from "@/hooks/useAttendanceMeetings";
+import { DEFAULT_MEETING_TYPE } from "@/lib/meetingType";
 
 interface Props {
   open: boolean;
@@ -18,6 +19,8 @@ interface Props {
   meeting: AttendanceMeeting | null;
   onSuccess?: () => void;
 }
+
+type MeetingTypeOption = "Regular Meeting" | "Other";
 
 export default function MeetingFormDialog({ open, onOpenChange, meeting, onSuccess }: Props) {
   const { toast } = useToast();
@@ -30,6 +33,8 @@ export default function MeetingFormDialog({ open, onOpenChange, meeting, onSucce
   const [time, setTime] = useState("");
   const [venue, setVenue] = useState("");
   const [description, setDescription] = useState("");
+  const [meetingTypeOption, setMeetingTypeOption] = useState<MeetingTypeOption>("Regular Meeting");
+  const [customType, setCustomType] = useState("");
 
   useEffect(() => {
     if (!open) return;
@@ -38,12 +43,25 @@ export default function MeetingFormDialog({ open, onOpenChange, meeting, onSucce
     setTime(meeting?.meeting_time?.slice(0, 5) || "");
     setVenue(meeting?.venue || "");
     setDescription(meeting?.description || "");
+    const existingType = meeting?.meeting_type;
+    if (existingType && existingType !== DEFAULT_MEETING_TYPE) {
+      setMeetingTypeOption("Other");
+      setCustomType(existingType);
+    } else {
+      setMeetingTypeOption("Regular Meeting");
+      setCustomType("");
+    }
   }, [open, meeting]);
 
-  const valid = title.trim().length > 0 && date.length > 0 && time.length > 0;
+  const valid =
+    title.trim().length > 0 &&
+    date.length > 0 &&
+    time.length > 0 &&
+    (meetingTypeOption === "Regular Meeting" || customType.trim().length > 0);
 
   const save = async () => {
     if (!valid) return;
+    const meetingType = meetingTypeOption === "Regular Meeting" ? DEFAULT_MEETING_TYPE : customType.trim();
     try {
       if (meeting) {
         await updateMeeting.mutateAsync({
@@ -53,6 +71,7 @@ export default function MeetingFormDialog({ open, onOpenChange, meeting, onSucce
           meeting_time: time,
           venue: venue.trim() || null,
           description: description.trim() || null,
+          meeting_type: meetingType,
         });
         toast({ title: "Meeting updated" });
       } else {
@@ -62,6 +81,7 @@ export default function MeetingFormDialog({ open, onOpenChange, meeting, onSucce
           meeting_time: time,
           venue: venue.trim() || null,
           description: description.trim() || null,
+          meeting_type: meetingType,
         });
         toast({ title: "Meeting created" });
       }
@@ -97,6 +117,43 @@ export default function MeetingFormDialog({ open, onOpenChange, meeting, onSucce
               <Input type="time" value={time} onChange={(e) => setTime(e.target.value)} />
             </div>
           </div>
+
+          <div>
+            <Label>Meeting Type *</Label>
+            <div className="grid grid-cols-2 gap-2 mt-1">
+              <button
+                type="button"
+                onClick={() => setMeetingTypeOption("Regular Meeting")}
+                className={`rounded-lg border p-2 text-sm font-semibold transition-colors ${
+                  meetingTypeOption === "Regular Meeting"
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-card text-muted-foreground border-border hover:border-primary/50"
+                }`}
+              >
+                Regular Meeting
+              </button>
+              <button
+                type="button"
+                onClick={() => setMeetingTypeOption("Other")}
+                className={`rounded-lg border p-2 text-sm font-semibold transition-colors ${
+                  meetingTypeOption === "Other"
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-card text-muted-foreground border-border hover:border-primary/50"
+                }`}
+              >
+                Other
+              </button>
+            </div>
+            {meetingTypeOption === "Other" && (
+              <Input
+                className="mt-2"
+                value={customType}
+                onChange={(e) => setCustomType(e.target.value)}
+                placeholder="e.g. Training Session, Business Expo, AGM"
+              />
+            )}
+          </div>
+
           <div>
             <Label>Venue</Label>
             <Input value={venue} onChange={(e) => setVenue(e.target.value)} placeholder="Optional" />

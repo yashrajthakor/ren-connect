@@ -23,6 +23,7 @@ export interface AttendanceMeeting {
   status: MeetingStatus;
   created_at: string;
   total_present: number;
+  meeting_type: string;
 }
 
 export interface MeetingAttendanceRow {
@@ -53,6 +54,7 @@ export interface MemberAttendanceHistoryRow {
   meeting_id: string;
   title: string;
   meeting_date: string;
+  meeting_type: string;
   present: boolean;
   check_in_time: string | null;
 }
@@ -140,6 +142,7 @@ export interface MeetingFormInput {
   meeting_time: string;
   venue?: string | null;
   description?: string | null;
+  meeting_type: string;
 }
 
 export function useCreateAttendanceMeeting() {
@@ -152,6 +155,7 @@ export function useCreateAttendanceMeeting() {
         _meeting_time: input.meeting_time,
         _venue: input.venue ?? null,
         _description: input.description ?? null,
+        _meeting_type: input.meeting_type,
       });
       if (error) throw error;
       return data;
@@ -171,6 +175,7 @@ export function useUpdateAttendanceMeeting() {
         _meeting_time: input.meeting_time,
         _venue: input.venue ?? null,
         _description: input.description ?? null,
+        _meeting_type: input.meeting_type,
       });
       if (error) throw error;
       return data;

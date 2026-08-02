@@ -28,6 +28,7 @@ import {
   type AttendanceMeeting,
 } from "@/hooks/useAttendanceMeetings";
 import { MeetingStatusBadge } from "@/components/admin/MeetingStatusBadge";
+import { MeetingTypeBadge } from "@/components/admin/MeetingTypeBadge";
 import MeetingFormDialog from "@/components/admin/MeetingFormDialog";
 import { formatDateOrNA } from "@/lib/membershipStatus";
 import { formatTimeOfDay, isBackdated } from "@/lib/attendanceFormat";
@@ -118,7 +119,10 @@ export default function AttendanceMeetings() {
                   <TableRow key={m.id}>
                     <TableCell>
                       <div className="font-medium">{m.title}</div>
-                      <div className="text-xs text-muted-foreground sm:hidden">{formatTimeOfDay(m.meeting_time)}</div>
+                      <MeetingTypeBadge type={m.meeting_type} className="mt-1" />
+                      <div className="text-xs text-muted-foreground sm:hidden mt-1">
+                        {formatTimeOfDay(m.meeting_time)}
+                      </div>
                     </TableCell>
                     <TableCell className="text-muted-foreground">{formatDateOrNA(m.meeting_date)}</TableCell>
                     <TableCell className="hidden sm:table-cell text-muted-foreground">
