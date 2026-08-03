@@ -278,11 +278,11 @@ export default function ValuableMembers() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="w-52">
-                            <DropdownMenuItem
+                            {/* <DropdownMenuItem
                               onClick={() => navigate(`/admin/valuable-members/${m.member_id}/profile`)}
                             >
                               <User className="h-4 w-4 mr-2" /> View Profile
-                            </DropdownMenuItem>
+                            </DropdownMenuItem> */}
                             <DropdownMenuItem
                               onClick={() => navigate(`/admin/valuable-members/${m.member_id}/details`)}
                             >
@@ -291,17 +291,17 @@ export default function ValuableMembers() {
                             <DropdownMenuItem onClick={() => setEditingMember(m)}>
                               <Pencil className="h-4 w-4 mr-2" /> Edit Membership
                             </DropdownMenuItem>
-                            <DropdownMenuItem
+                            {/* <DropdownMenuItem
                               onClick={() => navigate(`/admin/valuable-members/${m.member_id}/renew`)}
                             >
                               <RefreshCcw className="h-4 w-4 mr-2" /> Renew Membership
-                            </DropdownMenuItem>
+                            </DropdownMenuItem> */}
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem
+                            {/* <DropdownMenuItem
                               onClick={() => navigate(`/admin/valuable-members/${m.member_id}/activity`)}
                             >
                               <Activity className="h-4 w-4 mr-2" /> Activity
-                            </DropdownMenuItem>
+                            </DropdownMenuItem> */}
                             <DropdownMenuItem
                               onClick={() => navigate(`/admin/valuable-members/${m.member_id}/attendance`)}
                             >

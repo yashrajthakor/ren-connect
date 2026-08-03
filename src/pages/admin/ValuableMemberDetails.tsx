@@ -68,16 +68,16 @@ export default function ValuableMemberDetails() {
         <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
           <Pencil className="h-4 w-4 mr-1.5" /> Edit Membership
         </Button>
-        <Button variant="outline" size="sm" asChild>
+        {/* <Button variant="outline" size="sm" asChild>
           <Link to={`/admin/valuable-members/${member.member_id}/renew`}>
             <RefreshCcw className="h-4 w-4 mr-1.5" /> Renew Membership
           </Link>
-        </Button>
-        <Button variant="outline" size="sm" asChild>
+        </Button> */}
+        {/* <Button variant="outline" size="sm" asChild>
           <Link to={`/admin/valuable-members/${member.member_id}/activity`}>
             <Activity className="h-4 w-4 mr-1.5" /> Activity
           </Link>
-        </Button>
+        </Button> */}
         <Button variant="outline" size="sm" asChild>
           <Link to={`/admin/valuable-members/${member.member_id}/attendance`}>
             <CalendarCheck2 className="h-4 w-4 mr-1.5" /> Attendance

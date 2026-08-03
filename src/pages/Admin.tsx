@@ -122,7 +122,7 @@ const Admin = () => {
         <AdminStatsOverview />
 
         {/* Action Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {actionCards.map((card) => (
             <button
               key={card.title}
@@ -143,7 +143,7 @@ const Admin = () => {
               </div>
             </button>
           ))}
-        </div>
+        </div> */}
       </main>
     </div>
   );
