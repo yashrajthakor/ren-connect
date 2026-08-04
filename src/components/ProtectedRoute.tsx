@@ -64,7 +64,11 @@ const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
       return <Navigate to="/admin" replace />;
     }
     if (userRole === "attendance_head") {
-      return <Navigate to="/admin/attendance/meetings" replace />;
+      // attendance_head has full Member Mode access but only the Attendance
+      // module in Admin Mode — land back on whichever mode they were in
+      // rather than always bouncing out to one fixed page.
+      const target = location.pathname.startsWith("/admin") ? "/admin/attendance/meetings" : "/dashboard";
+      return <Navigate to={target} replace />;
     }
     return <Navigate to="/dashboard" replace />;
   }

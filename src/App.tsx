@@ -156,13 +156,20 @@ const App = () => {
               <Route
                 path="/dashboard"
                 element={
-                  <ProtectedRoute allowedRoles={["member", "admin", "super_admin"]}>
+                  <ProtectedRoute allowedRoles={["member", "admin", "super_admin", "attendance_head"]}>
                     <DashboardLayout />
                   </ProtectedRoute>
                 }
               >
                 <Route index element={<Dashboard />} />
-                <Route path="applications" element={<Applications />} />
+                <Route
+                  path="applications"
+                  element={
+                    <ProtectedRoute allowedRoles={["admin", "super_admin"]}>
+                      <Applications />
+                    </ProtectedRoute>
+                  }
+                />
                 <Route path="profile" element={<MyProfile />} />
                 <Route path="settings" element={<Settings />} />
                 <Route path="directory" element={<DashboardDirectory />} />

@@ -65,7 +65,9 @@ const AdminLayout = () => {
             </div>
             <div className="flex items-center gap-4">
               <NotificationBell />
-              {(userRole.toLowerCase() === "admin" || userRole.toLowerCase() === "super_admin") && (
+              {(userRole.toLowerCase() === "admin" ||
+                userRole.toLowerCase() === "super_admin" ||
+                userRole.toLowerCase() === "attendance_head") && (
                 <Button variant="secondary" size="sm" onClick={() => navigate("/dashboard")}>
                   <UserRound className="h-4 w-4 mr-2" />
                   Switch to Member Mode

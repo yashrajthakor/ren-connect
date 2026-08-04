@@ -108,6 +108,9 @@ const More = () => {
 
   const normalizedRole = (userRole || "").toLowerCase();
   const isAdmin = normalizedRole === "admin" || normalizedRole === "super_admin";
+  // attendance_head can switch into Admin Mode too (Attendance module only),
+  // but must not see full-admin-only items like Review Applications below.
+  const canSwitchToAdminMode = isAdmin || normalizedRole === "attendance_head";
 
   const sections: MenuSection[] = [
     {
@@ -293,8 +296,12 @@ const More = () => {
       )}
 
       <div className="space-y-3">
-        {isAdmin && (
-          <Button variant="default" className="w-full" onClick={() => navigate("/admin")}>
+        {canSwitchToAdminMode && (
+          <Button
+            variant="default"
+            className="w-full"
+            onClick={() => navigate(normalizedRole === "attendance_head" ? "/admin/attendance/meetings" : "/admin")}
+          >
             <Shield className="mr-2 h-4 w-4" />
             Switch to Admin Mode
           </Button>

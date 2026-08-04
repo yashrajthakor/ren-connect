@@ -104,8 +104,17 @@ const DashboardLayout = () => {
               >
                 <QrCode className="h-5 w-5" />
               </Button>
-              {(userRole?.toLowerCase() === "admin" || userRole?.toLowerCase() === "super_admin") && (
-                <Button variant="default" size="sm" onClick={() => navigate("/admin")} className="px-2 sm:px-3">
+              {(userRole?.toLowerCase() === "admin" ||
+                userRole?.toLowerCase() === "super_admin" ||
+                userRole?.toLowerCase() === "attendance_head") && (
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={() =>
+                    navigate(userRole?.toLowerCase() === "attendance_head" ? "/admin/attendance/meetings" : "/admin")
+                  }
+                  className="px-2 sm:px-3"
+                >
                   <Shield className="h-4 w-4 sm:mr-2" />
                   <span className="hidden sm:inline">Switch to Admin Mode</span>
                 </Button>
