@@ -366,13 +366,13 @@ export default function CreateLeadDialog({ open, onOpenChange, giverId, existing
                 value="internal"
                 className="border data-[state=on]:border-primary data-[state=on]:bg-primary/10 data-[state=on]:text-primary"
               >
-                Internal Lead
+                Inside Referral
               </ToggleGroupItem>
               <ToggleGroupItem
                 value="external"
                 className="border data-[state=on]:border-primary data-[state=on]:bg-primary/10 data-[state=on]:text-primary"
               >
-                External Lead
+                Outside Referral
               </ToggleGroupItem>
             </ToggleGroup>
           </div>
@@ -395,7 +395,7 @@ export default function CreateLeadDialog({ open, onOpenChange, giverId, existing
               {profileIncomplete ? (
                 <p className="flex items-start gap-1.5 text-xs text-destructive">
                   <AlertCircle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
-                  Your profile is missing a name. Update it in My Profile before sharing an internal lead.
+                  Your profile is missing a name. Update it in My Profile before sharing an inside referral.
                 </p>
               ) : (
                 <p className="text-xs text-muted-foreground">
