@@ -13,6 +13,16 @@ export interface BusinessGiverEntry {
   amount: number;
 }
 
+/**
+ * Leaderboards keyed on `members.id` rather than the auth `user_id` — visitors
+ * and the members who referred them may have no auth account at all.
+ */
+export interface MemberLeaderboardEntry {
+  member_id: string;
+  name: string;
+  count: number;
+}
+
 export interface AdminDashboardStats {
   meetings_total: number;
   meetings_leaderboard: LeaderboardEntry[];
@@ -23,6 +33,10 @@ export interface AdminDashboardStats {
   new_paid_members: number;
   total_paid_members: number;
   new_registrations: number;
+  visitor_visits_total: number;
+  top_visitor_inviters: MemberLeaderboardEntry[];
+  inductions_total: number;
+  top_inductors: MemberLeaderboardEntry[];
 }
 
 /** `start` inclusive, `end` exclusive. */

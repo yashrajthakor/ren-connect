@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { DateRange as DayPickerRange } from "react-day-picker";
-import { Handshake, IndianRupee, Star, Users, FileText, Rss, Trophy, CalendarIcon } from "lucide-react";
+import { Handshake, IndianRupee, Star, Users, FileText, Rss, Trophy, CalendarIcon, UserPlus, Award } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
@@ -18,7 +18,8 @@ type CardDef = {
   title: string;
   value: string | number;
   href: string;
-  leaderboard?: Array<{ user_id: string; name: string; count?: number; amount?: number }>;
+  /** Older boards key on the auth user_id; visitor/induction boards key on members.id. */
+  leaderboard?: Array<{ user_id?: string; member_id?: string; name: string; count?: number; amount?: number }>;
   leaderboardKind?: LeaderboardKind;
 };
 
@@ -100,6 +101,24 @@ export default function AdminStatsOverview() {
       value: stats?.new_registrations ?? 0,
       href: `/admin/applications?${rangeParams}`,
     },
+    {
+      key: "visitor_inviters",
+      icon: UserPlus,
+      title: "Highest Visitor Invited By",
+      value: stats?.top_visitor_inviters?.[0]?.name ?? "—",
+      href: "/admin/attendance/history",
+      leaderboard: stats?.top_visitor_inviters,
+      leaderboardKind: "count",
+    },
+    {
+      key: "inductors",
+      icon: Award,
+      title: "Highest Induction Done By",
+      value: stats?.top_inductors?.[0]?.name ?? "—",
+      href: "/admin/valuable-members",
+      leaderboard: stats?.top_inductors,
+      leaderboardKind: "count",
+    },
   ];
 
   return (
@@ -180,7 +199,7 @@ export default function AdminStatsOverview() {
             {!isLoading && (c.leaderboard?.length ?? 0) > 0 && (
               <ol className="mt-3 space-y-1 border-t border-border pt-2.5">
                 {c.leaderboard!.slice(0, 5).map((entry, i) => (
-                  <li key={entry.user_id} className="flex items-center justify-between gap-2 text-xs">
+                  <li key={entry.user_id ?? entry.member_id} className="flex items-center justify-between gap-2 text-xs">
                     <span className="min-w-0 truncate text-muted-foreground">
                       {i + 1}. {entry.name}
                     </span>
