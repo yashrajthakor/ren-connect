@@ -42,13 +42,19 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 
 EXPOSE 80
 
-# NOTE: deliberately no HEALTHCHECK here.
-# Coolify treats a Dockerfile HEALTHCHECK as authoritative and then polls
-# `docker inspect .State.Health.Status`. If it reuses a cached image that
-# predates this Dockerfile (it skips the build when an image already exists
-# for the same commit SHA), that key is absent and the rolling update dies
-# with `map has no entry for key "Health"` rather than a useful message.
-# Health is configured in Coolify's own UI instead - point it at /health,
-# which nginx.conf serves.
+# Coolify string-matches the Dockerfile for this instruction and, when it is
+# present, treats it as authoritative and then polls
+# `docker inspect .State.Health.Status`. It must therefore be a REAL
+# instruction: a bare mention inside a comment matches too, which makes
+# Coolify wait on a health status the image does not actually have and the
+# rolling update dies with `map has no entry for key "Health"`.
+#
+# wget and nc are both busybox applets in alpine (curl is NOT installed).
+# The nc fallback covers the case where the wget applet is unavailable, so a
+# missing tool can never masquerade as an unhealthy container.
+# Short interval so the container reports "healthy" quickly instead of
+# sitting in "starting" while Coolify polls.
+HEALTHCHECK --interval=3s --timeout=3s --start-period=2s --retries=10 \
+  CMD wget -q -O /dev/null http://127.0.0.1/health || nc -z 127.0.0.1 80 || exit 1
 
 CMD ["nginx", "-g", "daemon off;"]
