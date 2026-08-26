@@ -40,7 +40,8 @@ FROM nginx:1.27-alpine AS runtime
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-EXPOSE 80
+# 80 is conventional; 3000 is Coolify's default "Ports Exposes" value.
+EXPOSE 80 3000
 
 # Coolify string-matches the Dockerfile for this instruction and, when it is
 # present, treats it as authoritative and then polls
