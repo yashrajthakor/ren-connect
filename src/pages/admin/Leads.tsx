@@ -14,10 +14,124 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { LeadStatusBadge, PriorityBadge } from "@/components/leads/LeadStatusBadge";
-import { useAdminLeads, useDeleteLead, type Lead } from "@/hooks/useLeads";
-import { TrendingUp, Inbox, CheckCircle2, XCircle, IndianRupee, Percent, Trash2 } from "lucide-react";
+import {
+  useAdminLeads, useDeleteLead, STATUS_LABEL,
+  type Lead, type LeadStatus, type MemberLite,
+} from "@/hooks/useLeads";
+import {
+  TrendingUp, Inbox, CheckCircle2, XCircle, IndianRupee, Percent, Trash2,
+  Check, ChevronsUpDown, FilterX,
+} from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { friendlyError } from "@/lib/errors";
 import AdminFilterBanner from "@/components/admin/AdminFilterBanner";
+
+/** Sentinel for "no filter" — Radix Select forbids an empty-string item value. */
+const ALL = "all";
+
+/** Distinct members appearing on one side of the given leads, sorted by name. */
+function memberOptions(
+  leads: Lead[],
+  participants: Record<string, MemberLite>,
+  side: "giver_id" | "receiver_id"
+): Array<{ user_id: string; name: string; business: string | null }> {
+  const seen = new Map<string, { user_id: string; name: string; business: string | null }>();
+  for (const l of leads) {
+    const id = l[side];
+    if (!id || seen.has(id)) continue;
+    seen.set(id, {
+      user_id: id,
+      name: participants[id]?.name || "Unknown member",
+      business: participants[id]?.business ?? null,
+    });
+  }
+  return Array.from(seen.values()).sort((a, b) => a.name.localeCompare(b.name));
+}
+
+/** Searchable member picker used for both the From and To column filters. */
+function MemberFilter({
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  options: Array<{ user_id: string; name: string; business: string | null }>;
+}) {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const selected = options.find((o) => o.user_id === value);
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return options.slice(0, 50);
+    return options
+      .filter((o) => o.name.toLowerCase().includes(q) || (o.business || "").toLowerCase().includes(q))
+      .slice(0, 50);
+  }, [options, search]);
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          role="combobox"
+          aria-expanded={open}
+          className="inline-flex h-9 w-full sm:w-[190px] items-center justify-between gap-2 rounded-md border border-input bg-background px-3 text-sm hover:bg-muted transition-colors"
+        >
+          <span className={value === ALL ? "text-muted-foreground truncate" : "truncate"}>
+            {value === ALL ? label : selected?.name || label}
+          </span>
+          <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-[--radix-popover-trigger-width] p-0">
+        <Command shouldFilter={false}>
+          <CommandInput placeholder="Search by name or business..." value={search} onValueChange={setSearch} />
+          <CommandList className="max-h-56">
+            <CommandEmpty>No members found</CommandEmpty>
+            <CommandGroup>
+              <CommandItem
+                value={ALL}
+                onSelect={() => {
+                  onChange(ALL);
+                  setOpen(false);
+                  setSearch("");
+                }}
+                className="flex items-center gap-2 py-2"
+              >
+                <span className="flex-1 text-sm">{label} (All)</span>
+                {value === ALL && <Check className="h-4 w-4 shrink-0 text-primary" />}
+              </CommandItem>
+              {filtered.map((o) => (
+                <CommandItem
+                  key={o.user_id}
+                  value={o.user_id}
+                  onSelect={() => {
+                    onChange(o.user_id);
+                    setOpen(false);
+                    setSearch("");
+                  }}
+                  className="flex items-center gap-2 py-2"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm truncate">{o.name}</p>
+                    {o.business && <p className="text-xs text-muted-foreground truncate">{o.business}</p>}
+                  </div>
+                  {value === o.user_id && <Check className="h-4 w-4 shrink-0 text-primary" />}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+}
 
 export default function AdminLeadsPage() {
   const { data, isLoading } = useAdminLeads(true);
@@ -32,7 +146,7 @@ export default function AdminLeadsPage() {
   const [searchParams] = useSearchParams();
   const fromParam = searchParams.get("from");
   const toParam = searchParams.get("to");
-  const leads = useMemo(() => {
+  const dateScopedLeads = useMemo(() => {
     if (!fromParam && !toParam) return allLeads;
     const fromTime = fromParam ? new Date(fromParam).getTime() : -Infinity;
     const toTime = toParam ? new Date(toParam).getTime() : Infinity;
@@ -41,6 +155,43 @@ export default function AdminLeadsPage() {
       return t >= fromTime && t < toTime;
     });
   }, [allLeads, fromParam, toParam]);
+
+  // Column filters: From (giver), To (receiver) and Status — mirroring the
+  // table's own columns. Applied on top of any date range inherited from the
+  // dashboard drill-down.
+  const [giverFilter, setGiverFilter] = useState<string>(ALL);
+  const [receiverFilter, setReceiverFilter] = useState<string>(ALL);
+  const [statusFilter, setStatusFilter] = useState<string>(ALL);
+
+  // Options come from the date-scoped set (not the filtered set) so choosing
+  // one filter never empties out the others' dropdowns.
+  const giverOptions = useMemo(
+    () => memberOptions(dateScopedLeads, participants, "giver_id"),
+    [dateScopedLeads, participants]
+  );
+  const receiverOptions = useMemo(
+    () => memberOptions(dateScopedLeads, participants, "receiver_id"),
+    [dateScopedLeads, participants]
+  );
+
+  const filtersActive = giverFilter !== ALL || receiverFilter !== ALL || statusFilter !== ALL;
+
+  const leads = useMemo(
+    () =>
+      dateScopedLeads.filter((l) => {
+        if (giverFilter !== ALL && l.giver_id !== giverFilter) return false;
+        if (receiverFilter !== ALL && l.receiver_id !== receiverFilter) return false;
+        if (statusFilter !== ALL && l.status !== statusFilter) return false;
+        return true;
+      }),
+    [dateScopedLeads, giverFilter, receiverFilter, statusFilter]
+  );
+
+  const clearFilters = () => {
+    setGiverFilter(ALL);
+    setReceiverFilter(ALL);
+    setStatusFilter(ALL);
+  };
 
   const doDelete = async () => {
     if (!confirmDelete) return;
@@ -88,6 +239,32 @@ export default function AdminLeadsPage() {
         />
       )}
 
+      <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 mb-4">
+        <MemberFilter label="From (Giver)" value={giverFilter} onChange={setGiverFilter} options={giverOptions} />
+        <MemberFilter label="To (Receiver)" value={receiverFilter} onChange={setReceiverFilter} options={receiverOptions} />
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="h-9 w-full sm:w-[170px] text-sm">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL}>All Statuses</SelectItem>
+            {(Object.keys(STATUS_LABEL) as LeadStatus[]).map((st) => (
+              <SelectItem key={st} value={st}>
+                {STATUS_LABEL[st]}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {filtersActive && (
+          <Button variant="ghost" size="sm" onClick={clearFilters} className="h-9 self-start">
+            <FilterX className="h-4 w-4 mr-1.5" /> Clear
+          </Button>
+        )}
+        <span className="text-xs text-muted-foreground sm:ml-auto">
+          Showing {leads.length} of {dateScopedLeads.length} leads
+        </span>
+      </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 mb-6">
         <Stat icon={<Inbox className="h-4 w-4" />} label="Total Leads" value={stats.total} />
         <Stat icon={<TrendingUp className="h-4 w-4" />} label="In Process" value={stats.inProcess} />
@@ -117,7 +294,13 @@ export default function AdminLeadsPage() {
                 <tr><td colSpan={8} className="text-center text-muted-foreground py-8">Loading…</td></tr>
               )}
               {!isLoading && leads.length === 0 && (
-                <tr><td colSpan={8} className="text-center text-muted-foreground py-8">No leads yet.</td></tr>
+                <tr>
+                  <td colSpan={8} className="text-center text-muted-foreground py-8">
+                    {filtersActive || fromParam || toParam
+                      ? "No leads match the selected filters."
+                      : "No leads yet."}
+                  </td>
+                </tr>
               )}
               {leads.map((l) => (
                 <tr key={l.id} className="hover:bg-muted/30">

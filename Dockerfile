@@ -42,7 +42,13 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 
 EXPOSE 80
 
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD wget -qO- http://127.0.0.1/health >/dev/null 2>&1 || exit 1
+# NOTE: deliberately no HEALTHCHECK here.
+# Coolify treats a Dockerfile HEALTHCHECK as authoritative and then polls
+# `docker inspect .State.Health.Status`. If it reuses a cached image that
+# predates this Dockerfile (it skips the build when an image already exists
+# for the same commit SHA), that key is absent and the rolling update dies
+# with `map has no entry for key "Health"` rather than a useful message.
+# Health is configured in Coolify's own UI instead - point it at /health,
+# which nginx.conf serves.
 
 CMD ["nginx", "-g", "daemon off;"]
