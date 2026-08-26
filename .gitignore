@@ -23,4 +23,7 @@ dist-ssr
 *.sln
 *.sw?
 .env
-package-lock.json
+# NOTE: package-lock.json is intentionally COMMITTED.
+# The Docker build (see Dockerfile) runs `npm ci`, which requires it to be
+# present in the build context. Ignoring it made deploys fail with
+# `"/package-lock.json": not found` while building fine locally.
