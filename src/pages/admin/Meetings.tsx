@@ -1,7 +1,9 @@
 import { useState, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Search, Rss } from "lucide-react";
+import { Search, Rss, FilterX } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import MemberFilterCombobox, { ALL_MEMBERS, type MemberFilterOption } from "@/components/admin/MemberFilterCombobox";
 import {
   useAdminMeetings, useDeleteMeeting, useSetPublished, shareMeetingViaWhatsapp, type Meeting,
 } from "@/hooks/useMeetings";
@@ -21,6 +23,7 @@ export default function AdminMeetings() {
   const { toast } = useToast();
 
   const [q, setQ] = useState("");
+  const [memberFilter, setMemberFilter] = useState<string>(ALL_MEMBERS);
   const [viewing, setViewing] = useState<Meeting | null>(null);
   const [toDelete, setToDelete] = useState<Meeting | null>(null);
 
@@ -40,6 +43,14 @@ export default function AdminMeetings() {
     return meetings.filter((m) => {
       const t = new Date(m.created_at).getTime();
       if (t < fromTime || t >= toTime) return false;
+      // A 1:1 log involves two people, so match either side.
+      if (
+        memberFilter !== ALL_MEMBERS &&
+        m.meeting_by_user_id !== memberFilter &&
+        m.meeting_with_user_id !== memberFilter
+      ) {
+        return false;
+      }
       if (!query) return true;
       const by = participants[m.meeting_by_user_id];
       const wth = participants[m.meeting_with_user_id];
@@ -51,7 +62,29 @@ export default function AdminMeetings() {
         m.discussion_summary.toLowerCase().includes(query)
       );
     });
-  }, [meetings, participants, q, fromParam, toParam]);
+  }, [meetings, participants, q, memberFilter, fromParam, toParam]);
+
+  // Everyone appearing on either side of a log, sorted by name. Built from the
+  // date-scoped meetings rather than the filtered ones, so picking a member
+  // never shrinks the list you can pick from.
+  const memberOptions = useMemo<MemberFilterOption[]>(() => {
+    const fromTime = fromParam ? new Date(fromParam).getTime() : -Infinity;
+    const toTime = toParam ? new Date(toParam).getTime() : Infinity;
+    const seen = new Map<string, MemberFilterOption>();
+    for (const m of meetings) {
+      const t = new Date(m.created_at).getTime();
+      if (t < fromTime || t >= toTime) continue;
+      for (const id of [m.meeting_by_user_id, m.meeting_with_user_id]) {
+        if (!id || seen.has(id)) continue;
+        seen.set(id, {
+          user_id: id,
+          name: participants[id]?.name || "Unknown member",
+          business: participants[id]?.business ?? null,
+        });
+      }
+    }
+    return Array.from(seen.values()).sort((a, b) => a.name.localeCompare(b.name));
+  }, [meetings, participants, fromParam, toParam]);
 
   const share = (m: Meeting) => {
     void shareMeetingViaWhatsapp(m, participants);
@@ -98,15 +131,43 @@ export default function AdminMeetings() {
         />
       )}
 
-      <div className="relative mb-5">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Search by member or discussion..."
-          className="pl-9 h-10"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-5">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search by member or discussion..."
+            className="pl-9 h-10"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+          />
+        </div>
+        <MemberFilterCombobox
+          label="Member"
+          value={memberFilter}
+          onChange={setMemberFilter}
+          options={memberOptions}
+          className="w-full sm:w-[220px] h-10"
         />
+        {(memberFilter !== ALL_MEMBERS || q.trim()) && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-10 self-start sm:self-auto"
+            onClick={() => {
+              setMemberFilter(ALL_MEMBERS);
+              setQ("");
+            }}
+          >
+            <FilterX className="h-4 w-4 mr-1.5" /> Clear
+          </Button>
+        )}
       </div>
+
+      {!isLoading && (
+        <p className="text-xs text-muted-foreground mb-3">
+          Showing {filtered.length} of {meetings.length} networking logs
+        </p>
+      )}
 
       {isLoading ? (
         <p className="text-center text-muted-foreground py-12">Loading networking logs…</p>
