@@ -19,6 +19,7 @@ import {
   CalendarIcon,
   Plus,
   Pencil,
+  FilterX,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -41,6 +42,7 @@ import { getMembershipStatus, isExpiringThisMonth, formatDateOrNA } from "@/lib/
 import { MembershipStatusBadge } from "@/components/admin/MembershipStatusBadge";
 import { getPresetRange, PRESET_LABELS, type DatePreset } from "@/lib/dateRanges";
 import ConvertToPaidMemberDialog from "@/components/admin/ConvertToPaidMemberDialog";
+import MemberFilterCombobox, { ALL_MEMBERS, type MemberFilterOption } from "@/components/admin/MemberFilterCombobox";
 
 type StatusFilter = "all" | "active" | "expiring_soon" | "expired";
 
@@ -57,6 +59,62 @@ function initials(name: string) {
   return (name || "?").split(" ").map((p) => p[0]).filter(Boolean).slice(0, 2).join("").toUpperCase();
 }
 
+/** Status/Joining Date/Valid Through checks shared by the table filter and
+ * the Invited By option counts (which must reflect those same filters,
+ * minus Invited By itself, or picking an option would recompute its own count). */
+function matchesStructuralFilters(
+  m: ValuableMember,
+  statusFilter: StatusFilter,
+  joiningFrom: string,
+  joiningTo: string,
+  validFrom: string,
+  validTo: string
+): boolean {
+  if (statusFilter !== "all" && getMembershipStatus(m.paid_valid_through) !== statusFilter) return false;
+  // paid_joining_date / paid_valid_through and the <input type="date"> values
+  // are both plain "YYYY-MM-DD" strings, so lexicographic comparison is safe.
+  if (joiningFrom && (!m.paid_joining_date || m.paid_joining_date < joiningFrom)) return false;
+  if (joiningTo && (!m.paid_joining_date || m.paid_joining_date > joiningTo)) return false;
+  if (validFrom && (!m.paid_valid_through || m.paid_valid_through < validFrom)) return false;
+  if (validTo && (!m.paid_valid_through || m.paid_valid_through > validTo)) return false;
+  return true;
+}
+
+function DateRangeField({
+  label,
+  from,
+  to,
+  onFromChange,
+  onToChange,
+}: {
+  label: string;
+  from: string;
+  to: string;
+  onFromChange: (v: string) => void;
+  onToChange: (v: string) => void;
+}) {
+  return (
+    <div className="flex flex-col gap-1">
+      <span className="text-xs text-muted-foreground">{label}</span>
+      <div className="flex items-center gap-1.5">
+        <Input
+          type="date"
+          value={from}
+          onChange={(e) => onFromChange(e.target.value)}
+          className="h-9 w-[142px] text-sm"
+        />
+        <span className="text-xs text-muted-foreground">to</span>
+        <Input
+          type="date"
+          value={to}
+          onChange={(e) => onToChange(e.target.value)}
+          className="h-9 w-[142px] text-sm"
+        />
+      </div>
+    </div>
+  );
+}
+
 export default function ValuableMembers() {
   const navigate = useNavigate();
   const { data: members = [], isLoading, isError, refetch } = useValuableMembers();
@@ -68,6 +126,11 @@ export default function ValuableMembers() {
   const [editingMember, setEditingMember] = useState<ValuableMember | null>(null);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [joiningFrom, setJoiningFrom] = useState("");
+  const [joiningTo, setJoiningTo] = useState("");
+  const [validFrom, setValidFrom] = useState("");
+  const [validTo, setValidTo] = useState("");
+  const [inviterFilter, setInviterFilter] = useState<string>(ALL_MEMBERS);
 
   // Drives only the "New Valuable Members" KPI — everything else on this
   // page is a live snapshot of current membership state.
@@ -103,7 +166,10 @@ export default function ValuableMembers() {
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     return members.filter((m) => {
-      if (statusFilter !== "all" && getMembershipStatus(m.paid_valid_through) !== statusFilter) return false;
+      if (!matchesStructuralFilters(m, statusFilter, joiningFrom, joiningTo, validFrom, validTo)) return false;
+      // invited_by_member_id keys on members.id, not auth user_id — the
+      // combobox's "user_id" slot is reused below to hold a member_id instead.
+      if (inviterFilter !== ALL_MEMBERS && m.invited_by_member_id !== inviterFilter) return false;
       if (!q) return true;
       return (
         m.full_name?.toLowerCase().includes(q) ||
@@ -111,7 +177,47 @@ export default function ValuableMembers() {
         (m.phone || "").toLowerCase().includes(q)
       );
     });
-  }, [members, search, statusFilter]);
+  }, [members, search, statusFilter, joiningFrom, joiningTo, validFrom, validTo, inviterFilter]);
+
+  // Every Valuable Member is a possible inviter — list them all, annotated
+  // with how many members (under the other active filters) they've invited,
+  // 0 if none — so the filter always shows the full roster, not just people
+  // who already have an inductee in view.
+  const inviterOptions = useMemo<MemberFilterOption[]>(() => {
+    const counts = new Map<string, number>();
+    for (const m of members) {
+      if (!matchesStructuralFilters(m, statusFilter, joiningFrom, joiningTo, validFrom, validTo)) continue;
+      if (!m.invited_by_member_id) continue;
+      counts.set(m.invited_by_member_id, (counts.get(m.invited_by_member_id) || 0) + 1);
+    }
+    return members
+      .map((vm) => ({
+        user_id: vm.member_id,
+        name: vm.full_name,
+        business: vm.business_name,
+        count: counts.get(vm.member_id) || 0,
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [members, statusFilter, joiningFrom, joiningTo, validFrom, validTo]);
+
+  const hasActiveFilters =
+    search.trim() !== "" ||
+    statusFilter !== "all" ||
+    !!joiningFrom ||
+    !!joiningTo ||
+    !!validFrom ||
+    !!validTo ||
+    inviterFilter !== ALL_MEMBERS;
+
+  const clearFilters = () => {
+    setSearch("");
+    setStatusFilter("all");
+    setJoiningFrom("");
+    setJoiningTo("");
+    setValidFrom("");
+    setValidTo("");
+    setInviterFilter(ALL_MEMBERS);
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -181,31 +287,57 @@ export default function ValuableMembers() {
         <Stat icon={<UserPlus className="h-4 w-4" />} label="New Valuable Members" value={stats.newInRange} />
       </div>
 
-      <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
-        <div className="relative max-w-md w-full">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by name, business, or mobile"
-            className="pl-9"
-          />
+      <div className="flex flex-col gap-3 mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+          <div className="relative max-w-md w-full">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search by name, business, or mobile"
+              className="pl-9"
+            />
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {STATUS_FILTERS.map((f) => (
+              <button
+                key={f.value}
+                onClick={() => setStatusFilter(f.value)}
+                className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
+                  statusFilter === f.value
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-card text-muted-foreground border-border hover:border-primary/50"
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
         </div>
-        <div className="flex flex-wrap gap-2">
-          {STATUS_FILTERS.map((f) => (
-            <button
-              key={f.value}
-              onClick={() => setStatusFilter(f.value)}
-              className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
-                statusFilter === f.value
-                  ? "bg-primary text-primary-foreground border-primary"
-                  : "bg-card text-muted-foreground border-border hover:border-primary/50"
-              }`}
-            >
-              {f.label}
-            </button>
-          ))}
+        <div className="flex flex-wrap items-end gap-3">
+          <DateRangeField label="Joining Date" from={joiningFrom} to={joiningTo} onFromChange={setJoiningFrom} onToChange={setJoiningTo} />
+          <DateRangeField label="Valid Through" from={validFrom} to={validTo} onFromChange={setValidFrom} onToChange={setValidTo} />
+          <div className="flex flex-col gap-1">
+            <span className="text-xs text-muted-foreground">Invited By</span>
+            <MemberFilterCombobox
+              label="Invited By"
+              value={inviterFilter}
+              onChange={setInviterFilter}
+              options={inviterOptions}
+              className="w-full sm:w-[220px] h-9"
+            />
+          </div>
+          {hasActiveFilters && (
+            <Button variant="ghost" size="sm" className="h-9" onClick={clearFilters}>
+              <FilterX className="h-4 w-4 mr-1.5" /> Clear
+            </Button>
+          )}
         </div>
+        {!isLoading && (
+          <p className="text-xs text-muted-foreground">
+            Showing {filtered.length} of {members.length} Valuable Members
+          </p>
+        )}
       </div>
 
       <Card className="overflow-hidden">

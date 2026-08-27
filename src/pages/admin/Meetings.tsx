@@ -157,7 +157,7 @@ export default function AdminMeetings() {
           value={memberFilter}
           onChange={setMemberFilter}
           options={memberOptions}
-          className="w-full sm:w-[220px] h-10"
+          className="w-full sm:w-[260px] h-10"
         />
         {(memberFilter !== ALL_MEMBERS || q.trim()) && (
           <Button

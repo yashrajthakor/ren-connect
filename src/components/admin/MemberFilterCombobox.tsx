@@ -25,7 +25,7 @@ export default function MemberFilterCombobox({
   value,
   onChange,
   options,
-  className = "w-full sm:w-[190px]",
+  className = "w-full sm:w-[240px]",
 }: {
   label: string;
   value: string;
@@ -60,9 +60,16 @@ export default function MemberFilterCombobox({
           aria-expanded={open}
           className={`inline-flex h-9 items-center justify-between gap-2 rounded-md border border-input bg-background px-3 text-sm hover:bg-muted transition-colors ${className}`}
         >
-          <span className={value === ALL_MEMBERS ? "text-muted-foreground truncate" : "truncate"}>
-            {value === ALL_MEMBERS ? label : selected ? `${selected.name} (${selected.count})` : label}
-          </span>
+          {value === ALL_MEMBERS ? (
+            <span className="text-muted-foreground truncate">{label}</span>
+          ) : selected ? (
+            <span className="flex min-w-0 items-baseline gap-1">
+              <span className="truncate">{selected.name}</span>
+              <span className="shrink-0 text-muted-foreground">({selected.count})</span>
+            </span>
+          ) : (
+            <span className="truncate">{label}</span>
+          )}
           <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
         </button>
       </PopoverTrigger>
@@ -88,8 +95,9 @@ export default function MemberFilterCombobox({
                   className="flex items-center gap-2 py-2"
                 >
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm truncate">
-                      {o.name} <span className="text-muted-foreground">({o.count})</span>
+                    <p className="flex items-baseline gap-1 text-sm">
+                      <span className="truncate">{o.name}</span>
+                      <span className="shrink-0 text-muted-foreground">({o.count})</span>
                     </p>
                     {o.business && <p className="text-xs text-muted-foreground truncate">{o.business}</p>}
                   </div>
