@@ -18,16 +18,17 @@ type Item = { title: string; url: string; icon: typeof LayoutDashboard; end?: bo
 const baseItems: Item[] = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard, end: true },
   { title: "Review Applications", url: "/admin/applications", icon: FileText },
-  { title: "Members", url: "/admin/members", icon: Users },
+  // { title: "Members", url: "/admin/members", icon: Users },
   { title: "Valuable Members", url: "/admin/valuable-members", icon: Star },
-  { title: "Categories", url: "/admin/categories", icon: Tags },
+  // { title: "Categories", url: "/admin/categories", icon: Tags },
   { title: "Leads & Business", url: "/admin/leads", icon: Handshake },
-  { title: "Asks", url: "/admin/asks", icon: MessageCircleQuestion },
   { title: "1:1 Feed", url: "/admin/meetings", icon: Rss },
   { title: "Announcements", url: "/admin/announcements", icon: Megaphone },
   { title: "Notice Board", url: "/admin/notice-board", icon: Pin },
   { title: "Sponsors", url: "/admin/sponsors", icon: Award },
   { title: "News & Stories", url: "/admin/newsletter", icon: Newspaper },
+   { title: "Asks", url: "/admin/asks", icon: MessageCircleQuestion },
+ 
 ];
 
 const attendanceItems: Item[] = [
