@@ -3,6 +3,10 @@ import { supabase } from "@/integrations/supabase/client";
 
 export interface ValuableMember {
   member_id: string;
+  /** auth.users.id — null if this member has no linked auth account. Leads
+   * (giver_id/receiver_id) and 1:1 Feed logs (meeting_by/with_user_id) are
+   * keyed on this, not on member_id. */
+  user_id: string | null;
   full_name: string;
   business_name: string | null;
   phone: string | null;

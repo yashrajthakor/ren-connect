@@ -16,8 +16,9 @@ import { useToast } from "@/hooks/use-toast";
 import { LeadStatusBadge, PriorityBadge } from "@/components/leads/LeadStatusBadge";
 import {
   useAdminLeads, useDeleteLead, STATUS_LABEL,
-  type Lead, type LeadStatus, type MemberLite,
+  type Lead, type LeadStatus,
 } from "@/hooks/useLeads";
+import { useValuableMembers, type ValuableMember } from "@/hooks/useValuableMembers";
 import {
   TrendingUp, Inbox, CheckCircle2, XCircle, IndianRupee, Percent, Trash2, FilterX,
 } from "lucide-react";
@@ -26,29 +27,43 @@ import MemberFilterCombobox, { ALL_MEMBERS as ALL, type MemberFilterOption } fro
 import { friendlyError } from "@/lib/errors";
 import AdminFilterBanner from "@/components/admin/AdminFilterBanner";
 
-/** Distinct members appearing on one side of the given leads, sorted by name. */
-function memberOptions(
+/**
+ * Every Valuable Member, annotated with how many of the given leads have
+ * them on the requested side (0 if none) — so the filter always lists the
+ * full roster, not just people who already have activity.
+ */
+function valuableMemberOptions(
   leads: Lead[],
-  participants: Record<string, MemberLite>,
+  valuableMembers: ValuableMember[],
   side: "giver_id" | "receiver_id"
 ): MemberFilterOption[] {
-  const seen = new Map<string, MemberFilterOption>();
+  const counts = new Map<string, number>();
   for (const l of leads) {
     const id = l[side];
-    if (!id || seen.has(id)) continue;
-    seen.set(id, {
-      user_id: id,
-      name: participants[id]?.name || "Unknown member",
-      business: participants[id]?.business ?? null,
-    });
+    if (!id) continue;
+    counts.set(id, (counts.get(id) || 0) + 1);
   }
-  return Array.from(seen.values()).sort((a, b) => a.name.localeCompare(b.name));
+  return valuableMembers
+    .map((vm) => {
+      // Fallback keeps the option selectable/unique even for a Valuable
+      // Member with no linked auth account — they can never actually be a
+      // giver/receiver (that requires a user_id), so their count is always 0.
+      const key = vm.user_id || vm.member_id;
+      return {
+        user_id: key,
+        name: vm.full_name,
+        business: vm.business_name,
+        count: vm.user_id ? counts.get(vm.user_id) || 0 : 0,
+      };
+    })
+    .sort((a, b) => a.name.localeCompare(b.name));
 }
 
 export default function AdminLeadsPage() {
   const { data, isLoading } = useAdminLeads(true);
   const allLeads = data?.leads ?? [];
   const participants = data?.participants ?? {};
+  const { data: valuableMembers = [] } = useValuableMembers();
   const deleteLead = useDeleteLead();
   const { toast } = useToast();
   const [confirmDelete, setConfirmDelete] = useState<Lead | null>(null);
@@ -75,15 +90,15 @@ export default function AdminLeadsPage() {
   const [receiverFilter, setReceiverFilter] = useState<string>(ALL);
   const [statusFilter, setStatusFilter] = useState<string>(ALL);
 
-  // Options come from the date-scoped set (not the filtered set) so choosing
-  // one filter never empties out the others' dropdowns.
+  // Counts come from the date-scoped set (not the filtered set) so choosing
+  // one filter never empties out the others' dropdowns or changes their counts.
   const giverOptions = useMemo(
-    () => memberOptions(dateScopedLeads, participants, "giver_id"),
-    [dateScopedLeads, participants]
+    () => valuableMemberOptions(dateScopedLeads, valuableMembers, "giver_id"),
+    [dateScopedLeads, valuableMembers]
   );
   const receiverOptions = useMemo(
-    () => memberOptions(dateScopedLeads, participants, "receiver_id"),
-    [dateScopedLeads, participants]
+    () => valuableMemberOptions(dateScopedLeads, valuableMembers, "receiver_id"),
+    [dateScopedLeads, valuableMembers]
   );
 
   const filtersActive = giverFilter !== ALL || receiverFilter !== ALL || statusFilter !== ALL;

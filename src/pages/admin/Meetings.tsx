@@ -15,6 +15,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import AdminFilterBanner from "@/components/admin/AdminFilterBanner";
+import { useValuableMembers } from "@/hooks/useValuableMembers";
 
 export default function AdminMeetings() {
   const { data, isLoading } = useAdminMeetings(true);
@@ -29,6 +30,7 @@ export default function AdminMeetings() {
 
   const meetings = data?.meetings ?? [];
   const participants = data?.participants ?? {};
+  const { data: valuableMembers = [] } = useValuableMembers();
 
   // Arriving from the admin dashboard's 1:1 Meetings KPI card pre-applies
   // the same date range that produced that count.
@@ -64,27 +66,36 @@ export default function AdminMeetings() {
     });
   }, [meetings, participants, q, memberFilter, fromParam, toParam]);
 
-  // Everyone appearing on either side of a log, sorted by name. Built from the
-  // date-scoped meetings rather than the filtered ones, so picking a member
-  // never shrinks the list you can pick from.
+  // Every Valuable Member, annotated with how many date-scoped logs have them
+  // on either side (0 if none) — so the filter always lists the full roster,
+  // not just people who already have a log.
   const memberOptions = useMemo<MemberFilterOption[]>(() => {
     const fromTime = fromParam ? new Date(fromParam).getTime() : -Infinity;
     const toTime = toParam ? new Date(toParam).getTime() : Infinity;
-    const seen = new Map<string, MemberFilterOption>();
+    const counts = new Map<string, number>();
     for (const m of meetings) {
       const t = new Date(m.created_at).getTime();
       if (t < fromTime || t >= toTime) continue;
       for (const id of [m.meeting_by_user_id, m.meeting_with_user_id]) {
-        if (!id || seen.has(id)) continue;
-        seen.set(id, {
-          user_id: id,
-          name: participants[id]?.name || "Unknown member",
-          business: participants[id]?.business ?? null,
-        });
+        if (!id) continue;
+        counts.set(id, (counts.get(id) || 0) + 1);
       }
     }
-    return Array.from(seen.values()).sort((a, b) => a.name.localeCompare(b.name));
-  }, [meetings, participants, fromParam, toParam]);
+    return valuableMembers
+      .map((vm) => {
+        // Fallback keeps the option selectable/unique even for a Valuable
+        // Member with no linked auth account — they can never actually
+        // appear in a log (that requires a user_id), so count is always 0.
+        const key = vm.user_id || vm.member_id;
+        return {
+          user_id: key,
+          name: vm.full_name,
+          business: vm.business_name,
+          count: vm.user_id ? counts.get(vm.user_id) || 0 : 0,
+        };
+      })
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [meetings, valuableMembers, fromParam, toParam]);
 
   const share = (m: Meeting) => {
     void shareMeetingViaWhatsapp(m, participants);

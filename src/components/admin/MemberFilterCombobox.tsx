@@ -10,13 +10,15 @@ export interface MemberFilterOption {
   user_id: string;
   name: string;
   business: string | null;
+  /** How many records (leads/logs) this person has in the current scope — shown as "Name (N)". */
+  count: number;
 }
 
 /**
  * Searchable member picker used by the admin list filters (Leads & Business,
- * 1:1 Feed). Options are supplied by the caller — typically derived from the
- * rows actually on screen, so the dropdown only ever offers people who really
- * appear in the data.
+ * 1:1 Feed). Options are the full Valuable Members roster, each annotated
+ * with their record count in the current scope (0 if they have none) — so
+ * every Valuable Member is always selectable, not just those with activity.
  */
 export default function MemberFilterCombobox({
   label,
@@ -59,7 +61,7 @@ export default function MemberFilterCombobox({
           className={`inline-flex h-9 items-center justify-between gap-2 rounded-md border border-input bg-background px-3 text-sm hover:bg-muted transition-colors ${className}`}
         >
           <span className={value === ALL_MEMBERS ? "text-muted-foreground truncate" : "truncate"}>
-            {value === ALL_MEMBERS ? label : selected?.name || label}
+            {value === ALL_MEMBERS ? label : selected ? `${selected.name} (${selected.count})` : label}
           </span>
           <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
         </button>
@@ -86,7 +88,9 @@ export default function MemberFilterCombobox({
                   className="flex items-center gap-2 py-2"
                 >
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm truncate">{o.name}</p>
+                    <p className="text-sm truncate">
+                      {o.name} <span className="text-muted-foreground">({o.count})</span>
+                    </p>
                     {o.business && <p className="text-xs text-muted-foreground truncate">{o.business}</p>}
                   </div>
                   {value === o.user_id && <Check className="h-4 w-4 shrink-0 text-primary" />}
