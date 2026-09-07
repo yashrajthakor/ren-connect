@@ -60,7 +60,7 @@ export default function LeadDetailDialog({
 
           <div className="grid sm:grid-cols-2 gap-4 mt-2">
             <div className="rounded-lg border p-3 space-y-1">
-              <p className="text-xs text-muted-foreground">Lead giver</p>
+              <p className="text-xs text-muted-foreground">Referral giver</p>
               <div className="flex items-center gap-2">
                 <Avatar className="h-8 w-8">
                   <AvatarImage src={giver?.avatar_url ?? undefined} />

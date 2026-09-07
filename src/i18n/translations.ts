@@ -165,7 +165,7 @@ export const translations = {
     "about.v.growth.title": "Growth",
     "about.v.growth.text": "Sharing knowledge, capital and opportunities to grow together.",
     "about.v.referrals.title": "Referrals",
-    "about.v.referrals.text": "Trusted business leads exchanged within the brotherhood.",
+    "about.v.referrals.text": "Trusted business referrals exchanged within the brotherhood.",
     "about.v.excellence.title": "Excellence",
     "about.v.excellence.text": "Setting the bar for professionalism in every category.",
     "about.v.collective.title": "Collective Success",

@@ -24,7 +24,7 @@ export default function PendingApprovalBanner() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center gap-2 text-sm text-foreground">
         <Clock className="h-4 w-4 shrink-0 text-primary animate-pulse" />
         <span>
-          <strong>Your profile is under review.</strong> Some features (Leads, Ask Network) are temporarily restricted until admin approval.
+          <strong>Your profile is under review.</strong> Some features (Referrals, Ask Network) are temporarily restricted until admin approval.
         </span>
       </div>
     </div>

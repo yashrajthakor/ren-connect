@@ -65,7 +65,7 @@ Shared via RBN Portal`;
 
   const leadDetails = lead.description || lead.lead_name || "No details provided.";
 
-  return `📌 RBN Business Lead Reference
+  return `📌 RBN Business Referral Reference
 
 👤 Receiver Details:
 Name: ${receiverName}
@@ -77,7 +77,7 @@ Name: ${giverName}
 Category: ${giverCategories}
 Mobile Number: ${giverPhone}
 
-📋 Lead Details:
+📋 Referral Details:
 ${leadDetails}
 
 🚀 Published through RBN – Rajput Business Network`;

@@ -21,7 +21,7 @@ const baseItems: Item[] = [
   // { title: "Members", url: "/admin/members", icon: Users },
   { title: "Valuable Members", url: "/admin/valuable-members", icon: Star },
   // { title: "Categories", url: "/admin/categories", icon: Tags },
-  { title: "Leads & Business", url: "/admin/leads", icon: Handshake },
+  { title: "Referrals & Business", url: "/admin/leads", icon: Handshake },
   { title: "1:1 Feed", url: "/admin/meetings", icon: Rss },
   { title: "Announcements", url: "/admin/announcements", icon: Megaphone },
   { title: "Notice Board", url: "/admin/notice-board", icon: Pin },
