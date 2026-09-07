@@ -22,7 +22,7 @@ export const translations = {
 
     // Dashboard Menu
     "dashboard.title": "Dashboard",
-    "dashboard.leads": "My Leads",
+    "dashboard.leads": "My Referrals",
     "dashboard.asks": "Ask Network",
     "dashboard.meetings": "1:1 Feed",
     "dashboard.news": "News & Stories",
@@ -36,7 +36,7 @@ export const translations = {
     // Mobile bottom navigation (short labels)
     "mobileNav.dashboard": "Dashboard",
     "mobileNav.feed": "1:1 Feed",
-    "mobileNav.leads": "Leads",
+    "mobileNav.leads": "Referrals",
     "mobileNav.directory": "Directory",
     "mobileNav.news": "News",
     "mobileNav.more": "More",
@@ -238,7 +238,7 @@ export const translations = {
 
     // Dashboard Menu
     "dashboard.title": "ડેશબોર્ડ",
-    "dashboard.leads": "મારા લીડ્સ",
+    "dashboard.leads": "મારા રેફરલ્સ",
     "dashboard.asks": "નેટવર્ક પૂછો",
     "dashboard.meetings": "1:1 ફીડ",
     "dashboard.news": "સમાચાર અને વાર્તાઓ",
@@ -252,7 +252,7 @@ export const translations = {
     // Mobile bottom navigation (short labels)
     "mobileNav.dashboard": "ડેશબોર્ડ",
     "mobileNav.feed": "1:1 ફીડ",
-    "mobileNav.leads": "લીડ્સ",
+    "mobileNav.leads": "રેફરલ્સ",
     "mobileNav.directory": "ડિરેક્ટરી",
     "mobileNav.news": "સમાચાર",
     "mobileNav.more": "વધુ",
