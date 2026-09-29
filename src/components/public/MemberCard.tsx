@@ -15,10 +15,13 @@ import { toast } from "@/hooks/use-toast";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 /** 1 = full profiles for all members. 0 = restrict visitors (paid members still full). */
-export const FULL_VISIBILITY: 0 | 1 = 1;
+export const FULL_VISIBILITY: 0 | 1 = 0;
 
 const resolveFullVisibility = (membershipType?: Member["membershipType"]): 0 | 1 =>
-  FULL_VISIBILITY === 1 || membershipType === "paid_member" ? 1 : 0;
+  // Cast avoids TS narrowing FULL_VISIBILITY to its current literal value,
+  // which would make this comparison always-false/unreachable at compile
+  // time the moment the constant above is flipped to 0.
+  (FULL_VISIBILITY as number) === 1 || membershipType === "paid_member" ? 1 : 0;
 
 const SHARE_MESSAGE = `👋 Hello,
 
@@ -186,10 +189,12 @@ const MemberCard = ({ member }: { member: Member }) => {
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
               <h3 className="font-display font-bold text-lg text-secondary truncate">{member.name}</h3>
-              <p className="text-sm text-primary font-semibold truncate">{member.business}</p>
+              <p className={`text-sm text-primary font-semibold truncate ${fullVisibility === 0 ? "blur-[4px] select-none" : ""}`}>
+                {member.business}
+              </p>
             </div>
           </div>
-          <div className="flex flex-wrap gap-1.5">
+          <div className={`flex flex-wrap gap-1.5 ${fullVisibility === 0 ? "blur-[4px] select-none" : ""}`} aria-hidden={fullVisibility === 0}>
             {categories.slice(0, 3).map((c) => (
               <span key={c} className="shrink-0 px-2.5 py-1 rounded-full bg-accent text-accent-foreground text-[10px] font-semibold uppercase tracking-wider">
                 {c}
