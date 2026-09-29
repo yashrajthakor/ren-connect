@@ -65,6 +65,32 @@ Shared via RBN Portal`;
 
   const leadDetails = lead.description || lead.lead_name || "No details provided.";
 
+  // Once a referral closes, the message should read as a closed deal (with
+  // its amount, and note if one was written) rather than an open referral —
+  // otherwise sharing a closed lead still reads as an ask to follow up on it.
+  if (lead.status === "business_closed") {
+    const noteSection = lead.thank_you_note ? `\n📝 Thank You Note:\n"${lead.thank_you_note}"\n` : "";
+    return `🎉 RBN Business Referral – Closed
+
+👤 Receiver Details:
+Name: ${receiverName}
+Category: ${receiverCategories}
+Mobile Number: ${receiverPhone}
+
+🤝 Giver Details:
+Name: ${giverName}
+Category: ${giverCategories}
+Mobile Number: ${giverPhone}
+
+📋 Referral Details:
+${leadDetails}
+
+💰 Business Amount:
+${amount}
+${noteSection}
+🚀 Published through RBN – Rajput Business Network`;
+  }
+
   return `📌 RBN Business Referral Reference
 
 👤 Receiver Details:
@@ -143,7 +169,7 @@ export function LeadCard({ lead, participants, currentUserId, onClick, onEdit }:
       {!isDirect && lead.description && (
         <p className="text-xs text-muted-foreground line-clamp-2 mt-2">{lead.description}</p>
       )}
-      {isDirect && lead.thank_you_note && (
+      {lead.thank_you_note && (
         <p className="text-xs text-muted-foreground italic line-clamp-2 mt-2">“{lead.thank_you_note}”</p>
       )}
 

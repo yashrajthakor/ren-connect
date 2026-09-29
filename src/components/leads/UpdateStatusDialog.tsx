@@ -28,12 +28,14 @@ export default function UpdateStatusDialog({ open, onOpenChange, lead, mode }: P
   const { toast } = useToast();
   const [amount, setAmount] = useState("");
   const [closureDate, setClosureDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [thankYouNote, setThankYouNote] = useState("");
   const [reason, setReason] = useState("");
 
   useEffect(() => {
     if (open) {
       setAmount("");
       setClosureDate(new Date().toISOString().slice(0, 10));
+      setThankYouNote("");
       setReason("");
     }
   }, [open]);
@@ -51,6 +53,9 @@ export default function UpdateStatusDialog({ open, onOpenChange, lead, mode }: P
         }
         patch.closure_amount = amt;
         patch.closure_date = new Date(closureDate).toISOString();
+        // Optional — same "Thank a Member" note, offered here too since
+        // closing a received lead is the same underlying appreciation.
+        patch.thank_you_note = thankYouNote.trim() || null;
       }
       if (mode === "rejected") {
         if (reason.trim().length < 5) {
@@ -97,6 +102,17 @@ export default function UpdateStatusDialog({ open, onOpenChange, lead, mode }: P
                   type="date"
                   value={closureDate}
                   onChange={(e) => setClosureDate(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="thank-you-note">Thank you note (optional)</Label>
+                <Textarea
+                  id="thank-you-note"
+                  rows={3}
+                  placeholder="Write a thank you note to appreciate the giver…"
+                  value={thankYouNote}
+                  onChange={(e) => setThankYouNote(e.target.value)}
+                  maxLength={500}
                 />
               </div>
             </>

@@ -97,7 +97,7 @@ export default function LeadDetailDialog({
                 <p className="text-sm bg-muted/40 rounded-md p-3 whitespace-pre-wrap">{lead.description}</p>
               </div>
             )}
-            {isDirect && lead.thank_you_note && (
+            {lead.thank_you_note && (
               <div>
                 <p className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
                   <Heart className="h-3 w-3 text-primary fill-primary" /> Thank you note
