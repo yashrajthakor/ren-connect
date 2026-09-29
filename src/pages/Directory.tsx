@@ -9,6 +9,7 @@ import { CategoryFilterBar } from "@/components/public/CategoryFilterBar";
 import { Member } from "@/data/members";
 import { supabase } from "@/integrations/supabase/client";
 import { useT } from "@/i18n/LanguageProvider";
+import { isDirectoryListed } from "@/lib/directoryVisibility";
 
 const Directory = () => {
   const t = useT();
@@ -30,7 +31,9 @@ const Directory = () => {
       if (error || !data) {
         setMembers([]);
       } else {
-        const mapped: Member[] = (data as any[]).map((m) => {
+        const mapped: Member[] = (data as any[])
+          .filter((m) => isDirectoryListed(m.membership_type))
+          .map((m) => {
           const name: string = m.full_name || "Member";
           const initials = name
             .split(" ")
