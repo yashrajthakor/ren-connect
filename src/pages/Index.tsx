@@ -462,6 +462,35 @@ const Index = () => {
 
       {/* OUR PROUD SPONSORS */}
       <SponsorsSection />
+ {/* PILLARS */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+        <div className="text-center max-w-2xl mx-auto mb-14">
+          <p className="text-xs font-bold uppercase tracking-[0.25em] text-primary mb-3">
+            {t("pillars.eyebrow")}
+          </p>
+          <h2 className="font-display font-bold text-3xl sm:text-5xl text-secondary leading-tight">
+            {t("pillars.heading")}
+          </h2>
+        </div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {pillarDefs.map((p, i) => (
+            <div
+              key={p.titleKey}
+              className="group relative bg-card border border-border rounded-2xl p-7 hover:-translate-y-2 hover:shadow-2xl hover:border-primary/40 transition-all duration-500 overflow-hidden"
+              style={{ animationDelay: `${i * 120}ms` }}
+            >
+              <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/5 rounded-full group-hover:bg-primary/15 transition-all duration-500" />
+              <div className="relative">
+                <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-primary to-[hsl(var(--royal-gold))] flex items-center justify-center mb-5 group-hover:rotate-6 transition-transform duration-500 shadow-lg">
+                  <p.icon className="h-7 w-7 text-primary-foreground" />
+                </div>
+                <h3 className="font-display font-bold text-xl text-secondary mb-2">{t(p.titleKey)}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{t(p.descKey)}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
 
       {/* SEARCH DIRECTORY */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
@@ -552,36 +581,7 @@ const Index = () => {
       </section>
 
     
-      {/* PILLARS */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-        <div className="text-center max-w-2xl mx-auto mb-14">
-          <p className="text-xs font-bold uppercase tracking-[0.25em] text-primary mb-3">
-            {t("pillars.eyebrow")}
-          </p>
-          <h2 className="font-display font-bold text-3xl sm:text-5xl text-secondary leading-tight">
-            {t("pillars.heading")}
-          </h2>
-        </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {pillarDefs.map((p, i) => (
-            <div
-              key={p.titleKey}
-              className="group relative bg-card border border-border rounded-2xl p-7 hover:-translate-y-2 hover:shadow-2xl hover:border-primary/40 transition-all duration-500 overflow-hidden"
-              style={{ animationDelay: `${i * 120}ms` }}
-            >
-              <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/5 rounded-full group-hover:bg-primary/15 transition-all duration-500" />
-              <div className="relative">
-                <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-primary to-[hsl(var(--royal-gold))] flex items-center justify-center mb-5 group-hover:rotate-6 transition-transform duration-500 shadow-lg">
-                  <p.icon className="h-7 w-7 text-primary-foreground" />
-                </div>
-                <h3 className="font-display font-bold text-xl text-secondary mb-2">{t(p.titleKey)}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{t(p.descKey)}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
+     
       {/* INDUSTRIES STRIP */}
       <section className="bg-gradient-royal text-card py-20 overflow-hidden relative">
         <div className="absolute inset-0 opacity-10 pointer-events-none">
