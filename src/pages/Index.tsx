@@ -23,7 +23,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import PublicLayout from "@/components/public/PublicLayout";
 import MemberCard from "@/components/public/MemberCard";
-import LeadershipMemberCard from "@/components/public/LeadershipMemberCard";
+import CoreTeamCarousel from "@/components/public/CoreTeamCarousel";
 import LatestStoriesSection from "@/components/public/LatestStoriesSection";
 import NoticeTicker from "@/components/notices/NoticeTicker";
 import NoticeBoardSection from "@/components/notices/NoticeBoardSection";
@@ -529,10 +529,29 @@ const Index = () => {
           </div>
         </div>
       </section>
+<section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+        <div className="flex items-end justify-between flex-wrap gap-4 mb-12">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.25em] text-primary mb-2">
+              {t("featured.eyebrow")}
+            </p>
+            <h2 className="font-display font-bold text-3xl sm:text-5xl text-secondary leading-tight">
+              {t("featured.heading")}
+            </h2>
+          </div>
+          <Link
+            to="/directory"
+            className="text-sm font-semibold text-primary hover:underline inline-flex items-center gap-1 group"
+          >
+            {t("featured.viewAll")}
+            <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+          </Link>
+        </div>
+        <CoreTeamCarousel members={committeeMembers} />
+      {/* FEATURED MEMBERS */}
+      </section>
 
-      {/* INSTAGRAM SHOWCASE */}
-      <InstagramShowcase />
-
+    
       {/* PILLARS */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
         <div className="text-center max-w-2xl mx-auto mb-14">
@@ -590,37 +609,8 @@ const Index = () => {
         </div>
       </section>
 
-      {/* FEATURED MEMBERS */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-        <div className="flex items-end justify-between flex-wrap gap-4 mb-12">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.25em] text-primary mb-2">
-              {t("featured.eyebrow")}
-            </p>
-            <h2 className="font-display font-bold text-3xl sm:text-5xl text-secondary leading-tight">
-              {t("featured.heading")}
-            </h2>
-          </div>
-          <Link
-            to="/directory"
-            className="text-sm font-semibold text-primary hover:underline inline-flex items-center gap-1 group"
-          >
-            {t("featured.viewAll")}
-            <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-          </Link>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
-          {committeeMembers.map((m, i) => (
-            <div
-              key={m.id}
-              className="animate-fade-up h-full"
-              style={{ animationDelay: `${i * 120}ms`, opacity: 0 }}
-            >
-              <LeadershipMemberCard member={m} />
-            </div>
-          ))}
-        </div>
-      </section>
+        {/* INSTAGRAM SHOWCASE */}
+      <InstagramShowcase />
 
       {/* EVENTS */}
       {/* <section className="bg-muted/40 border-y border-border">
