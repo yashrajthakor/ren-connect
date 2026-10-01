@@ -30,7 +30,7 @@ type SidebarItem = {
 const baseItems: SidebarItem[] = [
   { translationKey: "dashboard.title", url: "/dashboard", icon: LayoutDashboard, end: true },
   { translationKey: "dashboard.leads", url: "/dashboard/leads", icon: Handshake, restrictedForPending: true },
-  { translationKey: "dashboard.asks", url: "/dashboard/asks", icon: MessageCircleQuestion, restrictedForPending: true },
+  // { translationKey: "dashboard.asks", url: "/dashboard/asks", icon: MessageCircleQuestion, restrictedForPending: true },
   { translationKey: "dashboard.meetings" as TranslationKey, url: "/dashboard/meetings", icon: Rss, restrictedForPending: true },
   { translationKey: "dashboard.news", url: "/dashboard/news", icon: Newspaper },
   { translationKey: "dashboard.notifications", url: "/dashboard/notifications", icon: Bell },

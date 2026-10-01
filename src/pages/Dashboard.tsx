@@ -24,12 +24,12 @@ const quickActions = [
     icon: Handshake,
     url: "/dashboard/leads",
   },
-  {
-    label: "Ask Network",
-    description: "Post & browse asks",
-    icon: MessageCircleQuestion,
-    url: "/dashboard/asks",
-  },
+  // {
+  //   label: "Ask Network",
+  //   description: "Post & browse asks",
+  //   icon: MessageCircleQuestion,
+  //   url: "/dashboard/asks",
+  // },
   {
     label: "News & Stories",
     description: "Latest community updates",

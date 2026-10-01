@@ -27,7 +27,8 @@ const baseItems: Item[] = [
   { title: "Notice Board", url: "/admin/notice-board", icon: Pin },
   { title: "Sponsors", url: "/admin/sponsors", icon: Award },
   { title: "News & Stories", url: "/admin/newsletter", icon: Newspaper },
-   { title: "Asks", url: "/admin/asks", icon: MessageCircleQuestion },
+  { title: "Gallary", url: "/admin/events", icon: CalendarDays },
+  //  { title: "Asks", url: "/admin/asks", icon: MessageCircleQuestion },
  
 ];
 

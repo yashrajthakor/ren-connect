@@ -48,8 +48,12 @@ import AdminAnnouncements from "./pages/admin/Announcements";
 import AdminNoticeBoard from "./pages/admin/NoticeBoard";
 import AdminSponsors from "./pages/admin/Sponsors";
 import AdminNewsletter from "./pages/admin/Newsletter";
+import AdminEvents from "./pages/admin/Events";
+import AdminEventGallery from "./pages/admin/EventGallery";
 import News from "./pages/News";
 import NewsArticle from "./pages/NewsArticle";
+import Events from "./pages/Events";
+import EventDetail from "./pages/EventDetail";
 import MyProfile from "./pages/MyProfile";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
@@ -114,6 +118,8 @@ const App = () => {
               <Route path="/voice" element={<VoiceOfRen />} />
               <Route path="/news" element={<News />} />
               <Route path="/news/:slug" element={<NewsArticle />} />
+              <Route path="/events" element={<Events />} />
+              <Route path="/events/:slug" element={<EventDetail />} />
               <Route
                 path="/admin"
                 element={
@@ -144,6 +150,8 @@ const App = () => {
                 <Route path="notice-board" element={fullAdminOnly(<AdminNoticeBoard />)} />
                 <Route path="sponsors" element={fullAdminOnly(<AdminSponsors />)} />
                 <Route path="newsletter" element={fullAdminOnly(<AdminNewsletter />)} />
+                <Route path="events" element={fullAdminOnly(<AdminEvents />)} />
+                <Route path="events/:eventId/gallery" element={fullAdminOnly(<AdminEventGallery />)} />
                 <Route
                   path="manage-roles"
                   element={

@@ -23,11 +23,13 @@ import { Member } from "@/data/members";
 /**
  * CoreTeamCarousel — used ONLY on the homepage
  * "Meet the leaders driving RBN forward" section.
- * A row of circular avatars auto-advances; whoever is centered enlarges
- * and their name/description surface below. On mobile only the active
- * member and their immediate neighbors show (screen width); on sm+ every
- * member renders, sized by how far they are from the active one. Do not
- * reuse elsewhere.
+ * All members render in one horizontally-scrollable row, sized by distance
+ * from the active one. Whichever member is active is scrolled to the
+ * horizontal center of the row (auto-advance, the arrows, or clicking any
+ * avatar all just change activeIndex — the scroll follows), and their
+ * name/description surface below. On narrow screens the row naturally
+ * shows only the members that fit around the centered one. Do not reuse
+ * elsewhere.
  */
 
 const AUTO_ADVANCE_MS = 4000;
@@ -53,6 +55,8 @@ export default function CoreTeamCarousel({ members }: { members: Member[] }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [open, setOpen] = useState(false);
   const paused = useRef(false);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const avatarRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   useEffect(() => {
     if (members.length <= 1) return;
@@ -63,18 +67,32 @@ export default function CoreTeamCarousel({ members }: { members: Member[] }) {
     return () => clearInterval(t);
   }, [members.length]);
 
+  // The highlighted avatar is always scrolled to the horizontal center of
+  // the track — this is what makes "whoever is highlighted" actually sit in
+  // the middle rather than just growing in place wherever it happens to be.
+  // Computed manually (rect-based delta) rather than via scrollIntoView's
+  // own centering, which is more robust against this layout's percentage-
+  // width spacer elements. Deferred a frame so the browser has committed
+  // layout for the current activeIndex before we measure it.
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => {
+      const track = trackRef.current;
+      const btn = avatarRefs.current[activeIndex];
+      if (!track || !btn) return;
+      const trackRect = track.getBoundingClientRect();
+      const btnRect = btn.getBoundingClientRect();
+      const delta = (btnRect.left + btnRect.width / 2) - (trackRect.left + trackRect.width / 2);
+      track.scrollTo({ left: track.scrollLeft + delta, behavior: "smooth" });
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [activeIndex]);
+
   if (members.length === 0) return null;
 
   const active = members[activeIndex];
   const services = active.services || [];
   const total = members.length;
   const goTo = (i: number) => setActiveIndex(((i % total) + total) % total);
-
-  // Render order rotates with activeIndex so the highlighted member always
-  // sits in the middle slot — offsets run symmetrically around 0 (the
-  // active member), not the members array's original order.
-  const half = Math.floor(total / 2);
-  const offsets = Array.from({ length: total }, (_, k) => k - half);
 
   return (
     <div
@@ -93,24 +111,22 @@ export default function CoreTeamCarousel({ members }: { members: Member[] }) {
             <ChevronLeft className="h-5 w-5" />
           </button>
         )}
-        <div className="flex items-start justify-center gap-x-3 gap-y-4 sm:gap-x-4">
-          {offsets.map((offset) => {
-            const index = ((activeIndex + offset) % total + total) % total;
-            const member = members[index];
-            const distance = Math.abs(offset);
-            const isCenter = offset === 0;
-            // Mobile only shows the active member and its immediate neighbors —
-            // desktop (sm+) shows everyone, tapering size by distance.
-            const mobileVisible = distance <= 1;
+        <div
+          ref={trackRef}
+          className="flex min-w-0 flex-1 items-start gap-x-3 gap-y-4 overflow-x-auto scroll-smooth py-2 [-ms-overflow-style:none] [overflow-anchor:none] [scrollbar-width:none] sm:gap-x-4 [&::-webkit-scrollbar]:hidden"
+        >
+          {/* Side padding lets the first/last avatar still scroll to center. */}
+          <div className="shrink-0" style={{ width: "50%" }} aria-hidden />
+          {members.map((member, index) => {
+            const distance = Math.min(Math.abs(index - activeIndex), total - Math.abs(index - activeIndex));
+            const isCenter = index === activeIndex;
             return (
-              <div
-                key={member.id}
-                className={`flex flex-col items-center gap-1.5 ${mobileVisible ? "" : "hidden sm:flex"}`}
-              >
+              <div key={member.id} className="flex shrink-0 flex-col items-center gap-1.5">
                 <button
+                  ref={(el) => (avatarRefs.current[index] = el)}
                   type="button"
                   onClick={() => (isCenter ? setOpen(true) : goTo(index))}
-                  className={`shrink-0 overflow-hidden rounded-full border-4 border-card bg-muted transition-all duration-500 ease-out hover:opacity-100 ${slotSizeClass(distance)}`}
+                  className={`shrink-0 overflow-hidden rounded-full border-4 border-card bg-muted transition-[opacity,box-shadow] duration-300 ease-out hover:opacity-100 ${slotSizeClass(distance)}`}
                   aria-label={isCenter ? `View ${member.name}'s profile` : `Highlight ${member.name}`}
                 >
                   <Avatar member={member} />
@@ -125,6 +141,7 @@ export default function CoreTeamCarousel({ members }: { members: Member[] }) {
               </div>
             );
           })}
+          <div className="shrink-0" style={{ width: "50%" }} aria-hidden />
         </div>
         {total > 1 && (
           <button
