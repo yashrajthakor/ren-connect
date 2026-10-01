@@ -10,6 +10,7 @@ import {
 import NoticeTicker from "@/components/notices/NoticeTicker";
 import NoticeBoardSection from "@/components/notices/NoticeBoardSection";
 import SponsorHighlights from "@/components/dashboard/SponsorHighlights";
+import DashboardGallerySection from "@/components/dashboard/DashboardGallerySection";
 
 const quickActions = [
   {
@@ -95,6 +96,8 @@ const Dashboard = () => {
             </button>
           ))}
         </div>
+
+        <DashboardGallerySection />
       </div>
     </>
   );
