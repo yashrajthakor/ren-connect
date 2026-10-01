@@ -51,7 +51,7 @@ const Events = () => {
           <p className="text-xs font-bold uppercase tracking-[0.25em] text-primary mb-3">
             Moments Together
           </p>
-          <h1 className="font-display font-bold text-3xl sm:text-5xl mb-4">Gallary</h1>
+          <h1 className="font-display font-bold text-3xl sm:text-5xl mb-4">Gallery</h1>
           <p className="text-card/80 max-w-2xl mb-8">
             Photos and highlights from RBN tournaments, meets and celebrations.
           </p>

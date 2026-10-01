@@ -159,7 +159,7 @@ export default function AdminEventsPage() {
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-2xl sm:text-3xl font-display font-bold flex items-center gap-2">
-            <CalendarDays className="h-6 w-6 text-primary" /> Gallary
+            <CalendarDays className="h-6 w-6 text-primary" /> Gallery
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
             Manage events and their photo galleries shown on the public site.
