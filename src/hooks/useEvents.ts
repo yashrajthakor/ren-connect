@@ -9,11 +9,14 @@ export function useAllEvents(enabled = true) {
     queryFn: async () => {
       const { data, error } = await (supabase as any)
         .from("events")
-        .select("*")
+        .select("*, event_gallery_images(count)")
         .order("event_date", { ascending: false, nullsFirst: false })
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return (data || []) as EventRow[];
+      return ((data || []) as any[]).map(({ event_gallery_images, ...row }) => ({
+        ...row,
+        image_count: event_gallery_images?.[0]?.count ?? 0,
+      })) as EventRow[];
     },
   });
 }

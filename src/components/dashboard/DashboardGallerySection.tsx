@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Images, ArrowRight, Calendar } from "lucide-react";
+import { Images, ArrowRight, Calendar, ArrowUpRight } from "lucide-react";
 import EventCoverImage from "@/components/events/EventCoverImage";
 import { fetchPublishedEvents, type EventRow } from "@/lib/events";
 
@@ -65,6 +65,15 @@ export default function DashboardGallerySection() {
                     alt={e.title}
                     className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                   />
+                  <div className="absolute top-1.5 right-1.5 flex h-5 w-5 sm:h-6 sm:w-6 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur-sm">
+                    <ArrowUpRight className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                  </div>
+                  {!!e.image_count && (
+                    <div className="absolute bottom-1.5 right-1.5 inline-flex items-center gap-1 rounded-full bg-black/55 px-1.5 py-0.5 text-[10px] sm:text-xs font-medium text-white backdrop-blur-sm">
+                      <Images className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                      {e.image_count}
+                    </div>
+                  )}
                 </div>
                 <p className="mt-1.5 line-clamp-1 text-xs sm:text-sm font-medium text-foreground">{e.title}</p>
                 {e.event_date && (

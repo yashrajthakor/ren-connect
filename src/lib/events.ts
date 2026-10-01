@@ -14,7 +14,15 @@ export interface EventRow {
   created_by: string | null;
   created_at: string;
   updated_at: string;
+  image_count?: number;
 }
+
+/** Postgrest returns the embedded aggregate as event_gallery_images: [{ count }] — flatten it onto image_count. */
+const withImageCount = (rows: any[]): EventRow[] =>
+  rows.map(({ event_gallery_images, ...row }) => ({
+    ...row,
+    image_count: event_gallery_images?.[0]?.count ?? 0,
+  }));
 
 export interface EventGalleryImage {
   id: string;
@@ -38,7 +46,7 @@ export const slugify = (input: string) =>
 export async function fetchPublishedEvents(opts: { search?: string; limit?: number } = {}) {
   let q = supabase
     .from("events" as any)
-    .select("*")
+    .select("*, event_gallery_images(count)")
     .eq("status", "published")
     .order("event_date", { ascending: false, nullsFirst: false })
     .order("created_at", { ascending: false });
@@ -51,7 +59,7 @@ export async function fetchPublishedEvents(opts: { search?: string; limit?: numb
 
   const { data, error } = await q;
   if (error) throw error;
-  return (data || []) as unknown as EventRow[];
+  return withImageCount((data || []) as unknown as any[]);
 }
 
 export async function fetchEventBySlug(slug: string) {

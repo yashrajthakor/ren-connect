@@ -34,7 +34,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAllEvents, useEventMutations, type EventInput } from "@/hooks/useEvents";
 import EventCoverImage from "@/components/events/EventCoverImage";
 import { slugify, type EventRow } from "@/lib/events";
-import { CalendarDays, Plus, Pencil, Trash2, Images } from "lucide-react";
+import { CalendarDays, Plus, Pencil, Trash2, Images, ArrowUpRight } from "lucide-react";
 import { z } from "zod";
 
 const schema = z.object({
@@ -185,6 +185,15 @@ export default function AdminEventsPage() {
                   <div className="flex items-start gap-4 min-w-0 flex-1">
                     <div className="relative h-14 w-20 shrink-0 rounded-lg border border-border bg-muted/50 overflow-hidden">
                       <EventCoverImage coverImage={e.cover_image} alt={e.title} className="h-full w-full object-cover" />
+                      <div className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-black/55 text-white">
+                        <ArrowUpRight className="h-2.5 w-2.5" />
+                      </div>
+                      {!!e.image_count && (
+                        <div className="absolute bottom-1 right-1 inline-flex items-center gap-0.5 rounded-full bg-black/55 px-1 py-0.5 text-[9px] font-medium text-white">
+                          <Images className="h-2 w-2" />
+                          {e.image_count}
+                        </div>
+                      )}
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 mb-1 flex-wrap">

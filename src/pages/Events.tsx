@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { Search, Calendar, ArrowRight } from "lucide-react";
+import { Search, Calendar, ArrowRight, Images, ArrowUpRight } from "lucide-react";
 import PublicLayout from "@/components/public/PublicLayout";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -93,6 +93,15 @@ const Events = () => {
                     alt={e.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
+                  <div className="absolute top-2.5 right-2.5 flex h-7 w-7 items-center justify-center rounded-full bg-black/55 text-card backdrop-blur-sm">
+                    <ArrowUpRight className="h-3.5 w-3.5" />
+                  </div>
+                  {!!e.image_count && (
+                    <div className="absolute bottom-2.5 right-2.5 inline-flex items-center gap-1 rounded-full bg-black/55 px-2 py-1 text-xs font-medium text-card backdrop-blur-sm">
+                      <Images className="h-3 w-3" />
+                      {e.image_count}
+                    </div>
+                  )}
                 </div>
                 <div className="p-5">
                   <h3 className="font-display font-semibold text-lg text-secondary leading-snug mb-2 line-clamp-2 group-hover:text-primary transition-colors">
