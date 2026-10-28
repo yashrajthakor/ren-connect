@@ -124,11 +124,11 @@ export default function AdminLeadsPage() {
     if (!confirmDelete) return;
     try {
       await deleteLead.mutateAsync(confirmDelete.id);
-      toast({ title: "Lead deleted" });
+      toast({ title: "Referral deleted" });
       setConfirmDelete(null);
     } catch (e) {
       toast({
-        title: "Could not delete lead",
+        title: "Could not delete referral",
         description: friendlyError(e, "Something went wrong. Please try again."),
         variant: "destructive",
       });
@@ -152,7 +152,7 @@ export default function AdminLeadsPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <div className="mb-6">
-        <h1 className="text-2xl sm:text-3xl font-display font-bold">Leads & Business Tracking</h1>
+        <h1 className="text-2xl sm:text-3xl font-display font-bold">Referrals & Business Tracking</h1>
         <p className="text-muted-foreground text-sm mt-1">
           Monitor referral activity and business volume across RBN.
         </p>
@@ -160,7 +160,7 @@ export default function AdminLeadsPage() {
 
       {(fromParam || toParam) && (
         <AdminFilterBanner
-          label={`Showing leads from ${fromParam ? new Date(fromParam).toLocaleDateString() : "the beginning"} to ${
+          label={`Showing referrals from ${fromParam ? new Date(fromParam).toLocaleDateString() : "the beginning"} to ${
             toParam ? new Date(toParam).toLocaleDateString() : "now"
           }`}
         />
@@ -188,12 +188,12 @@ export default function AdminLeadsPage() {
           </Button>
         )}
         <span className="text-xs text-muted-foreground sm:ml-auto">
-          Showing {leads.length} of {dateScopedLeads.length} leads
+          Showing {leads.length} of {dateScopedLeads.length} referrals
         </span>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 mb-6">
-        <Stat icon={<Inbox className="h-4 w-4" />} label="Total Leads" value={stats.total} />
+        <Stat icon={<Inbox className="h-4 w-4" />} label="Total Referrals" value={stats.total} />
         <Stat icon={<TrendingUp className="h-4 w-4" />} label="In Process" value={stats.inProcess} />
         <Stat icon={<CheckCircle2 className="h-4 w-4" />} label="Closed" value={stats.closed} />
         <Stat icon={<XCircle className="h-4 w-4" />} label="Rejected" value={stats.rejected} />
@@ -206,7 +206,7 @@ export default function AdminLeadsPage() {
           <table className="min-w-full text-sm">
             <thead className="bg-muted/50">
               <tr className="text-left">
-                <th className="px-4 py-3 font-semibold min-w-[200px]">Lead</th>
+                <th className="px-4 py-3 font-semibold min-w-[200px]">Referral</th>
                 <th className="px-4 py-3 font-semibold hidden sm:table-cell">From</th>
                 <th className="px-4 py-3 font-semibold hidden md:table-cell">To</th>
                 <th className="px-4 py-3 font-semibold">Status</th>
@@ -224,8 +224,8 @@ export default function AdminLeadsPage() {
                 <tr>
                   <td colSpan={8} className="text-center text-muted-foreground py-8">
                     {filtersActive || fromParam || toParam
-                      ? "No leads match the selected filters."
-                      : "No leads yet."}
+                      ? "No referrals match the selected filters."
+                      : "No referrals yet."}
                   </td>
                 </tr>
               )}
@@ -256,7 +256,7 @@ export default function AdminLeadsPage() {
                       size="icon"
                       variant="ghost"
                       onClick={() => setConfirmDelete(l)}
-                      title="Delete lead"
+                      title="Delete referral"
                       className="text-destructive hover:text-destructive"
                     >
                       <Trash2 className="h-4 w-4" />
@@ -272,9 +272,9 @@ export default function AdminLeadsPage() {
       <AlertDialog open={!!confirmDelete} onOpenChange={(v) => !v && setConfirmDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete lead?</AlertDialogTitle>
+            <AlertDialogTitle>Delete referral?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete the lead
+              This will permanently delete the referral
               {confirmDelete ? ` "${confirmDelete.lead_name}"` : ""} for both the giver and receiver. This cannot be
               undone.
             </AlertDialogDescription>

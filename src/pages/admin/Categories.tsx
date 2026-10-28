@@ -137,7 +137,7 @@ const Categories = () => {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{editing ? "Edit category" : "New category"}</DialogTitle>
-            <DialogDescription>Categories appear in signup, profile, directory and leads.</DialogDescription>
+            <DialogDescription>Categories appear in signup, profile, directory and referrals.</DialogDescription>
           </DialogHeader>
           <div>
             <Label>Name</Label>

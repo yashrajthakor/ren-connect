@@ -9,8 +9,8 @@ import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
 
 const typeLabel: Record<string, string> = {
-  lead_received: "Lead",
-  lead_updated: "Lead update",
+  lead_received: "Referral",
+  lead_updated: "Referral update",
   business_closed: "Business closed",
   announcement: "Announcement",
   admin_update: "Admin",

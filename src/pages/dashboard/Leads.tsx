@@ -19,8 +19,8 @@ type LeadFilter = "all" | "given" | "received";
 
 const LEAD_FILTERS: Array<{ value: LeadFilter; label: string; icon: React.ReactNode }> = [
   { value: "all", label: "All", icon: <LayoutList className="h-3.5 w-3.5" /> },
-  { value: "given", label: "Leads Given", icon: <Send className="h-3.5 w-3.5" /> },
-  { value: "received", label: "Leads Received", icon: <Inbox className="h-3.5 w-3.5" /> },
+  { value: "given", label: "Referrals Given", icon: <Send className="h-3.5 w-3.5" /> },
+  { value: "received", label: "Referrals Received", icon: <Inbox className="h-3.5 w-3.5" /> },
 ];
 
 const STATUS_FILTERS: Array<{ value: "all" | LeadStatus; label: string }> = [
@@ -60,12 +60,12 @@ function LeadsPageInner() {
 
   const emptyMessage =
     filtered.length === 0 && statusFilter !== "all" && byLeadFilter.length > 0
-      ? "No leads match the selected filters."
+      ? "No referrals match the selected filters."
       : leadFilter === "given"
-      ? "You haven't shared any leads yet."
+      ? "You haven't shared any referrals yet."
       : leadFilter === "received"
-      ? "No leads received yet."
-      : "No leads yet. Share a lead or wait for one to arrive.";
+      ? "No referrals received yet."
+      : "No referrals yet. Share a referral or wait for one to arrive.";
 
   const totalClosed = useMemo(
     () => leads.filter((l) => l.status === "business_closed").reduce((s, l) => s + Number(l.closure_amount || 0), 0),
@@ -75,7 +75,7 @@ function LeadsPageInner() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-28">
       <div className="mb-6">
-        <h1 className="text-2xl sm:text-3xl font-display font-bold text-foreground">My Leads</h1>
+        <h1 className="text-2xl sm:text-3xl font-display font-bold text-foreground">My Referrals</h1>
         <p className="text-muted-foreground text-sm mt-1">
           Share, track, and close business with your network.
         </p>
@@ -149,7 +149,7 @@ function LeadsPageInner() {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
-            aria-label="Lead actions"
+            aria-label="Referral actions"
             className="fixed bottom-24 right-6 sm:bottom-6 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all flex items-center justify-center z-30 [&>svg]:transition-transform [&>svg]:duration-200 data-[state=open]:[&>svg]:rotate-45"
           >
             <Plus className="h-6 w-6" />
@@ -164,9 +164,9 @@ function LeadsPageInner() {
               <Send className="h-4 w-4 text-primary" />
             </div>
             <div className="min-w-0">
-              <p className="font-medium text-foreground">Create Lead</p>
+              <p className="font-medium text-foreground">Create Referral</p>
               <p className="text-xs text-muted-foreground">
-                Pass a new business lead to another member.
+                Pass a new business referral to another member.
               </p>
             </div>
           </DropdownMenuItem>
@@ -209,7 +209,7 @@ function LeadsPageInner() {
 
 export default function LeadsPage() {
   return (
-    <PendingApprovalGate featureName="My Leads">
+    <PendingApprovalGate featureName="My Referrals">
       <LeadsPageInner />
     </PendingApprovalGate>
   );
@@ -239,7 +239,7 @@ function LeadList({
   empty: string;
 }) {
   if (isLoading) {
-    return <div className="text-center text-muted-foreground py-12">Loading leads…</div>;
+    return <div className="text-center text-muted-foreground py-12">Loading referrals…</div>;
   }
   if (leads.length === 0) {
     return (

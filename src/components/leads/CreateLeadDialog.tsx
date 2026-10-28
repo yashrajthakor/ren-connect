@@ -193,7 +193,7 @@ export default function CreateLeadDialog({ open, onOpenChange, giverId, existing
     if (data.receiver_id === giverId) {
       toast({
         title: "Invalid member",
-        description: "You cannot assign a lead to yourself.",
+        description: "You cannot assign a referral to yourself.",
         variant: "destructive",
       });
       return;
@@ -211,7 +211,7 @@ export default function CreateLeadDialog({ open, onOpenChange, giverId, existing
             lead_type: data.lead_type,
           },
         });
-        toast({ title: "Lead updated" });
+        toast({ title: "Referral updated" });
       } else {
         await createLead.mutateAsync({
           giver_id: giverId,
@@ -222,7 +222,7 @@ export default function CreateLeadDialog({ open, onOpenChange, giverId, existing
           priority: data.priority,
           lead_type: data.lead_type,
         });
-        toast({ title: "Lead shared", description: "The member has been notified." });
+        toast({ title: "Referral shared", description: "The member has been notified." });
       }
       clearFormDraft(DRAFT_KEYS.createLead);
       resetForm();
@@ -230,7 +230,7 @@ export default function CreateLeadDialog({ open, onOpenChange, giverId, existing
     } catch (e) {
       // Keep the dialog open with all input intact so the user can retry.
       toast({
-        title: existing ? "Could not update lead" : "Could not create lead",
+        title: existing ? "Could not update referral" : "Could not create referral",
         description: friendlyError(e, "Something went wrong. Your details are kept — please try again."),
         variant: "destructive",
       });
@@ -249,10 +249,10 @@ export default function CreateLeadDialog({ open, onOpenChange, giverId, existing
     >
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{existing ? "Edit lead" : "Share a new lead"}</DialogTitle>
+          <DialogTitle>{existing ? "Edit referral" : "Share a new referral"}</DialogTitle>
           <DialogDescription>
             {existing
-              ? "Update the details of this lead."
+              ? "Update the details of this referral."
               : "Refer business to a fellow RBN member."}
           </DialogDescription>
         </DialogHeader>
@@ -353,7 +353,7 @@ export default function CreateLeadDialog({ open, onOpenChange, giverId, existing
           </div>
 
           <div className="space-y-2">
-            <Label>Lead Type</Label>
+            <Label>Referral Type</Label>
             <ToggleGroup
               type="single"
               value={leadType}
@@ -379,7 +379,7 @@ export default function CreateLeadDialog({ open, onOpenChange, giverId, existing
 
           {isInternal ? (
             <div className="space-y-2">
-              <Label>Lead Source (You)</Label>
+              <Label>Referral Source (You)</Label>
               <div className="rounded-lg border bg-muted/30 p-3">
                 {myProfileLoading ? (
                   <p className="text-sm text-muted-foreground">Loading your profile…</p>
@@ -399,14 +399,14 @@ export default function CreateLeadDialog({ open, onOpenChange, giverId, existing
                 </p>
               ) : (
                 <p className="text-xs text-muted-foreground">
-                  Your profile details are used automatically as the lead contact.
+                  Your profile details are used automatically as the referral contact.
                 </p>
               )}
             </div>
           ) : (
             <>
               <div className="space-y-2">
-                <Label htmlFor="lead_name">Lead name</Label>
+                <Label htmlFor="lead_name">Referral name</Label>
                 <Input id="lead_name" placeholder="e.g. Anil Mehta" {...register("lead_name")} />
                 {errors.lead_name && <p className="text-xs text-destructive">{errors.lead_name.message}</p>}
               </div>
@@ -432,11 +432,11 @@ export default function CreateLeadDialog({ open, onOpenChange, giverId, existing
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Lead description</Label>
+            <Label htmlFor="description">Referral description</Label>
             <Textarea
               id="description"
               rows={3}
-              placeholder="What is this lead about?"
+              placeholder="What is this referral about?"
               {...register("description")}
             />
             {errors.description && <p className="text-xs text-destructive">{errors.description.message}</p>}
@@ -463,7 +463,7 @@ export default function CreateLeadDialog({ open, onOpenChange, giverId, existing
                   : "Sharing…"
                 : existing
                 ? "Save Changes"
-                : "Share Lead"}
+                : "Share Referral"}
             </Button>
           </div>
         </form>

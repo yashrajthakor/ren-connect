@@ -54,7 +54,7 @@ export default function ValuableMemberActivity() {
       </div>
 
       <Card className="p-6 text-center text-sm text-muted-foreground">
-        Activity tracking will be available once the Attendance, 1:1 Feed and Leads integrations are connected
+        Activity tracking will be available once the Attendance, 1:1 Feed and Referrals integrations are connected
         for this module.
       </Card>
     </div>

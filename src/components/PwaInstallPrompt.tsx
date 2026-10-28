@@ -231,7 +231,7 @@ const NotifyModal = ({ userId, onClose }: { userId?: string; onClose: () => void
                 You're all set! 🎉
               </h2>
               <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
-                You'll now get instant alerts for leads, meetings and community updates.
+                You'll now get instant alerts for referrals, meetings and community updates.
               </p>
             </>
           ) : (
@@ -240,7 +240,7 @@ const NotifyModal = ({ userId, onClose }: { userId?: string; onClose: () => void
                 App Installed! 🎉
               </h2>
               <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
-                One last step — turn on notifications so you never miss a lead, meeting or announcement.
+                One last step — turn on notifications so you never miss a referral, meeting or announcement.
               </p>
 
               {state === "denied" ? (
@@ -270,7 +270,7 @@ const NotifyModal = ({ userId, onClose }: { userId?: string; onClose: () => void
 };
 
 const BENEFITS = [
-  { icon: Handshake, label: "Instant Lead & Networking Alerts" },
+  { icon: Handshake, label: "Instant Referral & Networking Alerts" },
   { icon: Bell, label: "Push Notifications" },
   { icon: Zap, label: "Faster Access to RBN" },
   { icon: Smartphone, label: "Better Mobile Experience" },

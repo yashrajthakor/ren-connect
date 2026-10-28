@@ -133,7 +133,7 @@ const STATUS_LABEL: Record<AppStatus, string> = {
 };
 
 const buildApprovalMessage = (name: string, email: string | null) =>
-  `Jay Mataji ${name},\n\nYour profile has been approved successfully.\n\nYou are now officially listed in the REN Business Directory.\n\n**Login Details:**\nRegistered Email ID: ${email ?? "—"}\n\n**Login Here:**\nhttps://www.rajputbusinessnetwork.com/login\n\n**Important:**\nFor the best experience, please open the website in Google Chrome (recommended) or any modern browser that supports PWA apps.\n\nAfter login:\n* Click "Add to Home Screen"\n* Allow Notifications for future business updates, leads, and community announcements\n\nThank you for joining Rajput Business Network (RBN).\nWe look forward to growing together.`;
+  `Jay Mataji ${name},\n\nYour profile has been approved successfully.\n\nYou are now officially listed in the REN Business Directory.\n\n**Login Details:**\nRegistered Email ID: ${email ?? "—"}\n\n**Login Here:**\nhttps://www.rajputbusinessnetwork.com/login\n\n**Important:**\nFor the best experience, please open the website in Google Chrome (recommended) or any modern browser that supports PWA apps.\n\nAfter login:\n* Click "Add to Home Screen"\n* Allow Notifications for future business updates, referrals, and community announcements\n\nThank you for joining Rajput Business Network (RBN).\nWe look forward to growing together.`;
 
 const buildWhatsAppUrl = (phone: string | null, message: string) => {
   if (!phone) return null;

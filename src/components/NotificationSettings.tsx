@@ -126,8 +126,8 @@ export const NotificationSettings = () => {
           <div className="p-3 bg-green-50 border border-green-200 rounded-md text-sm text-green-900">
             ✅ You will receive notifications for:
             <ul className="mt-2 space-y-1 ml-4">
-              <li>• 📌 New leads assigned to you</li>
-              <li>• 📋 Updates on your leads</li>
+              <li>• 📌 New referrals assigned to you</li>
+              <li>• 📋 Updates on your referrals</li>
               <li>• 📢 Important announcements</li>
               <li>• ⚙️ Admin updates</li>
             </ul>

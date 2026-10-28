@@ -8,6 +8,12 @@
       "port": 8081
     },
     {
+      "name": "vite-dev-8080",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "port": 8080
+    },
+    {
       "name": "vite-preview",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "preview", "--", "--port", "8082"],

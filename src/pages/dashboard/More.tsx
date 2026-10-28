@@ -73,7 +73,7 @@ const More = () => {
     if (result === "granted") {
       setNotifPermission("granted");
       sonnerToast.success("Notifications enabled", {
-        description: "You'll now get lead & community alerts on this device.",
+        description: "You'll now get referral & community alerts on this device.",
       });
     } else if (result === "denied") {
       setNotifPermission("denied");
@@ -285,7 +285,7 @@ const More = () => {
                   <p className="text-xs text-muted-foreground truncate">
                     {notifPermission === "denied"
                       ? "Blocked — tap to see how to allow"
-                      : "Lead alerts & community updates"}
+                      : "Referral alerts & community updates"}
                   </p>
                 </div>
                 <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground" />

@@ -20,7 +20,7 @@ interface Props {
 const titles: Record<Mode, string> = {
   in_process: "Mark as In Process",
   business_closed: "Mark Business Closed",
-  rejected: "Reject Lead",
+  rejected: "Reject Referral",
 };
 
 export default function UpdateStatusDialog({ open, onOpenChange, lead, mode }: Props) {
@@ -65,7 +65,7 @@ export default function UpdateStatusDialog({ open, onOpenChange, lead, mode }: P
         patch.rejection_reason = reason.trim();
       }
       await update.mutateAsync({ id: lead.id, patch });
-      toast({ title: "Lead updated" });
+      toast({ title: "Referral updated" });
       onOpenChange(false);
     } catch (e: any) {
       toast({ title: "Update failed", description: e.message, variant: "destructive" });
@@ -123,7 +123,7 @@ export default function UpdateStatusDialog({ open, onOpenChange, lead, mode }: P
               <Textarea
                 id="reason"
                 rows={3}
-                placeholder="Why is this lead being rejected?"
+                placeholder="Why is this referral being rejected?"
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 maxLength={300}
@@ -132,7 +132,7 @@ export default function UpdateStatusDialog({ open, onOpenChange, lead, mode }: P
           )}
           {mode === "in_process" && (
             <p className="text-sm text-muted-foreground">
-              Confirm you've started working on this lead.
+              Confirm you've started working on this referral.
             </p>
           )}
         </div>

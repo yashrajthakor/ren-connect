@@ -151,8 +151,8 @@ export const usePushNotifications = () => {
 
     // Map notification type to user-friendly title
     const typeLabels: Record<string, string> = {
-      lead_received: '📌 New Lead',
-      lead_updated: '📋 Lead Updated',
+      lead_received: '📌 New Referral',
+      lead_updated: '📋 Referral Updated',
       business_closed: '✅ Business Closed',
       announcement: '📢 Announcement',
       admin_update: '⚙️ Admin Update',

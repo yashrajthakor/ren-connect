@@ -20,7 +20,7 @@ const quickActions = [
     url: "/dashboard/meetings",
   },
   {
-    label: "My Leads",
+    label: "My Referrals",
     description: "Share & track referrals",
     icon: Handshake,
     url: "/dashboard/leads",

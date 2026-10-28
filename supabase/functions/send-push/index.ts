@@ -17,8 +17,8 @@ const supabase = createClient(
 );
 
 const TYPE_LABELS: Record<string, string> = {
-  lead_received: "📌 New Lead",
-  lead_updated: "📋 Lead Updated",
+  lead_received: "📌 New Referral",
+  lead_updated: "📋 Referral Updated",
   business_closed: "✅ Business Closed",
   announcement: "📢 Announcement",
   admin_update: "⚙️ Admin Update",
