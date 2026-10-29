@@ -14,7 +14,7 @@ export const translations = {
     "nav.about": "About",
     "nav.voice": "Voice of RBN",
     "nav.news": "News & Stories",
-    "nav.events": "Gallary",
+    "nav.events": "Gallery",
     "nav.login": "Member Login",
     "nav.loginShort": "Login",
     "nav.join": "Join RBN",
