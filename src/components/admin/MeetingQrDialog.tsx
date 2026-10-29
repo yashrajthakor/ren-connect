@@ -64,7 +64,7 @@ export default function MeetingQrDialog({ open, onOpenChange, meeting }: Props) 
 
   if (!meeting) return null;
 
-  const fileName = `${meeting.title.replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "") || "meeting"}-${meeting.meeting_date}-qr.png`;
+  const fileName = `${(meeting.title ?? "").replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "") || "meeting"}-${meeting.meeting_date}-qr.png`;
 
   const copyLink = async () => {
     if (!checkinUrl) return;

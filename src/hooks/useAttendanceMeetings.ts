@@ -93,7 +93,8 @@ export function useLiveMeeting(enabled = true) {
       const { data, error } = await (supabase as any).rpc("get_live_meeting");
       if (error) throw error;
       const row = Array.isArray(data) ? data[0] : data;
-      return (row || null) as AttendanceMeeting | null;
+      // A composite-returning RPC yields an all-null row, not null, when no meeting is live.
+      return (row?.id ? row : null) as AttendanceMeeting | null;
     },
     staleTime: 5_000,
   });
