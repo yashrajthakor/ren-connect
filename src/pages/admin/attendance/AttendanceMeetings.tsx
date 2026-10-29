@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { CalendarDays, Loader2, MoreVertical, Plus, Pencil, Trash2, ScanLine, Eye, UserPlus } from "lucide-react";
+import { CalendarDays, Loader2, MoreVertical, Plus, Pencil, Trash2, ScanLine, Eye, UserPlus, QrCode } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,6 +30,7 @@ import {
 import { MeetingStatusBadge } from "@/components/admin/MeetingStatusBadge";
 import { MeetingTypeBadge } from "@/components/admin/MeetingTypeBadge";
 import MeetingFormDialog from "@/components/admin/MeetingFormDialog";
+import MeetingQrDialog from "@/components/admin/MeetingQrDialog";
 import { formatDateOrNA } from "@/lib/membershipStatus";
 import { formatTimeOfDay, isBackdated } from "@/lib/attendanceFormat";
 
@@ -43,6 +44,7 @@ export default function AttendanceMeetings() {
   const [formOpen, setFormOpen] = useState(false);
   const [editingMeeting, setEditingMeeting] = useState<AttendanceMeeting | null>(null);
   const [deletingMeeting, setDeletingMeeting] = useState<AttendanceMeeting | null>(null);
+  const [qrMeeting, setQrMeeting] = useState<AttendanceMeeting | null>(null);
 
   const handleStart = async (m: AttendanceMeeting) => {
     try {
@@ -155,6 +157,11 @@ export default function AttendanceMeetings() {
                               <ScanLine className="h-4 w-4 mr-2" /> Go to Live Attendance
                             </DropdownMenuItem>
                           )}
+                          {(m.status === "live" || (m.status === "upcoming" && !isBackdated(m.meeting_date))) && (
+                            <DropdownMenuItem onClick={() => setQrMeeting(m)}>
+                              <QrCode className="h-4 w-4 mr-2" /> Meeting QR Code
+                            </DropdownMenuItem>
+                          )}
                           {m.status === "completed" && (
                             <DropdownMenuItem onClick={() => navigate(`/admin/attendance/history/${m.id}`)}>
                               <Eye className="h-4 w-4 mr-2" /> View Attendance
@@ -184,6 +191,8 @@ export default function AttendanceMeetings() {
           </div>
         )}
       </Card>
+
+      <MeetingQrDialog open={!!qrMeeting} onOpenChange={(o) => !o && setQrMeeting(null)} meeting={qrMeeting} />
 
       <MeetingFormDialog open={formOpen} onOpenChange={setFormOpen} meeting={editingMeeting} onSuccess={refetch} />
 

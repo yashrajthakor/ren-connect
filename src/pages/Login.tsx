@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -33,6 +33,13 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 
 const Login = () => {
+  const location = useLocation();
+  // ProtectedRoute passes the page the user was sent away from; only follow in-app paths.
+  const fromLocation = (location.state as { from?: { pathname?: string; search?: string } } | null)?.from;
+  const redirectTo =
+    fromLocation?.pathname?.startsWith("/") && !fromLocation.pathname.startsWith("//") && fromLocation.pathname !== "/login"
+      ? fromLocation.pathname + (fromLocation.search ?? "")
+      : "/dashboard";
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
@@ -179,7 +186,7 @@ const Login = () => {
             title: "Welcome back!",
             description: "You have successfully signed in.",
           });
-            navigate("/dashboard");
+            navigate(redirectTo);
         } else {
           // Members: gate access by membership application status
           let appStatus: string | null = null;
@@ -205,7 +212,7 @@ const Login = () => {
               title: "Welcome back!",
               description: "You have successfully signed in.",
             });
-            navigate("/dashboard");
+            navigate(redirectTo);
           } else {
             // Block access — sign out and show informative message
             await supabase.auth.signOut();

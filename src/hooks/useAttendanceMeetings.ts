@@ -13,6 +13,9 @@ export type MeetingStatus = "upcoming" | "live" | "completed";
  * re-derived from their current membership_type. */
 export type AttendanceType = "valuable_member" | "visitor";
 
+/** qr = staff scanned the member's personal QR; self_qr = member scanned the meeting QR. */
+export type AttendanceMethod = "qr" | "manual" | "self_qr";
+
 export interface AttendanceMeeting {
   id: string;
   title: string;
@@ -33,7 +36,7 @@ export interface MeetingAttendanceRow {
   business_name: string | null;
   phone: string | null;
   check_in_time: string;
-  method: "qr" | "manual";
+  method: AttendanceMethod;
   attendance_type: AttendanceType;
 }
 
@@ -96,10 +99,15 @@ export function useLiveMeeting(enabled = true) {
   });
 }
 
-export function useMeetingAttendance(meetingId: string | undefined, enabled = true) {
+export function useMeetingAttendance(
+  meetingId: string | undefined,
+  enabled = true,
+  refetchInterval: number | false = false
+) {
   return useQuery({
     queryKey: ["attendance-meeting-rows", meetingId],
     enabled: enabled && !!meetingId,
+    refetchInterval,
     queryFn: async () => {
       const { data, error } = await (supabase as any).rpc("get_meeting_attendance", { _meeting_id: meetingId });
       if (error) throw error;
@@ -344,6 +352,52 @@ export function useDeleteAttendance() {
     onSuccess: (_data, variables) => {
       qc.invalidateQueries({ queryKey: MEETINGS_KEY });
       qc.invalidateQueries({ queryKey: ["attendance-meeting-rows", variables.meetingId] });
+    },
+  });
+}
+
+export function useMeetingCheckinToken(meetingId: string | undefined, enabled = true) {
+  return useQuery({
+    queryKey: ["attendance-meeting-checkin-token", meetingId],
+    enabled: enabled && !!meetingId,
+    queryFn: async () => {
+      const { data, error } = await (supabase as any).rpc("get_meeting_checkin_token", {
+        _meeting_id: meetingId,
+      });
+      if (error) throw error;
+      return data as string;
+    },
+  });
+}
+
+export function useRegenerateCheckinToken() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (meetingId: string) => {
+      const { data, error } = await (supabase as any).rpc("regenerate_meeting_checkin_token", {
+        _meeting_id: meetingId,
+      });
+      if (error) throw error;
+      return data as string;
+    },
+    onSuccess: (token, meetingId) => {
+      qc.setQueryData(["attendance-meeting-checkin-token", meetingId], token);
+    },
+  });
+}
+
+export interface SelfCheckInResult extends MarkAttendanceResult {
+  meeting_title: string;
+  meeting_date: string;
+  meeting_venue: string | null;
+}
+
+export function useSelfCheckIn() {
+  return useMutation({
+    mutationFn: async (token: string) => {
+      const { data, error } = await (supabase as any).rpc("self_check_in", { _token: token });
+      if (error) throw error;
+      return data as SelfCheckInResult;
     },
   });
 }

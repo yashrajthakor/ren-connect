@@ -24,7 +24,7 @@ import {
   type MeetingAttendanceRow,
 } from "@/hooks/useAttendanceMeetings";
 import { formatDateOrNA } from "@/lib/membershipStatus";
-import { formatTimeOfDay, formatCheckInTime, isBackdated } from "@/lib/attendanceFormat";
+import { formatTimeOfDay, formatCheckInTime, isBackdated, formatAttendanceMethod } from "@/lib/attendanceFormat";
 import ManualCheckInDialog from "@/components/admin/ManualCheckInDialog";
 import { MeetingTypeBadge } from "@/components/admin/MeetingTypeBadge";
 
@@ -175,7 +175,7 @@ export default function AttendanceHistoryDetail() {
                     </TableCell>
                     <TableCell className="text-muted-foreground">{formatCheckInTime(r.check_in_time)}</TableCell>
                     <TableCell className="text-muted-foreground uppercase text-xs font-semibold">
-                      {r.method}
+                      {formatAttendanceMethod(r.method)}
                     </TableCell>
                     <TableCell className="text-right">
                       <Button size="icon" variant="ghost" onClick={() => setRemovingRow(r)}>

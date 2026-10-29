@@ -31,3 +31,13 @@ export function nowForDatetimeLocalInput(): string {
   const pad = (n: number) => String(n).padStart(2, "0");
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
+
+const METHOD_LABEL: Record<string, string> = {
+  qr: "QR",
+  manual: "Manual",
+  self_qr: "Self Scan",
+};
+
+export function formatAttendanceMethod(method: string | null | undefined): string {
+  return (method && METHOD_LABEL[method]) || method || "Not Available";
+}

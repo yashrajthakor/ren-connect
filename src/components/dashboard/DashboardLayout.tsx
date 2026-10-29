@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { QrCode, Shield, Handshake, Briefcase, Newspaper, Rss, LayoutDashboard, MoreVertical } from "lucide-react";
+import { QrCode, ScanLine, Shield, Handshake, Briefcase, Newspaper, Rss, LayoutDashboard, MoreVertical } from "lucide-react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { DashboardSidebar } from "./DashboardSidebar";
@@ -8,6 +8,7 @@ import NotificationBell from "@/components/notifications/NotificationBell";
 import PendingApprovalBanner from "./PendingApprovalBanner";
 import ApprovalToastListener from "./ApprovalToastListener";
 import MyQrCodeDialog from "./MyQrCodeDialog";
+import ScanMeetingQrDialog from "./ScanMeetingQrDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -21,6 +22,7 @@ const DashboardLayout = () => {
   const [userRole, setUserRole] = useState<string | null>(null);
   const [roleLoading, setRoleLoading] = useState(true);
   const [qrOpen, setQrOpen] = useState(false);
+  const [scanOpen, setScanOpen] = useState(false);
 
   // Enable push notifications for dashboard
   usePushNotifications();
@@ -98,6 +100,15 @@ const DashboardLayout = () => {
               <Button
                 variant="ghost"
                 size="icon"
+                onClick={() => setScanOpen(true)}
+                className="lg:hidden"
+                aria-label="Scan Meeting QR"
+              >
+                <ScanLine className="h-5 w-5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => setQrOpen(true)}
                 className="lg:hidden"
                 aria-label="My QR Code"
@@ -127,6 +138,15 @@ const DashboardLayout = () => {
                   </p>
                 )}
               </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setScanOpen(true)}
+                className="hidden lg:inline-flex px-2 sm:px-3"
+              >
+                <ScanLine className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Scan Meeting QR</span>
+              </Button>
               <Button
                 variant="outline"
                 size="sm"
@@ -170,6 +190,7 @@ const DashboardLayout = () => {
         </div>
       </div>
       <MyQrCodeDialog open={qrOpen} onOpenChange={setQrOpen} />
+      <ScanMeetingQrDialog open={scanOpen} onOpenChange={setScanOpen} />
     </SidebarProvider>
     </MemberStatusProvider>
   );

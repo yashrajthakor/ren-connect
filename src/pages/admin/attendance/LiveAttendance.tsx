@@ -15,6 +15,7 @@ import {
   CameraOff,
   CheckCircle2,
   AlertTriangle,
+  QrCode,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -40,12 +41,15 @@ import { useValuableMembers } from "@/hooks/useValuableMembers";
 import { formatDateOrNA } from "@/lib/membershipStatus";
 import { formatTimeOfDay, formatCheckInTime } from "@/lib/attendanceFormat";
 import ManualCheckInDialog from "@/components/admin/ManualCheckInDialog";
+import MeetingQrDialog from "@/components/admin/MeetingQrDialog";
 import { MeetingTypeBadge } from "@/components/admin/MeetingTypeBadge";
 
 const SCANNER_ELEMENT_ID = "attendance-qr-reader";
 const RESCAN_COOLDOWN_MS = 4000;
 const FEEDBACK_DISMISS_MS = 2500;
 const FLASH_DURATION_MS = 500;
+// Members self-check-in from their own phones, so poll to surface those.
+const ROWS_REFRESH_MS = 5000;
 
 type ScanFeedback = { type: "success" | "duplicate"; message: string };
 
@@ -53,12 +57,17 @@ export default function LiveAttendance() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { data: liveMeeting, isLoading: loadingMeeting } = useLiveMeeting();
-  const { data: rows = [], refetch: refetchRows } = useMeetingAttendance(liveMeeting?.id, !!liveMeeting);
+  const { data: rows = [], refetch: refetchRows } = useMeetingAttendance(
+    liveMeeting?.id,
+    !!liveMeeting,
+    ROWS_REFRESH_MS
+  );
   const { data: valuableMembers = [] } = useValuableMembers(!!liveMeeting);
   const markAttendance = useMarkAttendance();
   const closeAttendance = useCloseMeetingAttendance();
 
   const [manualOpen, setManualOpen] = useState(false);
+  const [qrOpen, setQrOpen] = useState(false);
   const [closeConfirmOpen, setCloseConfirmOpen] = useState(false);
   const [closing, setClosing] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
@@ -243,7 +252,10 @@ export default function LiveAttendance() {
             )}
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <Button variant="royal" onClick={() => setQrOpen(true)}>
+            <QrCode className="h-4 w-4 mr-1.5" /> Meeting QR
+          </Button>
           <Button variant="outline" onClick={() => setManualOpen(true)}>
             <UserPlus className="h-4 w-4 mr-1.5" /> Manual Check-in
           </Button>
@@ -307,7 +319,7 @@ export default function LiveAttendance() {
             )}
           </div>
           <p className="text-xs text-muted-foreground mt-3 text-center">
-            Point the camera at a member's QR code to check them in automatically.
+            Point the camera at a member's QR code to check them in automatically. Members can also scan the Meeting QR themselves.
           </p>
         </Card>
 
@@ -322,7 +334,14 @@ export default function LiveAttendance() {
                   key={r.attendance_id}
                   className="flex items-center justify-between gap-3 rounded-lg px-2.5 py-2 hover:bg-muted/50"
                 >
-                  <span className="text-sm font-medium truncate">{r.member_name}</span>
+                  <span className="flex min-w-0 items-center gap-1.5">
+                    <span className="text-sm font-medium truncate">{r.member_name}</span>
+                    {r.method === "self_qr" && (
+                      <span className="shrink-0 rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary">
+                        Self
+                      </span>
+                    )}
+                  </span>
                   <span className="text-xs text-muted-foreground shrink-0">
                     {formatCheckInTime(r.check_in_time)}
                   </span>
@@ -332,6 +351,8 @@ export default function LiveAttendance() {
           )}
         </Card>
       </div>
+
+      <MeetingQrDialog open={qrOpen} onOpenChange={setQrOpen} meeting={liveMeeting} />
 
       <ManualCheckInDialog
         open={manualOpen}

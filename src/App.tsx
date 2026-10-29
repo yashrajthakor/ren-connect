@@ -31,6 +31,7 @@ import ValuableMemberAttendance from "./pages/admin/ValuableMemberAttendance";
 import ValuableMemberQrCode from "./pages/admin/ValuableMemberQrCode";
 import AttendanceMeetings from "./pages/admin/attendance/AttendanceMeetings";
 import LiveAttendance from "./pages/admin/attendance/LiveAttendance";
+import MeetingCheckIn from "./pages/MeetingCheckIn";
 import AttendanceHistoryList from "./pages/admin/attendance/AttendanceHistoryList";
 import AttendanceHistoryDetail from "./pages/admin/attendance/AttendanceHistoryDetail";
 import Applications from "./pages/admin/Applications";
@@ -189,6 +190,14 @@ const App = () => {
                 <Route path="notifications" element={<NotificationsPage />} />
                 <Route path="more" element={<MorePage />} />
               </Route>
+              <Route
+                path="/attend/:token"
+                element={
+                  <ProtectedRoute>
+                    <MeetingCheckIn />
+                  </ProtectedRoute>
+                }
+              />
               {/* Legacy redirect */}
               <Route path="/member" element={<Navigate to="/dashboard" replace />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
