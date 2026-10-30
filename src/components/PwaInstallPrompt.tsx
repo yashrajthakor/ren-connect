@@ -25,12 +25,6 @@ type BeforeInstallPromptEvent = Event & {
 
 type Browser = "ios-safari" | "ios-chrome" | "android-chrome" | "samsung" | "desktop-chrome" | "desktop-safari" | "other";
 
-const STORAGE = {
-  dismissedAt: "rbn_install_dismissed_at",
-  firstLoginShownAt: "rbn_install_first_login_shown_at",
-};
-const REPROMPT_DAYS = 7;
-
 /** Event other parts of the app (e.g. Profile & More) dispatch to open the install flow. */
 export const PWA_INSTALL_EVENT = "rbn:open-install-prompt";
 export const openPwaInstall = () => window.dispatchEvent(new Event(PWA_INSTALL_EVENT));
@@ -91,25 +85,7 @@ const PwaInstallPrompt = () => {
     };
   }, []);
 
-  // First-login auto-popup (periodic re-prompt)
-  useEffect(() => {
-    if (!user || installed) return;
-    const last = Number(localStorage.getItem(STORAGE.firstLoginShownAt) || 0);
-    const dismissed = Number(localStorage.getItem(STORAGE.dismissedAt) || 0);
-    const now = Date.now();
-    const dayMs = 24 * 60 * 60 * 1000;
-    const shouldShow =
-      (!last || now - last > REPROMPT_DAYS * dayMs) &&
-      (!dismissed || now - dismissed > REPROMPT_DAYS * dayMs);
-    if (shouldShow) {
-      const t = setTimeout(() => {
-        setModalOpen(true);
-        localStorage.setItem(STORAGE.firstLoginShownAt, String(now));
-      }, 1200);
-      return () => clearTimeout(t);
-    }
-  }, [user, installed]);
-
+  // The install modal only opens on request (floating button or Profile & More), never automatically.
   const handleInstall = async () => {
     if (deferredPrompt) {
       try {
@@ -144,12 +120,7 @@ const PwaInstallPrompt = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deferredPrompt]);
 
-  const dismissModal = () => {
-    setModalOpen(false);
-    if (step === "install") {
-      localStorage.setItem(STORAGE.dismissedAt, String(Date.now()));
-    }
-  };
+  const dismissModal = () => setModalOpen(false);
 
   // Keep rendering while the post-install notification step is open.
   if (installed && !modalOpen) return null;
