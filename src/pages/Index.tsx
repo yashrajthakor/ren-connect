@@ -2,20 +2,10 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   ArrowRight,
-  Users,
-  Briefcase,
-  Handshake,
   Calendar,
   Quote,
-  Sparkles,
   ChevronRight,
-  Shield,
   Crown,
-  Network,
-  Trophy,
-  Globe2,
-  Building2,
-  ChevronLeft,
   Search,
 } from "lucide-react";
 import { Helmet } from "react-helmet-async";
@@ -27,12 +17,11 @@ import CoreTeamCarousel from "@/components/public/CoreTeamCarousel";
 import LatestStoriesSection from "@/components/public/LatestStoriesSection";
 import NoticeTicker from "@/components/notices/NoticeTicker";
 import NoticeBoardSection from "@/components/notices/NoticeBoardSection";
-import SponsorshipShowcase from "@/components/public/SponsorshipShowcase";
 import SponsorsSection from "@/components/public/SponsorsSection";
 import InstagramShowcase from "@/components/public/InstagramShowcase";
-import heroHeritage from "@/assets/hero-heritage.jpg";
-import heroBusiness from "@/assets/hero-business.jpg";
-import heroHandshake from "@/assets/hero-handshake.jpg";
+import HeroSection, { type HeroStat } from "@/components/public/landing/HeroSection";
+import RbnCodeSection from "@/components/public/landing/RbnCodeSection";
+import IndustriesMarquee from "@/components/public/landing/IndustriesMarquee";
 import { useT } from "@/i18n/LanguageProvider";
 import type { TranslationKey } from "@/i18n/translations";
 import { supabase } from "@/integrations/supabase/client";
@@ -60,44 +49,12 @@ type CommitteeMemberRow = {
   } | null;
 };
 
-type SlideDef = {
-  image: string;
-  eyebrowKey: TranslationKey;
-  titleKey: TranslationKey;
-  accentKey: TranslationKey;
-  descKey: TranslationKey;
+/** ₹ amounts in the Indian short form used across RBN: 2.5Cr, 40L, 75,000. */
+const formatVolume = (amount: number): string => {
+  if (amount >= 1e7) return `₹${+(amount / 1e7).toFixed(1)}Cr+`;
+  if (amount >= 1e5) return `₹${+(amount / 1e5).toFixed(1)}L+`;
+  return `₹${amount.toLocaleString("en-IN")}+`;
 };
-
-const heroSlides: SlideDef[] = [
-  {
-    image: heroHeritage,
-    eyebrowKey: "hero.s1.eyebrow",
-    titleKey: "hero.s1.title",
-    accentKey: "hero.s1.accent",
-    descKey: "hero.s1.desc",
-  },
-  {
-    image: heroBusiness,
-    eyebrowKey: "hero.s2.eyebrow",
-    titleKey: "hero.s2.title",
-    accentKey: "hero.s2.accent",
-    descKey: "hero.s2.desc",
-  },
-  {
-    image: heroHandshake,
-    eyebrowKey: "hero.s3.eyebrow",
-    titleKey: "hero.s3.title",
-    accentKey: "hero.s3.accent",
-    descKey: "hero.s3.desc",
-  },
-];
-
-const pillarDefs: { icon: any; titleKey: TranslationKey; descKey: TranslationKey }[] = [
-  { icon: Crown, titleKey: "pillars.p1.title", descKey: "pillars.p1.desc" },
-  { icon: Shield, titleKey: "pillars.p2.title", descKey: "pillars.p2.desc" },
-  { icon: Network, titleKey: "pillars.p3.title", descKey: "pillars.p3.desc" },
-  { icon: Trophy, titleKey: "pillars.p4.title", descKey: "pillars.p4.desc" },
-];
 
 const events = [
   { date: "May 18, 2026", title: "RBN Mumbai Chapter — Monthly Meet", city: "Mumbai" },
@@ -126,21 +83,6 @@ const testimonials = [
   },
 ];
 
-const industries = [
-  "Manufacturing",
-  "Real Estate",
-  "Finance",
-  "Technology",
-  "Retail",
-  "Trading",
-  "Services",
-  "Startups",
-  "Travel",
-  "Export / Import",
-  "Hospitality",
-  "Agriculture",
-];
-
 
 const Index = () => {
   const t = useT();
@@ -149,13 +91,12 @@ const Index = () => {
   const [searchCategory, setSearchCategory] = useState<string>("");
   const [allCategories, setAllCategories] = useState<string[]>([]);
   const [committeeMembers, setCommitteeMembers] = useState<Member[]>([]);
-  const [stats, setStats] = useState<{ labelKey: TranslationKey; value: string; icon: typeof Users }[]>([
-    { labelKey: "stats.members", value: "0+", icon: Users },
-    { labelKey: "stats.businesses", value: "0+", icon: Briefcase },
-    { labelKey: "stats.referrals", value: "0+", icon: Handshake },
-    { labelKey: "stats.volume", value: "0L+", icon: Building2 },
+  const [stats, setStats] = useState<HeroStat[]>([
+    { labelKey: "stats.members", value: "0+" },
+    { labelKey: "stats.businesses", value: "0+" },
+    { labelKey: "stats.referrals", value: "0+" },
+    { labelKey: "stats.volume", value: "₹0+" },
   ]);
-  const [slide, setSlide] = useState(0);
 
   useEffect(() => {
     const fetchCommitteeMembers = async () => {
@@ -245,21 +186,16 @@ const Index = () => {
         const { data: volumeData } = await supabase.from('business_closures').select('amount');
         const volume = volumeData?.reduce((sum, bc) => sum + (bc.amount || 0), 0) || 0;
         setStats([
-          { labelKey: "stats.members", value: `${membersCount || 0}+`, icon: Users },
-          { labelKey: "stats.businesses", value: `${businessesCount || 0}+`, icon: Briefcase },
-          { labelKey: "stats.referrals", value: `${leadsCount || 0}+`, icon: Handshake },
-          { labelKey: "stats.volume", value: `${(volume)}+`, icon: Building2 },
+          { labelKey: "stats.members", value: `${membersCount || 0}+` },
+          { labelKey: "stats.businesses", value: `${businessesCount || 0}+` },
+          { labelKey: "stats.referrals", value: `${leadsCount || 0}+` },
+          { labelKey: "stats.volume", value: formatVolume(volume) },
         ]);
       } catch (error) {
         console.error('Error fetching stats:', error);
       }
     };
     fetchStats();
-  }, []);
-
-  useEffect(() => {
-    const t = setInterval(() => setSlide((s) => (s + 1) % heroSlides.length), 6000);
-    return () => clearInterval(t);
   }, []);
 
   useEffect(() => {
@@ -302,156 +238,11 @@ const Index = () => {
         })}</script>
       </Helmet>
     <PublicLayout>
-      <NoticeTicker />
-      {/* HERO CAROUSEL */}
-      <section className="relative h-[92vh] min-h-[520px] sm:min-h-[640px] w-full overflow-hidden bg-secondary text-card">
-        {heroSlides.map((s, i) => (
-          <div
-            key={i}
-            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-              i === slide ? "opacity-100 z-10" : "opacity-0 z-0"
-            }`}
-          >
-            <img
-              src={s.image}
-              alt={t(s.titleKey)}
-              className="absolute inset-0 w-full h-full object-cover animate-ken-burns"
-              fetchPriority={i === slide ? "high" : "auto"}
-              loading={i === 0 ? "eager" : "lazy"}
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-secondary/95 via-secondary/70 to-secondary/30" />
-            <div className="absolute inset-0 bg-gradient-to-t from-secondary/90 via-transparent to-transparent" />
-          </div>
-        ))}
-
-        {/* Decorative orbs */}
-        <div className="absolute -top-40 -right-32 w-[28rem] h-[28rem] bg-primary/25 rounded-full blur-3xl pointer-events-none animate-float z-10" />
-        <div className="absolute -bottom-40 -left-32 w-[28rem] h-[28rem] bg-primary/15 rounded-full blur-3xl pointer-events-none z-10" />
-
-        {/* Content */}
-        <div className="relative z-20 h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center">
-          <div className="grid w-full grid-cols-1 lg:grid-cols-[1fr_auto] gap-10 lg:gap-12 items-center">
-            <div className="max-w-3xl" key={slide}>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 text-primary text-xs font-bold uppercase tracking-[0.2em] mb-6 animate-fade-down border border-primary/30 backdrop-blur-sm">
-              <Sparkles className="h-3.5 w-3.5" />
-              {t(heroSlides[slide].eyebrowKey)}
-            </div>
-            <h1 className="font-display font-bold text-4xl sm:text-5xl lg:text-7xl leading-[1.05] tracking-tight animate-fade-up">
-              {t(heroSlides[slide].titleKey)}{" "}
-              <span className="text-shimmer-royal block mt-2">
-                {t(heroSlides[slide].accentKey)}
-              </span>
-            </h1>
-            <p
-              className="mt-6 text-lg sm:text-xl text-card/80 max-w-2xl leading-relaxed animate-fade-up"
-              style={{ animationDelay: "150ms", opacity: 0 }}
-            >
-              {t(heroSlides[slide].descKey)}
-            </p>
-            <div
-              className="mt-10 flex flex-wrap gap-3 animate-fade-up"
-              style={{ animationDelay: "300ms", opacity: 0 }}
-            >
-              <Button asChild variant="royal" size="lg">
-                <Link to="/signup">
-                  {t("hero.cta.join")} <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
-              <Button
-                asChild
-                variant="outline"
-                size="lg"
-                className="bg-card/10 border-card/30 text-card hover:bg-card hover:text-secondary backdrop-blur-sm"
-              >
-                <Link to="/directory">{t("hero.cta.explore")}</Link>
-              </Button>
-            </div>
-            </div>
-            <SponsorshipShowcase />
-          </div>
-        </div>
-
-        {/* Slide controls */}
-        <div className="absolute bottom-8 left-0 right-0 z-20 flex items-center justify-center gap-3">
-          <button
-            onClick={() => setSlide((s) => (s - 1 + heroSlides.length) % heroSlides.length)}
-            className="h-10 w-10 rounded-full bg-card/10 border border-card/30 backdrop-blur-sm flex items-center justify-center text-card hover:bg-primary hover:border-primary transition-all"
-            aria-label="Previous slide"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </button>
-          {heroSlides.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setSlide(i)}
-              className={`h-2 rounded-full transition-all ${
-                i === slide ? "w-10 bg-primary" : "w-2 bg-card/40 hover:bg-card/70"
-              }`}
-              aria-label={`Slide ${i + 1}`}
-            />
-          ))}
-          <button
-            onClick={() => setSlide((s) => (s + 1) % heroSlides.length)}
-            className="h-10 w-10 rounded-full bg-card/10 border border-card/30 backdrop-blur-sm flex items-center justify-center text-card hover:bg-primary hover:border-primary transition-all"
-            aria-label="Next slide"
-          >
-            <ChevronRight className="h-5 w-5" />
-          </button>
-        </div>
-      </section>
-
-      {/* MARQUEE — sponsors */}
-      {/* <section className="bg-secondary text-card/70 border-y border-card/10 overflow-hidden py-5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-4">
-          <h2 className="text-lg font-semibold uppercase tracking-[0.25em] text-primary">
-            Our key sponsors
-          </h2>
-        </div>
-        <div className="flex gap-16 whitespace-nowrap animate-marquee px-4 sm:px-6 lg:px-8">
-          {[...sponsors, ...sponsors].map((sponsor, i) => (
-            <div
-              key={i}
-              className="flex items-center gap-4 text-sm font-semibold tracking-wider uppercase"
-            >
-              <span className="text-primary">{sponsor.category}</span>
-              <img
-                src={sponsor.logo}
-                alt={sponsor.name}
-                className="h-8 w-auto object-contain rounded-sm"
-              />
-              <span>{sponsor.name}</span>
-              <span className="text-primary text-lg">◆</span>
-            </div>
-          ))}
-        </div>
-      </section> */}
-
-      {/* MARQUEE — chapters */}
-      {/* <section className="bg-secondary text-card/70 border-y border-card/10 overflow-hidden py-5">
-        <div className="flex gap-12 whitespace-nowrap animate-marquee">
-        </div>
-      </section> */}
-
-      {/* STATS */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 relative z-10">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-card rounded-2xl shadow-2xl border border-border p-6 animate-fade-up">
-          {stats.map((s, i) => (
-            <div
-              key={s.labelKey}
-              className="flex items-center gap-4 group animate-scale-in"
-              style={{ animationDelay: `${i * 100}ms`, opacity: 0 }}
-            >
-              <div className="p-3 bg-primary/10 rounded-xl group-hover:bg-primary group-hover:scale-110 transition-all duration-300">
-                <s.icon className="h-6 w-6 text-primary group-hover:text-primary-foreground transition-colors" />
-              </div>
-              <div>
-                <div className="font-display font-bold text-3xl text-secondary">{s.value}</div>
-                <div className="text-xs uppercase tracking-wider text-muted-foreground">{t(s.labelKey)}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+      {/* Ticker + hero fill exactly one screen below the navbar (h-16 mobile, h-20 desktop) */}
+      <div className="flex flex-col min-h-[calc(100svh-4rem)] lg:h-[calc(100svh-5rem)] lg:min-h-[34rem]">
+        <NoticeTicker />
+        <HeroSection stats={stats} className="flex-1" />
+      </div>
 
       {/* NOTICE BOARD */}
       <NoticeBoardSection
@@ -462,35 +253,8 @@ const Index = () => {
 
       {/* OUR PROUD SPONSORS */}
       <SponsorsSection />
- {/* PILLARS */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-        <div className="text-center max-w-2xl mx-auto mb-14">
-          <p className="text-xs font-bold uppercase tracking-[0.25em] text-primary mb-3">
-            {t("pillars.eyebrow")}
-          </p>
-          <h2 className="font-display font-bold text-3xl sm:text-5xl text-secondary leading-tight">
-            {t("pillars.heading")}
-          </h2>
-        </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {pillarDefs.map((p, i) => (
-            <div
-              key={p.titleKey}
-              className="group relative bg-card border border-border rounded-2xl p-7 hover:-translate-y-2 hover:shadow-2xl hover:border-primary/40 transition-all duration-500 overflow-hidden"
-              style={{ animationDelay: `${i * 120}ms` }}
-            >
-              <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/5 rounded-full group-hover:bg-primary/15 transition-all duration-500" />
-              <div className="relative">
-                <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-primary to-[hsl(var(--royal-gold))] flex items-center justify-center mb-5 group-hover:rotate-6 transition-transform duration-500 shadow-lg">
-                  <p.icon className="h-7 w-7 text-primary-foreground" />
-                </div>
-                <h3 className="font-display font-bold text-xl text-secondary mb-2">{t(p.titleKey)}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{t(p.descKey)}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+      {/* THE RBN CODE */}
+      <RbnCodeSection />
 
       {/* SEARCH DIRECTORY */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
@@ -502,7 +266,7 @@ const Index = () => {
                 <p className="text-xs font-bold uppercase tracking-[0.25em] text-primary mb-2">
                   Find a Member
                 </p>
-                <h2 className="font-display font-bold text-2xl sm:text-3xl text-secondary leading-tight">
+                <h2 className="font-wordmark font-semibold text-3xl sm:text-4xl text-secondary leading-tight">
                   Search the RBN Directory
                 </h2>
               </div>
@@ -564,7 +328,7 @@ const Index = () => {
             <p className="text-xs font-bold uppercase tracking-[0.25em] text-primary mb-2">
               {t("featured.eyebrow")}
             </p>
-            <h2 className="font-display font-bold text-3xl sm:text-5xl text-secondary leading-tight">
+            <h2 className="font-wordmark font-semibold text-4xl sm:text-6xl text-secondary leading-[1.02]">
               {t("featured.heading")}
             </h2>
           </div>
@@ -582,34 +346,10 @@ const Index = () => {
 
     
      
-      {/* INDUSTRIES STRIP */}
-      <section className="bg-gradient-royal text-card py-20 overflow-hidden relative">
-        <div className="absolute inset-0 opacity-10 pointer-events-none">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-primary rounded-full animate-spin-slow" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] border border-primary rounded-full animate-spin-slow" style={{ animationDirection: "reverse" }} />
-        </div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-xs font-bold uppercase tracking-[0.25em] text-primary mb-3">
-            {t("industries.eyebrow")}
-          </p>
-          <h2 className="font-display font-bold text-3xl sm:text-4xl mb-10">
-            {t("industries.heading")}
-          </h2>
-          <div className="flex flex-wrap justify-center gap-3">
-            {industries.map((ind, i) => (
-              <span
-                key={ind}
-                className="px-5 py-2.5 rounded-full bg-card/10 border border-card/20 text-sm font-semibold backdrop-blur-sm hover:bg-primary hover:border-primary hover:scale-105 transition-all duration-300 cursor-default animate-fade-up"
-                style={{ animationDelay: `${i * 50}ms`, opacity: 0 }}
-              >
-                {ind}
-              </span>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* INDUSTRIES */}
+      <IndustriesMarquee />
 
-        {/* INSTAGRAM SHOWCASE */}
+      {/* INSTAGRAM SHOWCASE */}
       <InstagramShowcase />
 
       {/* EVENTS */}
@@ -693,7 +433,7 @@ const Index = () => {
       <LatestStoriesSection />
 
       {/* CTA */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="relative overflow-hidden rounded-3xl bg-gradient-royal text-card p-10 sm:p-16">
           <div className="absolute -top-20 -right-20 w-80 h-80 bg-primary/30 rounded-full blur-3xl animate-float" />
           <div className="absolute -bottom-20 -left-20 w-72 h-72 bg-primary/20 rounded-full blur-3xl" />
@@ -710,7 +450,7 @@ const Index = () => {
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/20 text-primary text-xs font-bold uppercase tracking-wider mb-5 border border-primary/30">
                 <Crown className="h-3.5 w-3.5" /> {t("cta.badge")}
               </div>
-              <h3 className="font-display font-bold text-3xl sm:text-5xl mb-4 leading-tight">
+              <h3 className="font-wordmark font-semibold text-4xl sm:text-6xl mb-4 leading-[1.02]">
                 {t("cta.heading")}
               </h3>
               <p className="text-card/75 max-w-lg text-lg">

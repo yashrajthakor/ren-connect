@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X, LogIn, UserPlus, LayoutDashboard, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -26,6 +26,54 @@ const Navbar = () => {
     // { to: "/voice", label: t("nav.voice") },
   ];
 
+  // Frosted header once the page scrolls, plus a gold reading-progress line.
+  const [scrolled, setScrolled] = useState(false);
+  const progressRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const y = window.scrollY;
+      setScrolled(y > 8);
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      if (progressRef.current) progressRef.current.style.transform = `scaleX(${max > 0 ? Math.min(y / max, 1) : 0})`;
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [location.pathname]);
+
+  // Gliding pill: sits on the current page, follows the hovered link.
+  const navRef = useRef<HTMLElement>(null);
+  const [hovered, setHovered] = useState<string | null>(null);
+  const [pill, setPill] = useState<{ left: number; width: number } | null>(null);
+  const [layoutTick, setLayoutTick] = useState(0);
+  const activeTo = navItems.find((i) =>
+    i.to === "/" ? location.pathname === "/" : location.pathname.startsWith(i.to)
+  )?.to;
+  const pillTarget = hovered ?? activeTo;
+  const labelsKey = navItems.map((i) => i.label).join("|");
+
+  useLayoutEffect(() => {
+    const el = pillTarget ? navRef.current?.querySelector<HTMLElement>(`[data-nav="${pillTarget}"]`) : null;
+    if (el) setPill({ left: el.offsetLeft, width: el.offsetWidth });
+  }, [pillTarget, labelsKey, layoutTick]);
+
+  useEffect(() => {
+    const remeasure = () => setLayoutTick((n) => n + 1);
+    window.addEventListener("resize", remeasure);
+    document.fonts?.ready.then(remeasure);
+    return () => window.removeEventListener("resize", remeasure);
+  }, []);
+
   const onSearch = (e: React.FormEvent) => {
     e.preventDefault();
     const term = q.trim();
@@ -34,35 +82,68 @@ const Navbar = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-card/85 backdrop-blur-md shadow-sm">
+    <header
+      className={cn(
+        "sticky top-0 z-50 w-full border-b backdrop-blur-xl transition-[background-color,box-shadow,border-color] duration-500",
+        scrolled
+          ? "bg-card/80 border-border/60 shadow-[0_10px_30px_-15px_rgba(15,23,42,0.35)]"
+          : "bg-card/95 border-transparent"
+      )}
+    >
+      <div
+        ref={progressRef}
+        aria-hidden="true"
+        className="absolute bottom-0 left-0 h-[2px] w-full origin-left bg-gradient-to-r from-primary via-[hsl(var(--royal-gold))] to-primary"
+        style={{ transform: "scaleX(0)" }}
+      />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
           <Link to="/" className="flex items-center gap-3 group" onClick={() => setOpen(false)}>
-            <img src={renLogo} alt="RBN — Rajput Business Network" className="h-10 lg:h-12 w-auto" />
+            <img
+              src={renLogo}
+              alt="RBN — Rajput Business Network"
+              className="h-10 lg:h-12 w-auto transition-transform duration-500 ease-out group-hover:-rotate-6 group-hover:scale-105"
+            />
             <div className="hidden sm:block leading-tight">
-              <div className="font-display font-bold text-lg text-secondary tracking-tight">{t("common.brand")}</div>
+              <div className="font-wordmark font-bold text-2xl leading-none text-gradient-royal tracking-tight">{t("common.brand")}</div>
               <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
                 {t("common.brandFull")}
               </div>
             </div>
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-1">
+          <nav
+            ref={navRef}
+            onMouseLeave={() => setHovered(null)}
+            className="relative hidden lg:flex items-center gap-0.5 rounded-full border border-border/70 bg-muted/60 p-1"
+          >
+            <span
+              aria-hidden="true"
+              className={cn(
+                "absolute top-1 bottom-1 rounded-full bg-gradient-to-r from-primary to-[hsl(var(--royal-gold))] shadow-[0_6px_16px_-6px_hsl(var(--primary)/0.7)] transition-[left,width,opacity] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
+                pill && pillTarget ? "opacity-100" : "opacity-0"
+              )}
+              style={pill ? { left: pill.left, width: pill.width } : undefined}
+            />
             {navItems.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
                 end={item.to === "/"}
-                className={({ isActive }) =>
-                  cn(
-                    "px-4 py-2 text-sm font-medium rounded-md transition-colors",
-                    isActive
-                      ? "text-primary bg-primary/10"
-                      : "text-secondary/80 hover:text-primary hover:bg-accent",
-                  )
-                }
+                data-nav={item.to}
+                onMouseEnter={() => setHovered(item.to)}
+                onFocus={() => setHovered(item.to)}
+                onBlur={() => setHovered(null)}
+                className={cn(
+                  "relative z-10 px-4 py-1.5 text-sm font-medium rounded-full transition-colors duration-300",
+                  pillTarget === item.to ? "text-primary-foreground" : "text-secondary/80 hover:text-secondary"
+                )}
               >
                 {item.label}
+                {/* Marks the current page while the pill is away on a hovered link */}
+                {activeTo === item.to && pillTarget !== item.to && (
+                  <span className="absolute left-1/2 bottom-0 h-1 w-1 -translate-x-1/2 rounded-full bg-primary" />
+                )}
               </NavLink>
             ))}
           </nav>
@@ -98,7 +179,7 @@ const Navbar = () => {
                     {t("nav.login")}
                   </Link>
                 </Button>
-                <Button asChild variant="royal" size="sm">
+                <Button asChild variant="royal" size="sm" className="btn-shine rounded-full px-4">
                   <Link to="/signup">
                     <UserPlus className="h-4 w-4" />
                     {t("nav.join")}
@@ -134,17 +215,18 @@ const Navbar = () => {
                   aria-label="Search directory"
                 />
               </form>
-              {navItems.map((item) => (
+              {navItems.map((item, i) => (
                 <NavLink
                   key={item.to}
                   to={item.to}
                   end={item.to === "/"}
                   onClick={() => setOpen(false)}
+                  style={{ animationDelay: `${i * 60}ms` }}
                   className={({ isActive }) =>
                     cn(
-                      "px-4 py-2.5 text-sm font-medium rounded-md transition-colors",
+                      "px-4 py-2.5 text-sm font-medium rounded-md transition-colors animate-soft-reveal motion-reduce:animate-none",
                       isActive
-                        ? "text-primary bg-primary/10"
+                        ? "text-primary-foreground bg-gradient-to-r from-primary to-[hsl(var(--royal-gold))]"
                         : "text-secondary/80 hover:text-primary hover:bg-accent",
                     )
                   }

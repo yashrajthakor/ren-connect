@@ -66,6 +66,7 @@ export default {
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
         display: ['Playfair Display', 'Georgia', 'serif'],
+        wordmark: ['Cormorant Garamond', 'Playfair Display', 'Georgia', 'serif'],
       },
       keyframes: {
         "accordion-down": {
@@ -145,6 +146,18 @@ export default {
           from: { transform: "rotate(0deg)" },
           to: { transform: "rotate(360deg)" },
         },
+        "soft-reveal": {
+          from: { opacity: "0", transform: "translateY(14px)", filter: "blur(8px)" },
+          to: { opacity: "1", transform: "translateY(0)", filter: "blur(0)" },
+        },
+        "wordmark-rise": {
+          from: { opacity: "0", transform: "translateY(18%)", letterSpacing: "0.12em" },
+          to: { opacity: "1", transform: "translateY(0)", letterSpacing: "-0.02em" },
+        },
+        "marquee-reverse": {
+          from: { transform: "translateX(-50%)" },
+          to: { transform: "translateX(0)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -166,6 +179,9 @@ export default {
         "typing-pulse": "typing-pulse 1.2s ease-in-out infinite",
         "ken-burns": "ken-burns 12s ease-in-out infinite alternate",
         "spin-slow": "spin-slow 30s linear infinite",
+        "soft-reveal": "soft-reveal 1.1s cubic-bezier(0.22, 1, 0.36, 1) both",
+        "wordmark-rise": "wordmark-rise 1.6s cubic-bezier(0.2, 0.7, 0.2, 1) both",
+        "marquee-reverse": "marquee-reverse 40s linear infinite",
       },
     },
   },

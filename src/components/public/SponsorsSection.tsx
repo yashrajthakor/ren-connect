@@ -1,6 +1,7 @@
-import { Link } from "react-router-dom";
-import { ChevronRight, Award } from "lucide-react";
+import { Award } from "lucide-react";
 import { useActiveSponsors, type Sponsor } from "@/hooks/useSponsors";
+import SponsorshipShowcase from "@/components/public/SponsorshipShowcase";
+import Reveal from "@/components/public/landing/Reveal";
 
 function badgeClassesFor(type: string): string {
   const t = type.toLowerCase();
@@ -14,23 +15,36 @@ function badgeClassesFor(type: string): string {
   return "bg-secondary/10 text-secondary border-secondary/20";
 }
 
-function SponsorCard({ s }: { s: Sponsor }) {
+function SponsorTile({ s, tier, badge }: { s: Sponsor; tier: string; badge: string }) {
   const inner = (
-    <div className="group flex flex-col items-center justify-center gap-2 rounded-xl border border-border bg-card p-4 w-[150px] sm:w-[170px] shrink-0 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-primary hover:shadow-primary/10">
-      <div className="h-16 w-16 rounded-lg bg-white flex items-center justify-center overflow-hidden ring-1 ring-border">
+    <div className="group relative flex h-full flex-col items-center gap-3 overflow-hidden rounded-2xl border border-border bg-card p-4 text-center transition-all duration-300 hover:-translate-y-1 hover:border-primary/60 hover:shadow-[0_18px_40px_-20px_hsl(var(--primary)/0.45)]">
+      <span className="absolute inset-x-0 top-0 h-0.5 origin-left scale-x-0 bg-gradient-to-r from-primary to-[hsl(var(--royal-gold))] transition-transform duration-500 group-hover:scale-x-100" />
+      <div className="flex h-16 w-full shrink-0 items-center justify-center">
         {s.logo ? (
-          <img src={s.logo} alt={s.firmName} className="max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-105" loading="lazy" />
+          <img
+            src={s.logo}
+            alt={s.firmName}
+            className="max-h-16 max-w-[80%] object-contain transition-transform duration-300 group-hover:scale-105"
+            loading="lazy"
+          />
         ) : (
           <Award className="h-8 w-8 text-primary/60" />
         )}
       </div>
-      <p className="text-xs sm:text-sm font-semibold text-secondary text-center line-clamp-2 leading-snug">
-        {s.firmName}
-      </p>
+      <p className="text-xs sm:text-sm font-semibold text-secondary line-clamp-2 leading-snug">{s.firmName}</p>
+      <span className={`mt-auto inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider ${badge}`}>
+        <Award className="h-2.5 w-2.5 shrink-0" />
+        <span className="line-clamp-1">{tier}</span>
+      </span>
     </div>
   );
   return s.website ? (
-    <a href={s.website} target="_blank" rel="noopener noreferrer" className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-xl">
+    <a
+      href={s.website}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="block h-full rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+    >
       {inner}
     </a>
   ) : (
@@ -56,57 +70,53 @@ export default function SponsorsSection() {
     return Array.from(map.values());
   })();
 
+  const hasSpotlight = sponsors.some((s) => s.logo && s.firmName);
+
   if (!isLoading && groups.length === 0) return null;
 
   return (
-    <section id="our-sponsors" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
-      <div className="bg-white rounded-[20px] shadow-[0_10px_40px_-15px_rgba(15,23,42,0.15)] border border-border p-6 sm:p-10">
-        {/* Heading */}
-        <div className="flex items-center justify-center gap-4 mb-8">
-          <span className="h-px flex-1 max-w-[120px] bg-gradient-to-r from-transparent to-primary/40" />
-          <h2 className="text-xs sm:text-sm font-bold uppercase tracking-[0.3em] text-secondary whitespace-nowrap">
+    <section id="our-sponsors" className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      <Reveal className="grid lg:grid-cols-2 gap-6 items-end mb-12">
+        <div>
+          <p className="flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.3em] text-primary">
+            <span className="h-px w-10 bg-primary" />
             Our Proud Sponsors
+          </p>
+          <h2 className="mt-4 font-wordmark font-semibold text-4xl sm:text-6xl text-secondary leading-[0.98]">
+            The patrons behind <span className="italic text-gradient-royal pr-1">our brotherhood</span>
           </h2>
-          <span className="h-px flex-1 max-w-[120px] bg-gradient-to-l from-transparent to-primary/40" />
         </div>
+        <p className="text-muted-foreground leading-relaxed lg:max-w-md lg:justify-self-end">
+          Businesses from our own community who stand behind every meet, event and initiative of RBN.
+        </p>
+      </Reveal>
 
-        {isLoading ? (
-          <div className="flex gap-4 justify-center">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-32 w-40 rounded-xl bg-muted animate-pulse" />
-            ))}
-          </div>
-        ) : (
-          <div className="overflow-x-auto whitespace-nowrap scroll-smooth pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            <div className="flex items-start gap-8 flex-nowrap min-w-max">
-              {groups.map((g) => (
-                <div key={g.key} className="flex flex-col items-start gap-3 shrink-0">
-                  <span className={`inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border ${g.badge}`}>
-                    <Award className="h-3 w-3" />
-                    {g.label}
-                  </span>
-                  <div className="flex gap-4 flex-nowrap">
-                    {g.items.map((s) => (
-                      <SponsorCard key={s.id} s={s} />
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+      {isLoading ? (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="h-32 rounded-2xl bg-muted animate-pulse" />
+          ))}
+        </div>
+      ) : (
+        <div className="grid lg:grid-cols-[auto_minmax(0,1fr)] gap-8 items-start">
+          {hasSpotlight && (
+            <Reveal className="rounded-[1.75rem] bg-royal-night p-2 sm:p-3 shadow-2xl lg:sticky lg:top-28">
+              <SponsorshipShowcase />
+            </Reveal>
+          )}
 
-        {/* View All */}
-        {/* <div className="flex justify-end mt-6">
-          <Link
-            to="/#our-sponsors"
-            className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline group"
-          >
-            View All Sponsors
-            <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-          </Link>
-        </div> */}
-      </div>
+          {/* One grid ordered by tier; each tile carries its own tier tag */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 auto-rows-fr">
+            {groups.flatMap((g) =>
+              g.items.map((s, i) => (
+                <Reveal key={s.id} delay={Math.min(i, 6) * 60} className="h-full">
+                  <SponsorTile s={s} tier={g.label} badge={g.badge} />
+                </Reveal>
+              ))
+            )}
+          </div>
+        </div>
+      )}
     </section>
   );
 }

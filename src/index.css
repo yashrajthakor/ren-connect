@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap');
+/* Fonts are loaded from index.html (preconnect + stylesheet) so they start downloading before the CSS bundle. */
 
 @tailwind base;
 @tailwind components;
@@ -161,6 +161,43 @@
     background-clip: text;
     color: transparent;
     animation: shimmer 6s linear infinite;
+  }
+
+  /* Giant faded brand wordmark (hero / footer): warm gold at the top melting into the background */
+  .text-wordmark-fade {
+    background: linear-gradient(
+      180deg,
+      hsl(var(--royal-gold) / 0.55) 0%,
+      hsl(var(--primary) / 0.32) 45%,
+      hsl(var(--primary) / 0) 92%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Hollow letters with a thin warm stroke */
+  .text-outline-royal {
+    color: transparent;
+    -webkit-text-stroke: 1px hsl(var(--royal-gold) / 0.55);
+  }
+
+  /* Jharokha-style arch top */
+  .shape-arch {
+    border-radius: 999px 999px 1.25rem 1.25rem;
+  }
+
+  /* Deep royal night surface used by the landing hero, code section and footer */
+  .bg-royal-night {
+    background-color: hsl(213 30% 11%);
+    background-image:
+      radial-gradient(ellipse 60% 50% at 85% 10%, hsl(var(--primary) / 0.18), transparent 70%),
+      radial-gradient(ellipse 50% 40% at 0% 100%, hsl(var(--royal-gold) / 0.10), transparent 70%);
+  }
+
+  .bg-dot-grid {
+    background-image: radial-gradient(circle at 1px 1px, hsl(0 0% 100% / 0.06) 1px, transparent 0);
+    background-size: 26px 26px;
   }
 
   /* Glowing ring — perfect behind avatars, badges, or icons */
